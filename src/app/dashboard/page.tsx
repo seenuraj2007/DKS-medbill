@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Package, TrendingDown, AlertTriangle, Bell, LogOut, Plus, Search, Filter, MoreVertical, ArrowUpRight, ArrowDownRight, MapPin, Truck, FileText, ArrowUpDown, Menu, X } from 'lucide-react'
+import { Package, TrendingDown, AlertTriangle, Bell, LogOut, Plus, Search, Filter, MoreVertical, ArrowUpRight, ArrowDownRight, MapPin, Truck, FileText, ArrowUpDown, Menu, X, Users } from 'lucide-react'
 import Link from 'next/link'
 
 interface DashboardStats {
@@ -123,57 +123,64 @@ export default function DashboardPage() {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto py-4">
-              <nav className="px-4 space-y-1">
-                <Link
-                  href="/dashboard"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-900 bg-indigo-50 rounded-lg font-medium"
-                >
-                  <Package className="w-5 h-5" />
-                  Dashboard
-                </Link>
-                <Link
-                  href="/products"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
-                >
-                  <Package className="w-5 h-5" />
-                  Products
-                </Link>
-                <Link
-                  href="/locations"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
-                >
-                  <MapPin className="w-5 h-5" />
-                  Locations
-                </Link>
-                <Link
-                  href="/suppliers"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
-                >
-                  <Truck className="w-5 h-5" />
-                  Suppliers
-                </Link>
-                <Link
-                  href="/purchase-orders"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
-                >
-                  <FileText className="w-5 h-5" />
-                  Purchase Orders
-                </Link>
-                <Link
-                  href="/stock-transfers"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
-                >
-                  <ArrowUpDown className="w-5 h-5" />
-                  Stock Transfers
-                </Link>
-                <Link
-                  href="/alerts"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
-                >
-                  <Bell className="w-5 h-5" />
-                  Alerts
-                </Link>
-              </nav>
+               <nav className="px-4 space-y-1">
+                 <Link
+                   href="/dashboard"
+                   className="flex items-center gap-3 px-4 py-3 text-gray-900 bg-indigo-50 rounded-lg font-medium"
+                 >
+                   <Package className="w-5 h-5" />
+                   Dashboard
+                 </Link>
+                 <Link
+                   href="/products"
+                   className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                 >
+                   <Package className="w-5 h-5" />
+                   Products
+                 </Link>
+                 <Link
+                   href="/locations"
+                   className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                 >
+                   <MapPin className="w-5 h-5" />
+                   Locations
+                 </Link>
+                 <Link
+                   href="/suppliers"
+                   className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                 >
+                   <Truck className="w-5 h-5" />
+                   Suppliers
+                 </Link>
+                 <Link
+                   href="/purchase-orders"
+                   className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                 >
+                   <FileText className="w-5 h-5" />
+                   Purchase Orders
+                 </Link>
+                 <Link
+                   href="/stock-transfers"
+                   className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                 >
+                   <ArrowUpDown className="w-5 h-5" />
+                   Stock Transfers
+                 </Link>
+                 <Link
+                   href="/alerts"
+                   className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                 >
+                   <Bell className="w-5 h-5" />
+                   Alerts
+                 </Link>
+                 <Link
+                   href="/team"
+                   className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                 >
+                   <Users className="w-5 h-5" />
+                   Team
+                 </Link>
+               </nav>
             </div>
           </div>
         </aside>
