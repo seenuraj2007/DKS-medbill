@@ -122,6 +122,7 @@ addColumnIfNotExists('stock_history', 'reference_type', 'TEXT')
 addColumnIfNotExists('stock_history', 'change_type', "TEXT CHECK (change_type IN ('add', 'remove', 'restock', 'transfer_in', 'transfer_out'))")
 
 addColumnIfNotExists('alerts', 'location_id', 'INTEGER')
+addColumnIfNotExists('alerts', 'organization_id', 'INTEGER')
 addColumnIfNotExists('alerts', 'alert_type', "TEXT CHECK (alert_type IN ('low_stock', 'out_of_stock', 'purchase_order'))")
 addColumnIfNotExists('alerts', 'reference_id', 'INTEGER')
 addColumnIfNotExists('alerts', 'reference_type', 'TEXT')
@@ -206,17 +207,28 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_alerts_reference ON alerts(reference_id, reference_type);
 `)
 
-const users = db.prepare('SELECT id FROM users').all() as { id: number }[]
+let initialized = false
 
-users.forEach(user => {
-  const existingLocation = db.prepare('SELECT id FROM locations WHERE user_id = ?').get(user.id)
-  if (!existingLocation) {
-    db.prepare(`
-      INSERT INTO locations (user_id, name, address, is_primary)
-      VALUES (?, ?, ?, 1)
-    `).run(user.id, 'Default Location', 'Main warehouse')
+export function ensureDefaultLocations() {
+  if (initialized) return
+  initialized = true
+  
+  try {
+    const users = db.prepare('SELECT id FROM users').all() as { id: number }[]
+
+    users.forEach(user => {
+      const existingLocation = db.prepare('SELECT id FROM locations WHERE user_id = ?').get(user.id)
+      if (!existingLocation) {
+        db.prepare(`
+          INSERT INTO locations (user_id, name, address, is_primary)
+          VALUES (?, ?, ?, 1)
+        `).run(user.id, 'Default Location', 'Main warehouse')
+      }
+    })
+  } catch (error) {
+    console.log('Could not ensure default locations:', error instanceof Error ? error.message : String(error))
   }
-})
+}
 
 // Helper function to get total product quantity across all locations
 export function getProductTotalQuantity(productId: number): number {
