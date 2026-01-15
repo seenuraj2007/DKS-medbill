@@ -131,7 +131,15 @@ export default function AuthPage() {
             </button>
           </form>
 
-          <div className="mt-6 text-center">
+          <div className="mt-6 text-center space-y-3">
+            {isLogin && (
+              <a
+                href="/auth/forgot-password"
+                className="block text-indigo-600 hover:text-indigo-800 font-medium text-sm transition-colors"
+              >
+                Forgot your password?
+              </a>
+            )}
             <button
               onClick={() => setIsLogin(!isLogin)}
               className="text-indigo-600 hover:text-indigo-800 font-medium text-sm transition-colors"

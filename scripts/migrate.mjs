@@ -68,7 +68,6 @@ try {
     ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'owner' CHECK (role IN ('owner', 'admin', 'editor', 'viewer'));
     ALTER TABLE users ADD COLUMN status TEXT DEFAULT 'active' CHECK (status IN ('pending', 'active', 'inactive'));
     ALTER TABLE users ADD COLUMN invited_by INTEGER;
-    ALTER TABLE users ADD COLUMN invitation_token TEXT;
     ALTER TABLE users ADD COLUMN invited_at DATETIME;
   `)
   console.log('  ✓ User columns added')
@@ -86,25 +85,10 @@ try {
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
     );
-
-    CREATE TABLE IF NOT EXISTS team_invitations (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      organization_id INTEGER NOT NULL,
-      email TEXT NOT NULL,
-      role TEXT NOT NULL CHECK (role IN ('admin', 'editor', 'viewer')),
-      invited_by INTEGER NOT NULL,
-      status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'declined', 'expired')),
-      token TEXT UNIQUE NOT NULL,
-      expires_at DATETIME NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE,
-      FOREIGN KEY (invited_by) REFERENCES users(id) ON DELETE CASCADE
-    );
   `)
-  console.log('  ✓ Organization tables created')
+  console.log('  ✓ Organization table created')
 } catch (error) {
-  console.log('  - Tables may already exist')
+  console.log('  - Table may already exist')
 }
 
 // Create default organizations for existing users
@@ -331,6 +315,121 @@ try {
   console.log('  - Table may already exist')
 }
 
+// Migration 7: SaaS Subscriptions
+console.log('✓ Migration 7: Adding SaaS subscription system...')
+
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS subscription_plans (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL UNIQUE,
+      display_name TEXT NOT NULL,
+      description TEXT,
+      monthly_price REAL NOT NULL DEFAULT 0,
+      yearly_price REAL NOT NULL DEFAULT 0,
+      max_team_members INTEGER DEFAULT -1,
+      max_products INTEGER DEFAULT -1,
+      max_locations INTEGER DEFAULT -1,
+      features TEXT,
+      is_active INTEGER DEFAULT 1,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+  `)
+  console.log('  ✓ Subscription plans table created')
+} catch (error) {
+  console.log('  - Table may already exist')
+}
+
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS subscriptions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      organization_id INTEGER NOT NULL,
+      plan_id INTEGER NOT NULL,
+      status TEXT NOT NULL DEFAULT 'trial' CHECK (status IN ('trial', 'active', 'past_due', 'cancelled', 'expired')),
+      trial_end_date DATETIME,
+      current_period_start DATETIME,
+      current_period_end DATETIME,
+      cancel_at_period_end INTEGER DEFAULT 0,
+      payment_provider TEXT,
+      payment_provider_subscription_id TEXT,
+      metadata TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE,
+      FOREIGN KEY (plan_id) REFERENCES subscription_plans(id) ON DELETE RESTRICT
+    );
+  `)
+  console.log('  ✓ Subscriptions table created')
+} catch (error) {
+  console.log('  - Table may already exist')
+}
+
+try {
+  db.exec('CREATE INDEX IF NOT EXISTS idx_subscriptions_org ON subscriptions(organization_id);')
+  db.exec('CREATE INDEX IF NOT EXISTS idx_subscriptions_status ON subscriptions(status);')
+  console.log('  ✓ Subscription indexes created')
+} catch (error) {
+  console.log('  - Indexes may already exist')
+}
+
+// Insert default subscription plans
+const planCount = db.prepare('SELECT COUNT(*) as count FROM subscription_plans').get().count
+if (planCount === 0) {
+  const freePlan = db.prepare(`
+    INSERT INTO subscription_plans (name, display_name, description, monthly_price, yearly_price, max_team_members, max_products, max_locations, features)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `)
+  freePlan.run(
+    'free',
+    'Free',
+    'Perfect for getting started',
+    0,
+    0,
+    2,
+    50,
+    1,
+    JSON.stringify([
+      'Up to 2 team members',
+      'Up to 50 products',
+      '1 location',
+      'Basic inventory tracking',
+      'Reports',
+      'Mobile access'
+    ])
+  )
+
+  const proPlan = db.prepare(`
+    INSERT INTO subscription_plans (name, display_name, description, monthly_price, yearly_price, max_team_members, max_products, max_locations, features)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `)
+  proPlan.run(
+    'pro',
+    'Pro',
+    'For growing businesses',
+    29,
+    290,
+    -1,
+    -1,
+    -1,
+    JSON.stringify([
+      'Unlimited team members',
+      'Unlimited products',
+      'Unlimited locations',
+      'Advanced analytics',
+      'Priority support',
+      'Custom reports',
+      'API access',
+      'Multi-location tracking'
+    ])
+  )
+
+  console.log('  ✓ Default plans created (Free, Pro)')
+} else {
+  console.log('  - Plans already exist')
+}
+
 // Sync existing data
 console.log('✓ Syncing existing product stock data...')
 db.exec(`
@@ -340,6 +439,38 @@ db.exec(`
   )
   WHERE EXISTS (SELECT 1 FROM product_stock WHERE product_id = products.id)
 `)
+
+// Migration 8: Password Reset Tokens
+console.log('✓ Migration 8: Adding password reset tokens...')
+
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS password_reset_tokens (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      token TEXT NOT NULL UNIQUE,
+      expires_at DATETIME NOT NULL,
+      used_at DATETIME,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+  `)
+  db.exec('CREATE INDEX IF NOT EXISTS idx_password_reset_token ON password_reset_tokens(token);')
+  db.exec('CREATE INDEX IF NOT EXISTS idx_password_reset_user ON password_reset_tokens(user_id);')
+  console.log('  ✓ Password reset tokens table created')
+} catch (error) {
+  console.log('  - Table may already exist')
+}
+
+// Migration 9: Profile Images
+console.log('✓ Migration 9: Adding profile images...')
+
+try {
+  db.exec('ALTER TABLE users ADD COLUMN profile_image TEXT')
+  console.log('  ✓ Profile image column added')
+} catch (error) {
+  console.log('  - Column may already exist')
+}
 
 console.log('\n✅ All migrations completed successfully!\n')
 console.log('Next steps:')

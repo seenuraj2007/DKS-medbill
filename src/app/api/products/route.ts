@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import db from '@/lib/db'
 import { getUserFromRequest } from '@/lib/auth'
+import { getOrganizationSubscription, hasReachedLimit } from '@/lib/subscription'
 
 export async function GET(req: NextRequest) {
   try {
@@ -71,6 +72,27 @@ export async function POST(req: NextRequest) {
 
     if (!name) {
       return NextResponse.json({ error: 'Product name is required' }, { status: 400 })
+    }
+
+    // Check subscription limits
+    if (user.organization_id) {
+      const subscription = getOrganizationSubscription(user.organization_id)
+      if (subscription && subscription.status !== 'trial') {
+        if (subscription.status === 'expired' || subscription.status === 'cancelled') {
+          return NextResponse.json({ error: 'Subscription is not active' }, { status: 403 })
+        }
+
+        const currentProductCount = db.prepare('SELECT COUNT(*) as count FROM products WHERE user_id IN (SELECT id FROM users WHERE organization_id = ?)').get(user.organization_id) as { count: number }
+
+        if (hasReachedLimit(subscription, currentProductCount.count, 'products')) {
+          return NextResponse.json({
+            error: 'Product limit reached',
+            limit: subscription.plan?.max_products,
+            current: currentProductCount.count,
+            upgradeUrl: '/subscription'
+          }, { status: 403 })
+        }
+      }
     }
 
     const quantity = current_quantity ?? 0

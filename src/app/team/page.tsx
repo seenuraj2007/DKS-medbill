@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Users, UserPlus, Mail, Shield, MoreVertical, X, RefreshCw } from 'lucide-react'
+import { Users, UserPlus, Mail, Shield, MoreVertical, X, RefreshCw, Lock } from 'lucide-react'
 
 interface TeamMember {
   id: number
@@ -12,26 +12,18 @@ interface TeamMember {
   created_at: string
 }
 
-interface Invitation {
-  id: number
-  email: string
-  role: string
-  status: string
-  created_at: string
-  expires_at: string
-}
-
 export default function TeamPage() {
   const [team, setTeam] = useState<TeamMember[]>([])
-  const [pendingInvitations, setPendingInvitations] = useState<Invitation[]>([])
   const [loading, setLoading] = useState(true)
-  const [inviting, setInviting] = useState(false)
-  const [showInviteForm, setShowInviteForm] = useState(false)
+  const [creating, setCreating] = useState(false)
+  const [showCreateForm, setShowCreateForm] = useState(false)
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
 
-  const [inviteForm, setInviteForm] = useState({
+  const [createForm, setCreateForm] = useState({
     email: '',
+    password: '',
+    full_name: '',
     role: 'editor'
   })
 
@@ -47,7 +39,6 @@ export default function TeamPage() {
 
       const data = await res.json()
       setTeam(data.team || [])
-      setPendingInvitations(data.pendingInvitations || [])
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -55,9 +46,9 @@ export default function TeamPage() {
     }
   }
 
-  const handleInvite = async (e: React.FormEvent) => {
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
-    setInviting(true)
+    setCreating(true)
     setError('')
     setSuccessMessage('')
 
@@ -65,23 +56,23 @@ export default function TeamPage() {
       const res = await fetch('/api/team', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(inviteForm)
+        body: JSON.stringify(createForm)
       })
 
       const data = await res.json()
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to send invitation')
+        throw new Error(data.error || 'Failed to create user')
       }
 
-      setSuccessMessage(`Invitation sent to ${inviteForm.email}`)
-      setInviteForm({ email: '', role: 'editor' })
-      setShowInviteForm(false)
+      setSuccessMessage(`User created: ${createForm.email}`)
+      setCreateForm({ email: '', password: '', full_name: '', role: 'editor' })
+      setShowCreateForm(false)
       fetchTeam()
     } catch (err: any) {
       setError(err.message)
     } finally {
-      setInviting(false)
+      setCreating(false)
     }
   }
 
@@ -158,11 +149,11 @@ export default function TeamPage() {
                 <RefreshCw className="w-5 h-5" />
               </button>
               <button
-                onClick={() => setShowInviteForm(true)}
+                onClick={() => setShowCreateForm(true)}
                 className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:from-indigo-600 hover:to-purple-700 transition-all flex items-center gap-2"
               >
                 <UserPlus className="w-4 h-4" />
-                Invite Member
+                Create User
               </button>
             </div>
           </div>
@@ -182,19 +173,19 @@ export default function TeamPage() {
           </div>
         )}
 
-        {showInviteForm && (
+        {showCreateForm && (
           <div className="mb-8 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Invite Team Member</h2>
+              <h2 className="text-xl font-bold text-gray-900">Create New User</h2>
               <button
-                onClick={() => setShowInviteForm(false)}
+                onClick={() => setShowCreateForm(false)}
                 className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleInvite} className="space-y-6">
+            <form onSubmit={handleCreate} className="space-y-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Email Address <span className="text-red-500">*</span>
@@ -203,11 +194,45 @@ export default function TeamPage() {
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="email"
-                    value={inviteForm.email}
-                    onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
-                    placeholder="team@example.com"
+                    value={createForm.email}
+                    onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
+                    placeholder="user@example.com"
                     required
                     className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Password <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="password"
+                    value={createForm.password}
+                    onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
+                    placeholder="At least 8 characters"
+                    required
+                    minLength={8}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900"
+                  />
+                </div>
+                <p className="mt-1 text-sm text-gray-500">Password must be at least 8 characters</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Full Name
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={createForm.full_name}
+                    onChange={(e) => setCreateForm({ ...createForm, full_name: e.target.value })}
+                    placeholder="John Doe"
+                    className="w-full pl-4 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900"
                   />
                 </div>
               </div>
@@ -219,8 +244,8 @@ export default function TeamPage() {
                 <div className="relative">
                   <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <select
-                    value={inviteForm.role}
-                    onChange={(e) => setInviteForm({ ...inviteForm, role: e.target.value })}
+                    value={createForm.role}
+                    onChange={(e) => setCreateForm({ ...createForm, role: e.target.value })}
                     className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all appearance-none bg-white text-gray-900"
                   >
                     <option value="admin">Admin</option>
@@ -238,102 +263,67 @@ export default function TeamPage() {
               <div className="flex justify-end gap-4">
                 <button
                   type="button"
-                  onClick={() => setShowInviteForm(false)}
+                  onClick={() => setShowCreateForm(false)}
                   className="px-6 py-3 border border-gray-300 rounded-xl font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  disabled={inviting}
+                  disabled={creating}
                   className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-medium hover:from-indigo-600 hover:to-purple-700 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {inviting ? 'Sending...' : 'Send Invitation'}
+                  {creating ? 'Creating...' : 'Create User'}
                 </button>
               </div>
             </form>
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Team Members ({team.length})</h2>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Team Members ({team.length})</h2>
 
-            {team.length === 0 ? (
-              <div className="text-center py-12 bg-white rounded-2xl border border-gray-100 shadow-sm">
-                <Users className="w-16 h-16 text-gray-200 mx-auto mb-4" />
-                <p className="text-gray-500">No team members yet</p>
-                <p className="text-sm text-gray-400 mt-2">Invite your first team member to get started</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {team.map((member) => (
-                  <div
-                    key={member.id}
-                    className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
-                          <span className="text-white font-bold text-lg">
-                            {member.full_name?.charAt(0) || member.email.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-gray-900">{member.full_name || member.email}</h3>
-                          <p className="text-sm text-gray-500">{member.email}</p>
-                        </div>
+          {team.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-2xl border border-gray-100 shadow-sm">
+              <Users className="w-16 h-16 text-gray-200 mx-auto mb-4" />
+              <p className="text-gray-500">No team members yet</p>
+              <p className="text-sm text-gray-400 mt-2">Create your first team member to get started</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {team.map((member) => (
+                <div
+                  key={member.id}
+                  className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
+                        <span className="text-white font-bold text-lg">
+                          {member.full_name?.charAt(0) || member.email.charAt(0).toUpperCase()}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        {getRoleBadge(member.role)}
-                        {getStatusBadge(member.status)}
-                        <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
-                          <MoreVertical className="w-5 h-5" />
-                        </button>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">{member.full_name || member.email}</h3>
+                        <p className="text-sm text-gray-500">{member.email}</p>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Pending Invitations ({pendingInvitations.length})</h2>
-
-            {pendingInvitations.length === 0 ? (
-              <div className="text-center py-12 bg-white rounded-2xl border border-gray-100 shadow-sm">
-                <Mail className="w-16 h-16 text-gray-200 mx-auto mb-4" />
-                <p className="text-gray-500">No pending invitations</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {pendingInvitations.map((invitation) => (
-                  <div
-                    key={invitation.id}
-                    className="bg-white rounded-xl border border-gray-100 shadow-sm p-4"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                          <Mail className="w-6 h-6 text-yellow-600" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-gray-900">{invitation.email}</h3>
-                          <p className="text-sm text-gray-500">
-                            Expires: {new Date(invitation.expires_at).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {getRoleBadge(invitation.role)}
-                      </div>
+                    <div className="flex items-center gap-2">
+                      {getRoleBadge(member.role)}
+                      {getStatusBadge(member.status)}
+                      <button 
+                        onClick={() => handleRemoveMember(member.id)}
+                        className="p-2 text-red-400 hover:text-red-600 transition-colors"
+                        title="Remove member"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </main>
     </div>

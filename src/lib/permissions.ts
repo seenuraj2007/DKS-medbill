@@ -86,7 +86,6 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   
   admin: [
     // Users & Teams
-    { resource: 'users', action: 'invite', allowed: true },
     { resource: 'users', action: 'read', allowed: true },
     { resource: 'users', action: 'update', allowed: true },
     { resource: 'organizations', action: 'update', allowed: true },
@@ -244,13 +243,6 @@ export class PermissionsService {
     return this.hasPermission(user, 'users', 'create') &&
            this.hasPermission(user, 'users', 'update') &&
            this.hasPermission(user, 'users', 'delete')
-  }
-  
-  /**
-   * Check if user can invite team members
-   */
-  static canInviteTeam(user: UserWithPermissions | null): boolean {
-    return this.hasPermission(user, 'users', 'invite')
   }
   
   /**

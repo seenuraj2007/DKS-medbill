@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Package, TrendingDown, AlertTriangle, Bell, LogOut, Plus, Search, Filter, MoreVertical, ArrowUpRight, ArrowDownRight, MapPin, Truck, FileText, ArrowUpDown, Menu, X, Users } from 'lucide-react'
+import { Package, TrendingDown, AlertTriangle, Bell, LogOut, Plus, Search, Filter, MoreVertical, ArrowUpRight, ArrowDownRight, MapPin, Truck, FileText, ArrowUpDown, Menu, X, Users, CreditCard, Zap, Settings, User, History } from 'lucide-react'
 import Link from 'next/link'
 
 interface DashboardStats {
@@ -11,6 +11,17 @@ interface DashboardStats {
   outOfStockProducts: number
   unreadAlerts: number
   lowStockItems: any[]
+  subscription?: {
+    status: string
+    plan?: {
+      name: string
+      display_name: string
+      max_team_members: number
+      max_products: number
+      max_locations: number
+    }
+    trial_end_date?: string
+  }
 }
 
 export default function DashboardPage() {
@@ -113,6 +124,36 @@ export default function DashboardPage() {
         </div>
       </nav>
 
+      {stats?.subscription?.status === 'trial' && stats.subscription.trial_end_date && (
+        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-3">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Zap className="w-4 h-4" />
+              <span className="text-sm font-medium">
+                {Math.ceil((new Date(stats.subscription.trial_end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days left in trial
+              </span>
+            </div>
+            <Link href="/subscription" className="text-sm font-medium hover:underline">
+              Upgrade now →
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {stats?.subscription?.status === 'active' && stats.subscription.plan?.name === 'free' && (
+        <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-3">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-2 text-yellow-800 text-sm">
+              <AlertTriangle className="w-4 h-4" />
+              <span>You're on the free plan with limited features</span>
+            </div>
+            <Link href="/subscription" className="text-sm font-medium text-yellow-700 hover:underline">
+              Upgrade to Pro →
+            </Link>
+          </div>
+        </div>
+      )}
+
       <div className="flex">
         <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:top-0 lg:left-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="flex flex-col h-full">
@@ -123,64 +164,92 @@ export default function DashboardPage() {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto py-4">
-               <nav className="px-4 space-y-1">
-                 <Link
-                   href="/dashboard"
-                   className="flex items-center gap-3 px-4 py-3 text-gray-900 bg-indigo-50 rounded-lg font-medium"
-                 >
-                   <Package className="w-5 h-5" />
-                   Dashboard
-                 </Link>
-                 <Link
-                   href="/products"
-                   className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
-                 >
-                   <Package className="w-5 h-5" />
-                   Products
-                 </Link>
-                 <Link
-                   href="/locations"
-                   className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
-                 >
-                   <MapPin className="w-5 h-5" />
-                   Locations
-                 </Link>
-                 <Link
-                   href="/suppliers"
-                   className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
-                 >
-                   <Truck className="w-5 h-5" />
-                   Suppliers
-                 </Link>
-                 <Link
-                   href="/purchase-orders"
-                   className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
-                 >
-                   <FileText className="w-5 h-5" />
-                   Purchase Orders
-                 </Link>
-                 <Link
-                   href="/stock-transfers"
-                   className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
-                 >
-                   <ArrowUpDown className="w-5 h-5" />
-                   Stock Transfers
-                 </Link>
-                 <Link
-                   href="/alerts"
-                   className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
-                 >
-                   <Bell className="w-5 h-5" />
-                   Alerts
-                 </Link>
-                 <Link
-                   href="/team"
-                   className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
-                 >
-                   <Users className="w-5 h-5" />
-                   Team
-                 </Link>
-               </nav>
+                <nav className="px-4 space-y-1">
+                  <Link
+                    href="/dashboard"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-900 bg-indigo-50 rounded-lg font-medium"
+                  >
+                    <Package className="w-5 h-5" />
+                    Dashboard
+                  </Link>
+                  <Link
+                    href="/products"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                  >
+                    <Package className="w-5 h-5" />
+                    Products
+                  </Link>
+                  <Link
+                    href="/locations"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                  >
+                    <MapPin className="w-5 h-5" />
+                    Locations
+                  </Link>
+                  <Link
+                    href="/suppliers"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                  >
+                    <Truck className="w-5 h-5" />
+                    Suppliers
+                  </Link>
+                  <Link
+                    href="/purchase-orders"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                  >
+                    <FileText className="w-5 h-5" />
+                    Purchase Orders
+                  </Link>
+                  <Link
+                    href="/stock-transfers"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                  >
+                    <ArrowUpDown className="w-5 h-5" />
+                    Stock Transfers
+                  </Link>
+                  <Link
+                    href="/alerts"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                  >
+                    <Bell className="w-5 h-5" />
+                    Alerts
+                  </Link>
+                  <Link
+                    href="/team"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                  >
+                    <Users className="w-5 h-5" />
+                    Team
+                  </Link>
+                  <Link
+                    href="/subscription"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                  >
+                    <CreditCard className="w-5 h-5" />
+                    Subscription
+                  </Link>
+                  <Link
+                    href="/profile"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                  >
+                    <User className="w-5 h-5" />
+                    Profile
+                  </Link>
+                  <Link
+                    href="/settings/organization"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                  >
+                    <Settings className="w-5 h-5" />
+                    Settings
+                  </Link>
+                  <Link
+                    href="/audit-logs"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                  >
+                    <History className="w-5 h-5" />
+                    Audit Logs
+                  </Link>
+                </nav>
             </div>
           </div>
         </aside>

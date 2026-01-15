@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import db from '@/lib/db'
 import { getUserFromRequest } from '@/lib/auth'
+import { getOrganizationSubscription, hasReachedLimit } from '@/lib/subscription'
 
 export async function GET(req: NextRequest) {
   try {
@@ -39,6 +40,27 @@ export async function POST(req: NextRequest) {
 
     if (!name) {
       return NextResponse.json({ error: 'Location name is required' }, { status: 400 })
+    }
+
+    // Check subscription limits
+    if (user.organization_id) {
+      const subscription = getOrganizationSubscription(user.organization_id)
+      if (subscription && subscription.status !== 'trial') {
+        if (subscription.status === 'expired' || subscription.status === 'cancelled') {
+          return NextResponse.json({ error: 'Subscription is not active' }, { status: 403 })
+        }
+
+        const currentLocationCount = db.prepare('SELECT COUNT(*) as count FROM locations WHERE user_id IN (SELECT id FROM users WHERE organization_id = ?)').get(user.organization_id) as { count: number }
+
+        if (hasReachedLimit(subscription, currentLocationCount.count, 'locations')) {
+          return NextResponse.json({
+            error: 'Location limit reached',
+            limit: subscription.plan?.max_locations,
+            current: currentLocationCount.count,
+            upgradeUrl: '/subscription'
+          }, { status: 403 })
+        }
+      }
     }
 
     if (is_primary) {

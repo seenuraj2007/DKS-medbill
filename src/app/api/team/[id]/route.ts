@@ -24,9 +24,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
     }
 
-    // Check if user can manage team
-    if (!PermissionsService.canInviteTeam(user)) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 })
+    // Only owner can update team member roles
+    if (!PermissionsService.isOwner(user)) {
+      return NextResponse.json({ error: 'Only owners can update roles' }, { status: 403 })
     }
 
     // Get team member to update
@@ -80,9 +80,9 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     const resolvedParams = await params
     const memberId = parseInt(resolvedParams.id)
 
-    // Check if user can manage team
-    if (!PermissionsService.canManageUsers(user)) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 })
+    // Only owner can remove team members
+    if (!PermissionsService.isOwner(user)) {
+      return NextResponse.json({ error: 'Only owners can remove team members' }, { status: 403 })
     }
 
     // Get team member to remove

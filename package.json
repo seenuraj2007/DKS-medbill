@@ -7,13 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "migrate": "node scripts/migrate.js",
+    "migrate": "node scripts/migrate.mjs",
     "openapi": "node -r ts-node/register src/lib/openapi.ts"
   },
   "dependencies": {
     "@ducanh2912/next-pwa": "^10.2.9",
     "@types/bcryptjs": "^3.0.0",
     "@types/better-sqlite3": "^7.6.13",
+    "@types/nodemailer": "^7.0.5",
     "@types/uuid": "^10.0.0",
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.6.0",
@@ -22,9 +23,11 @@
     "lucide-react": "^0.562.0",
     "next": "16.1.1",
     "next-pwa": "^5.6.0",
+    "nodemailer": "^7.0.12",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "recharts": "^3.6.0",
+    "sharp": "^0.34.5",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
@@ -37,7 +40,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
     "tailwindcss": "^4",
-    "typescript": "^5",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "typescript": "^5"
   }
 }

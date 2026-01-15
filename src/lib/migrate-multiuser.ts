@@ -9,7 +9,6 @@ export function migrateMultiUserSupport() {
     addColumnIfNotExists('users', 'role', "TEXT DEFAULT 'owner' CHECK (role IN ('owner', 'admin', 'editor', 'viewer'))")
     addColumnIfNotExists('users', 'status', "TEXT DEFAULT 'active' CHECK (status IN ('pending', 'active', 'inactive'))")
     addColumnIfNotExists('users', 'invited_by', 'INTEGER')
-    addColumnIfNotExists('users', 'invitation_token', 'TEXT')
     addColumnIfNotExists('users', 'invited_at', 'DATETIME')
 
     // 2. Create organizations table
@@ -24,32 +23,13 @@ export function migrateMultiUserSupport() {
       );
     `)
 
-    // 3. Create team_invitations table
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS team_invitations (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        organization_id INTEGER NOT NULL,
-        email TEXT NOT NULL,
-        role TEXT NOT NULL CHECK (role IN ('admin', 'editor', 'viewer')),
-        invited_by INTEGER NOT NULL,
-        status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'declined', 'expired')),
-        token TEXT UNIQUE NOT NULL,
-        expires_at DATETIME NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE,
-        FOREIGN KEY (invited_by) REFERENCES users(id) ON DELETE CASCADE
-      );
-    `)
+
 
     // 4. Create indexes
     db.exec(`
       CREATE INDEX IF NOT EXISTS idx_organizations_owner ON organizations(owner_id);
       CREATE INDEX IF NOT EXISTS idx_users_organization ON users(organization_id);
-      CREATE INDEX IF NOT EXISTS idx_users_invitation_token ON users(invitation_token);
-      CREATE INDEX IF NOT EXISTS idx_team_invitations_token ON team_invitations(token);
-      CREATE INDEX IF NOT EXISTS idx_team_invitations_email ON team_invitations(email);
-      CREATE INDEX IF NOT EXISTS idx_team_invitations_status ON team_invitations(status);
+      CREATE INDEX IF NOT EXISTS idx_users_invited_by ON users(invited_by);
     `)
 
     // 5. Create default organization for existing users
@@ -85,7 +65,7 @@ export function migrateMultiUserSupport() {
       db.exec(`
         PRAGMA foreign_keys = OFF;
         
-        -- Recreate users table with proper foreign key
+        -- Recreate users table with proper foreign key (without invitation_token)
         CREATE TABLE IF NOT EXISTS users_new (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           email TEXT UNIQUE NOT NULL,
@@ -95,18 +75,17 @@ export function migrateMultiUserSupport() {
           role TEXT DEFAULT 'owner' CHECK (role IN ('owner', 'admin', 'editor', 'viewer')),
           status TEXT DEFAULT 'active' CHECK (status IN ('pending', 'active', 'inactive')),
           invited_by INTEGER,
-          invitation_token TEXT,
           invited_at DATETIME,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE SET NULL,
           FOREIGN KEY (invited_by) REFERENCES users(id) ON DELETE SET NULL
         );
 
-        -- Copy data
-        INSERT INTO users_new (id, email, password, full_name, organization_id, role, status, invited_by, invitation_token, invited_at, created_at)
+        -- Copy data (excluding invitation_token)
+        INSERT INTO users_new (id, email, password, full_name, organization_id, role, status, invited_by, invited_at, created_at)
         SELECT id, email, password, full_name, organization_id, 
                COALESCE(role, 'owner'), COALESCE(status, 'active'),
-               invited_by, invitation_token, invited_at, created_at
+               invited_by, invited_at, created_at
         FROM users;
 
         -- Drop old table
@@ -118,6 +97,7 @@ export function migrateMultiUserSupport() {
         -- Recreate indexes
         CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
         CREATE INDEX IF NOT EXISTS idx_users_organization ON users(organization_id);
+        CREATE INDEX IF NOT EXISTS idx_users_invited_by ON users(invited_by);
 
         PRAGMA foreign_keys = ON;
       `)
