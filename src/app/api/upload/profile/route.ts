@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { supabase } from '@/lib/supabase'
 import { getUserFromRequest } from '@/lib/auth'
 import { processAvatarUpload, deleteOptimizedImage } from '@/lib/image-optimizer'
-import db from '@/lib/db'
 
 export async function POST(req: NextRequest) {
   try {
@@ -41,13 +41,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: result.error }, { status: 400 })
     }
 
-    const oldImageUrl = db.prepare('SELECT profile_image FROM users WHERE id = ?').get(user.id) as { profile_image: string | null } | undefined
+    const { data: oldUser } = await supabase
+      .from('users')
+      .select('profile_image')
+      .eq('id', user.id)
+      .single()
 
-    if (oldImageUrl?.profile_image) {
-      await deleteOptimizedImage(oldImageUrl.profile_image)
+    if (oldUser?.profile_image) {
+      await deleteOptimizedImage(oldUser.profile_image)
     }
 
-    db.prepare('UPDATE users SET profile_image = ? WHERE id = ?').run(result.url, user.id)
+    const { error } = await supabase
+      .from('users')
+      .update({ profile_image: result.url })
+      .eq('id', user.id)
+
+    if (error) {
+      console.error('Update profile image error:', error)
+      return NextResponse.json({ error: 'Failed to update profile image' }, { status: 500 })
+    }
 
     return NextResponse.json({
       success: true,
@@ -66,13 +78,25 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const oldImageUrl = db.prepare('SELECT profile_image FROM users WHERE id = ?').get(user.id) as { profile_image: string | null } | undefined
+    const { data: oldUser } = await supabase
+      .from('users')
+      .select('profile_image')
+      .eq('id', user.id)
+      .single()
 
-    if (oldImageUrl?.profile_image) {
-      await deleteOptimizedImage(oldImageUrl.profile_image)
+    if (oldUser?.profile_image) {
+      await deleteOptimizedImage(oldUser.profile_image)
     }
 
-    db.prepare('UPDATE users SET profile_image = NULL WHERE id = ?').run(user.id)
+    const { error } = await supabase
+      .from('users')
+      .update({ profile_image: null })
+      .eq('id', user.id)
+
+    if (error) {
+      console.error('Delete profile image error:', error)
+      return NextResponse.json({ error: 'Failed to delete profile image' }, { status: 500 })
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {

@@ -1,12 +1,12 @@
 export type UserRole = 'owner' | 'admin' | 'editor' | 'viewer'
 
 export interface UserWithPermissions {
-  id: number
+  id: string
   email: string
   full_name: string | null
-  organization_id: number | null
-  role: UserRole
-  status: string
+  organization_id: string | null
+  role: UserRole | null
+  status: string | null
   created_at: string
 }
 

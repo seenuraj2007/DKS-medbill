@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import db from '@/lib/db'
+import { supabase } from '@/lib/supabase'
 import { getUserFromRequest } from '@/lib/auth'
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -10,14 +10,23 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const location = db.prepare('SELECT * FROM locations WHERE id = ? AND user_id = ?').get(id, user.id)
-    if (!location) {
+    const { data: location, error } = await supabase
+      .from('locations')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .single()
+
+    if (error || !location) {
       return NextResponse.json({ error: 'Location not found' }, { status: 404 })
     }
 
-    const totalProducts = db.prepare('SELECT COUNT(*) as count FROM product_stock WHERE location_id = ?').get(id) as any
+    const { count } = await supabase
+      .from('product_stock')
+      .select('id', { count: 'exact', head: true })
+      .eq('location_id', id)
 
-    return NextResponse.json({ location: { ...location, total_products: totalProducts?.count || 0 } })
+    return NextResponse.json({ location: { ...location, total_products: count || 0 } })
   } catch (error) {
     console.error('Get location error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -39,29 +48,51 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'Location name is required' }, { status: 400 })
     }
 
-    const existing = db.prepare('SELECT * FROM locations WHERE id = ? AND user_id = ?').get(id, user.id)
-    if (!existing) {
+    const { data: existing, error: existingError } = await supabase
+      .from('locations')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .single()
+
+    if (existingError || !existing) {
       return NextResponse.json({ error: 'Location not found' }, { status: 404 })
     }
 
     if (is_primary) {
-      db.prepare('UPDATE locations SET is_primary = 0 WHERE user_id = ?').run(user.id)
+      await supabase
+        .from('locations')
+        .update({ is_primary: false })
+        .eq('user_id', user.id)
     }
 
-    db.prepare(`
-      UPDATE locations
-      SET name = ?, address = ?, city = ?, state = ?, zip = ?, country = ?, is_primary = ?, updated_at = CURRENT_TIMESTAMP
-      WHERE id = ? AND user_id = ?
-    `).run(name, address || null, city || null, state || null, zip || null, country || null, is_primary ? 1 : 0, id, user.id)
+    const { data: location, error } = await supabase
+      .from('locations')
+      .update({
+        name,
+        address: address || null,
+        city: city || null,
+        state: state || null,
+        zip: zip || null,
+        country: country || null,
+        is_primary: is_primary || false
+      })
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .select()
+      .single()
 
-    const location = db.prepare('SELECT * FROM locations WHERE id = ?').get(id)
+    if (error) {
+      console.error('Update location error:', error)
+      if (error.message.includes('duplicate key')) {
+        return NextResponse.json({ error: 'Location name already exists' }, { status: 409 })
+      }
+      return NextResponse.json({ error: 'Failed to update location' }, { status: 500 })
+    }
 
     return NextResponse.json({ location })
   } catch (error) {
     console.error('Update location error:', error)
-    if ((error as any).code === 'SQLITE_CONSTRAINT') {
-      return NextResponse.json({ error: 'Location name already exists' }, { status: 409 })
-    }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -75,19 +106,39 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
     const { id } = await params
 
-    const location = db.prepare('SELECT * FROM locations WHERE id = ? AND user_id = ?').get(id, user.id) as any
-    if (!location) {
+    const { data: location, error: locationError } = await supabase
+      .from('locations')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .single()
+
+    if (locationError || !location) {
       return NextResponse.json({ error: 'Location not found' }, { status: 404 })
     }
 
     if (location.is_primary) {
-      const otherLocations = db.prepare('SELECT id FROM locations WHERE user_id = ? AND id != ?').all(user.id, id)
-      if (otherLocations.length === 0) {
+      const { count } = await supabase
+        .from('locations')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .neq('id', id)
+
+      if (count === 0) {
         return NextResponse.json({ error: 'Cannot delete only location' }, { status: 400 })
       }
     }
 
-    db.prepare('DELETE FROM locations WHERE id = ? AND user_id = ?').run(id, user.id)
+    const { error } = await supabase
+      .from('locations')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id)
+
+    if (error) {
+      console.error('Delete location error:', error)
+      return NextResponse.json({ error: 'Failed to delete location' }, { status: 500 })
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {

@@ -1,41 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server'
-import db from '@/lib/db'
-import bcrypt from 'bcryptjs'
+import { supabase } from '@/lib/supabase'
+import { loginSchema } from '@/lib/validators'
+import { handleApiError } from '@/lib/errorHandler'
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password } = await req.json()
+    const validatedData = loginSchema.parse(await req.json())
 
-    if (!email || !password) {
-      return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email: validatedData.email,
+      password: validatedData.password
+    })
+
+    if (authError || !authData.user) {
+      throw new Error('Invalid credentials')
     }
 
-    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email) as any
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('id, email, full_name, organization_id, role, status, created_at, updated_at')
+      .eq('id', authData.user.id)
+      .single()
 
-    if (!user) {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
+    if (userError || !user) {
+      throw new Error('User not found')
     }
 
-    const isValid = await bcrypt.compare(password, user.password)
+    const response = NextResponse.json({ user }, { status: 200 })
 
-    if (!isValid) {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
-    }
-
-    const { password: _, ...userWithoutPassword } = user
-
-    const response = NextResponse.json({ user: userWithoutPassword }, { status: 200 })
-
-    response.cookies.set('user_id', String(user.id), {
+    response.cookies.set('sb-access-token', authData.session.access_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'strict',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7
+    })
+
+    response.cookies.set('sb-refresh-token', authData.session.refresh_token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      path: '/',
       maxAge: 60 * 60 * 24 * 7
     })
 
     return response
   } catch (error) {
     console.error('Login error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return handleApiError(error)
   }
 }

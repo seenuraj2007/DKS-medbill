@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import db from '@/lib/db'
+import { supabase } from '@/lib/supabase'
 import { getUserFromRequest } from '@/lib/auth'
 
 export async function POST(req: NextRequest) {
@@ -26,13 +26,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid operation' }, { status: 400 })
     }
 
-    const results: any[] = []
+    const results: Array<{ id: string; success: boolean; error?: string; new_quantity?: number }> = []
 
     if (operation === 'delete') {
       for (const productId of product_ids) {
         try {
-          db.prepare('DELETE FROM products WHERE id = ? AND user_id = ?').run(productId, user.id)
-          results.push({ id: productId, success: true })
+          const { error } = await supabase
+            .from('products')
+            .delete()
+            .eq('id', productId)
+            .eq('user_id', user.id)
+
+          results.push({ id: productId, success: !error, error: error ? 'Failed to delete' : undefined })
         } catch (error) {
           results.push({ id: productId, success: false, error: 'Failed to delete' })
         }
@@ -44,48 +49,73 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Invalid stock update data' }, { status: 400 })
       }
 
-      const location = db.prepare('SELECT id FROM locations WHERE user_id = ? AND is_primary = 1').get(user.id) as any
+      const { data: locationData } = await supabase
+        .from('locations')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('is_primary', true)
+        .single()
 
       for (const productId of product_ids) {
         try {
-          const product = db.prepare('SELECT * FROM products WHERE id = ? AND user_id = ?').get(productId, user.id) as any
+          const { data: product } = await supabase
+            .from('products')
+            .select('*')
+            .eq('id', productId)
+            .eq('user_id', user.id)
+            .single()
 
           if (product) {
             const previousQuantity = product.current_quantity
             let newQuantity = previousQuantity
 
-            if (change_type === 'add') {
+            if (change_type === 'add' || change_type === 'restock') {
               newQuantity += quantity
             } else if (change_type === 'remove') {
               newQuantity = Math.max(0, previousQuantity - quantity)
-            } else if (change_type === 'restock') {
-              newQuantity += quantity
             }
 
-            db.prepare(`
-              UPDATE products
-              SET current_quantity = ?, updated_at = CURRENT_TIMESTAMP
-              WHERE id = ?
-            `).run(newQuantity, productId)
+            await supabase
+              .from('products')
+              .update({ current_quantity: newQuantity })
+              .eq('id', productId)
 
-            db.prepare(`
-              INSERT INTO stock_history (product_id, location_id, previous_quantity, quantity_change, new_quantity, change_type, notes)
-              VALUES (?, ?, ?, ?, ?, ?, ?)
-            `).run(productId, location?.id || null, previousQuantity, change_type === 'remove' ? -quantity : quantity, newQuantity, change_type, notes || null)
+            await supabase
+              .from('stock_history')
+              .insert({
+                product_id: productId,
+                location_id: locationData?.id || null,
+                previous_quantity: previousQuantity,
+                quantity_change: change_type === 'remove' ? -quantity : quantity,
+                new_quantity: newQuantity,
+                change_type,
+                notes: notes || null
+              })
 
-            const productStock = db.prepare('SELECT * FROM product_stock WHERE product_id = ? AND location_id = ?').get(productId, location?.id) as any
-            if (productStock) {
-              const stockChange = change_type === 'remove' ? -quantity : quantity
-              db.prepare(`
-                UPDATE product_stock
-                SET quantity = quantity + ?, updated_at = CURRENT_TIMESTAMP
-                WHERE product_id = ? AND location_id = ?
-              `).run(stockChange, productId, location?.id)
-            } else if (location) {
-              db.prepare(`
-                INSERT INTO product_stock (product_id, location_id, quantity)
-                VALUES (?, ?, ?)
-              `).run(productId, location.id, newQuantity)
+            if (locationData) {
+              const { data: productStock } = await supabase
+                .from('product_stock')
+                .select('*')
+                .eq('product_id', productId)
+                .eq('location_id', locationData.id)
+                .single()
+
+              if (productStock) {
+                const stockChange = change_type === 'remove' ? -quantity : quantity
+                await supabase
+                  .from('product_stock')
+                  .update({ quantity: productStock.quantity + stockChange })
+                  .eq('product_id', productId)
+                  .eq('location_id', locationData.id)
+              } else {
+                await supabase
+                  .from('product_stock')
+                  .insert({
+                    product_id: productId,
+                    location_id: locationData.id,
+                    quantity: newQuantity
+                  })
+              }
             }
 
             results.push({ id: productId, success: true, new_quantity: newQuantity })
@@ -101,11 +131,11 @@ export async function POST(req: NextRequest) {
 
       for (const productId of product_ids) {
         try {
-          db.prepare(`
-            UPDATE products
-            SET supplier_id = ?, updated_at = CURRENT_TIMESTAMP
-            WHERE id = ? AND user_id = ?
-          `).run(supplier_id || null, productId, user.id)
+          await supabase
+            .from('products')
+            .update({ supplier_id: supplier_id || null })
+            .eq('id', productId)
+            .eq('user_id', user.id)
           results.push({ id: productId, success: true })
         } catch (error) {
           results.push({ id: productId, success: false, error: 'Failed to update supplier' })
@@ -116,11 +146,11 @@ export async function POST(req: NextRequest) {
 
       for (const productId of product_ids) {
         try {
-          db.prepare(`
-            UPDATE products
-            SET category = ?, updated_at = CURRENT_TIMESTAMP
-            WHERE id = ? AND user_id = ?
-          `).run(category || null, productId, user.id)
+          await supabase
+            .from('products')
+            .update({ category: category || null })
+            .eq('id', productId)
+            .eq('user_id', user.id)
           results.push({ id: productId, success: true })
         } catch (error) {
           results.push({ id: productId, success: false, error: 'Failed to update category' })
@@ -131,11 +161,11 @@ export async function POST(req: NextRequest) {
 
       for (const productId of product_ids) {
         try {
-          db.prepare(`
-            UPDATE products
-            SET reorder_point = ?, updated_at = CURRENT_TIMESTAMP
-            WHERE id = ? AND user_id = ?
-          `).run(reorder_point || 0, productId, user.id)
+          await supabase
+            .from('products')
+            .update({ reorder_point: reorder_point || 0 })
+            .eq('id', productId)
+            .eq('user_id', user.id)
           results.push({ id: productId, success: true })
         } catch (error) {
           results.push({ id: productId, success: false, error: 'Failed to update reorder point' })

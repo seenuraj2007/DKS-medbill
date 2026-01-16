@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import db from '@/lib/db'
+import { supabase } from '@/lib/supabase'
 import { getUserFromRequest } from '@/lib/auth'
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -10,14 +10,24 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const supplier = db.prepare('SELECT * FROM suppliers WHERE id = ? AND user_id = ?').get(id, user.id)
-    if (!supplier) {
+    const { data: supplier, error } = await supabase
+      .from('suppliers')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .single()
+
+    if (error || !supplier) {
       return NextResponse.json({ error: 'Supplier not found' }, { status: 404 })
     }
 
-    const totalProducts = db.prepare('SELECT COUNT(*) as count FROM products WHERE supplier_id = ? AND user_id = ?').get(id, user.id) as any
+    const { count: totalProducts } = await supabase
+      .from('products')
+      .select('*', { count: 'exact', head: true })
+      .eq('supplier_id', id)
+      .eq('user_id', user.id)
 
-    return NextResponse.json({ supplier: { ...supplier, total_products: totalProducts?.count || 0 } })
+    return NextResponse.json({ supplier: { ...supplier, total_products: totalProducts || 0 } })
   } catch (error) {
     console.error('Get supplier error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -39,18 +49,37 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'Supplier name is required' }, { status: 400 })
     }
 
-    const existing = db.prepare('SELECT * FROM suppliers WHERE id = ? AND user_id = ?').get(id, user.id)
-    if (!existing) {
+    const { data: existing, error: existingError } = await supabase
+      .from('suppliers')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .single()
+
+    if (existingError || !existing) {
       return NextResponse.json({ error: 'Supplier not found' }, { status: 404 })
     }
 
-    db.prepare(`
-      UPDATE suppliers
-      SET name = ?, contact_person = ?, email = ?, phone = ?, address = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
-      WHERE id = ? AND user_id = ?
-    `).run(name, contact_person || null, email || null, phone || null, address || null, notes || null, id, user.id)
+    const { data: supplier, error } = await supabase
+      .from('suppliers')
+      .update({
+        name,
+        contact_person: contact_person || null,
+        email: email || null,
+        phone: phone || null,
+        address: address || null,
+        notes: notes || null,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .select()
+      .single()
 
-    const supplier = db.prepare('SELECT * FROM suppliers WHERE id = ?').get(id)
+    if (error) {
+      console.error('Update supplier error:', error)
+      return NextResponse.json({ error: 'Failed to update supplier' }, { status: 500 })
+    }
 
     return NextResponse.json({ supplier })
   } catch (error) {
@@ -68,12 +97,27 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
     const { id } = await params
 
-    const supplier = db.prepare('SELECT * FROM suppliers WHERE id = ? AND user_id = ?').get(id, user.id)
-    if (!supplier) {
+    const { data: supplier, error: supplierError } = await supabase
+      .from('suppliers')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .single()
+
+    if (supplierError || !supplier) {
       return NextResponse.json({ error: 'Supplier not found' }, { status: 404 })
     }
 
-    db.prepare('DELETE FROM suppliers WHERE id = ? AND user_id = ?').run(id, user.id)
+    const { error } = await supabase
+      .from('suppliers')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id)
+
+    if (error) {
+      console.error('Delete supplier error:', error)
+      return NextResponse.json({ error: 'Failed to delete supplier' }, { status: 500 })
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {

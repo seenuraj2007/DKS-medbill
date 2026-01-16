@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import db from '@/lib/db'
+import { supabase } from '@/lib/supabase'
 import { getUserFromRequest } from '@/lib/auth'
 
 export async function GET(req: NextRequest) {
@@ -12,23 +12,33 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const unreadOnly = searchParams.get('unread') === 'true'
 
-    let query = `
-      SELECT a.*, p.name as product_name
-      FROM alerts a
-      JOIN products p ON a.product_id = p.id
-      WHERE a.user_id = ?
-    `
-    const params: any[] = [user.id]
+    let query = supabase
+      .from('alerts')
+      .select(`
+        *,
+        products (name)
+      `)
+      .eq('user_id', user.id)
 
     if (unreadOnly) {
-      query += ' AND a.is_read = 0'
+      query = query.eq('is_read', false)
     }
 
-    query += ' ORDER BY a.created_at DESC LIMIT 50'
+    query = query.order('created_at', { ascending: false }).limit(50)
 
-    const alerts = db.prepare(query).all(...params)
+    const { data: alerts, error } = await query
 
-    return NextResponse.json({ alerts })
+    if (error) {
+      console.error('Get alerts error:', error)
+      return NextResponse.json({ error: 'Failed to fetch alerts' }, { status: 500 })
+    }
+
+    const formattedAlerts = (alerts || []).map(alert => ({
+      ...alert,
+      product_name: alert.products?.name || null
+    }))
+
+    return NextResponse.json({ alerts: formattedAlerts })
   } catch (error) {
     console.error('Get alerts error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -48,14 +58,16 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: 'Alert IDs are required' }, { status: 400 })
     }
 
-    const placeholders = alert_ids.map(() => '?').join(',')
-    const values = [...alert_ids, user.id]
+    const { error } = await supabase
+      .from('alerts')
+      .update({ is_read: mark_as_read })
+      .in('id', alert_ids)
+      .eq('user_id', user.id)
 
-    db.prepare(`
-      UPDATE alerts
-      SET is_read = ?
-      WHERE id IN (${placeholders}) AND user_id = ?
-    `).run(mark_as_read ? 1 : 0, ...values)
+    if (error) {
+      console.error('Update alerts error:', error)
+      return NextResponse.json({ error: 'Failed to update alerts' }, { status: 500 })
+    }
 
     return NextResponse.json({ message: 'Alerts updated successfully' })
   } catch (error) {

@@ -1,4 +1,4 @@
-import db from './db'
+import { supabase } from './supabase'
 
 export interface SubscriptionPlan {
   id: number
@@ -11,109 +11,137 @@ export interface SubscriptionPlan {
   max_products: number
   max_locations: number
   features: string[]
-  is_active: number
+  is_active: boolean
 }
 
 export interface Subscription {
   id: number
-  organization_id: number
+  organization_id: string
   plan_id: number
   status: 'trial' | 'active' | 'past_due' | 'cancelled' | 'expired'
   trial_end_date: string | null
   current_period_start: string | null
   current_period_end: string | null
-  cancel_at_period_end: number
+  cancel_at_period_end: boolean
   payment_provider: string | null
   payment_provider_subscription_id: string | null
   plan?: SubscriptionPlan
 }
 
-export function getOrganizationSubscription(orgId: number): Subscription | null {
-  const subscription = db.prepare(`
-    SELECT s.*, sp.name as plan_name, sp.display_name, sp.description,
-           sp.monthly_price, sp.yearly_price, sp.max_team_members,
-           sp.max_products, sp.max_locations, sp.features, sp.is_active
-    FROM subscriptions s
-    JOIN subscription_plans sp ON s.plan_id = sp.id
-    WHERE s.organization_id = ?
-    ORDER BY s.created_at DESC
-    LIMIT 1
-  `).get(orgId) as any
+export async function getOrganizationSubscription(orgId: string): Promise<Subscription | null> {
+  const { data: subscriptionData, error } = await supabase
+    .from('subscriptions')
+    .select(`
+      *,
+      subscription_plans (
+        name,
+        display_name,
+        description,
+        monthly_price,
+        yearly_price,
+        max_team_members,
+        max_products,
+        max_locations,
+        features,
+        is_active
+      )
+    `)
+    .eq('organization_id', orgId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single()
 
-  if (!subscription) return null
+  if (error || !subscriptionData) return null
+
+  const plan = subscriptionData.subscription_plans as SubscriptionPlan
+  const subscription = subscriptionData as { id: number; organization_id: string; plan_id: number; status: string; trial_end_date: string | null; current_period_start: string | null; current_period_end: string | null; cancel_at_period_end: boolean; payment_provider: string | null; payment_provider_subscription_id: string | null }
 
   return {
-    ...subscription,
-    plan: {
+    id: subscription.id,
+    organization_id: subscription.organization_id,
+    plan_id: subscription.plan_id,
+    status: subscription.status as 'trial' | 'active' | 'past_due' | 'cancelled' | 'expired',
+    trial_end_date: subscription.trial_end_date,
+    current_period_start: subscription.current_period_start,
+    current_period_end: subscription.current_period_end,
+    cancel_at_period_end: subscription.cancel_at_period_end,
+    payment_provider: subscription.payment_provider,
+    payment_provider_subscription_id: subscription.payment_provider_subscription_id,
+    plan: plan ? {
       id: subscription.plan_id,
-      name: subscription.plan_name,
-      display_name: subscription.display_name,
-      description: subscription.description,
-      monthly_price: subscription.monthly_price,
-      yearly_price: subscription.yearly_price,
-      max_team_members: subscription.max_team_members,
-      max_products: subscription.max_products,
-      max_locations: subscription.max_locations,
-      features: JSON.parse(subscription.features || '[]'),
-      is_active: subscription.is_active
-    }
+      name: plan.name,
+      display_name: plan.display_name,
+      description: plan.description,
+      monthly_price: plan.monthly_price,
+      yearly_price: plan.yearly_price,
+      max_team_members: plan.max_team_members,
+      max_products: plan.max_products,
+      max_locations: plan.max_locations,
+      features: plan.features || [],
+      is_active: plan.is_active
+    } : undefined
   }
 }
 
-export function getAllPlans(): SubscriptionPlan[] {
-  const plans = db.prepare(`
-    SELECT id, name, display_name, description, monthly_price, yearly_price,
-           max_team_members, max_products, max_locations, features, is_active
-    FROM subscription_plans
-    WHERE is_active = 1
-    ORDER BY monthly_price ASC
-  `).all() as any[]
+export async function getAllPlans(): Promise<SubscriptionPlan[]> {
+  const { data, error } = await supabase
+    .from('subscription_plans')
+    .select('*')
+    .eq('is_active', true)
+    .order('monthly_price', { ascending: true })
 
-  return plans.map(plan => ({
+  if (error) {
+    console.error('Error getting plans:', error)
+    return []
+  }
+
+  return (data || []).map(plan => ({
     ...plan,
-    features: JSON.parse(plan.features || '[]')
+    features: plan.features || []
   }))
 }
 
-export function getPlanById(planId: number): SubscriptionPlan | null {
-  const plan = db.prepare(`
-    SELECT id, name, display_name, description, monthly_price, yearly_price,
-           max_team_members, max_products, max_locations, features, is_active
-    FROM subscription_plans
-    WHERE id = ?
-  `).get(planId) as any
+export async function getPlanById(planId: number): Promise<SubscriptionPlan | null> {
+  const { data, error } = await supabase
+    .from('subscription_plans')
+    .select('*')
+    .eq('id', planId)
+    .single()
 
-  if (!plan) return null
+  if (error || !data) return null
 
   return {
-    ...plan,
-    features: JSON.parse(plan.features || '[]')
+    ...data,
+    features: data.features || []
   }
 }
 
-export function getPlanByName(planName: string): SubscriptionPlan | null {
-  const plan = db.prepare(`
-    SELECT id, name, display_name, description, monthly_price, yearly_price,
-           max_team_members, max_products, max_locations, features, is_active
-    FROM subscription_plans
-    WHERE name = ?
-  `).get(planName) as any
+export async function getPlanByName(planName: string): Promise<SubscriptionPlan | null> {
+  const { data, error } = await supabase
+    .from('subscription_plans')
+    .select('*')
+    .eq('name', planName)
+    .single()
 
-  if (!plan) return null
+  if (error || !data) return null
 
   return {
-    ...plan,
-    features: JSON.parse(plan.features || '[]')
+    ...data,
+    features: data.features || []
   }
 }
 
-export function updateSubscriptionPlan(orgId: number, planId: number): boolean {
+export async function updateSubscriptionPlan(orgId: number, planId: number): Promise<boolean> {
   try {
-    db.prepare(`
-      UPDATE subscriptions
-      SET plan_id = ?, updated_at = CURRENT_TIMESTAMP
-      WHERE organization_id = ?
-    `).run(planId, orgId)
+    const { error } = await supabase
+      .from('subscriptions')
+      .update({ plan_id: planId })
+      .eq('organization_id', orgId)
+
+    if (error) {
+      console.error('Error updating subscription plan:', error)
+      return false
+    }
     return true
   } catch (error) {
     console.error('Error updating subscription plan:', error)
@@ -121,13 +149,20 @@ export function updateSubscriptionPlan(orgId: number, planId: number): boolean {
   }
 }
 
-export function cancelSubscription(orgId: number): boolean {
+export async function cancelSubscription(orgId: number): Promise<boolean> {
   try {
-    db.prepare(`
-      UPDATE subscriptions
-      SET status = 'cancelled', cancel_at_period_end = 0, updated_at = CURRENT_TIMESTAMP
-      WHERE organization_id = ?
-    `).run(orgId)
+    const { error } = await supabase
+      .from('subscriptions')
+      .update({ 
+        status: 'cancelled',
+        cancel_at_period_end: false
+      })
+      .eq('organization_id', orgId)
+
+    if (error) {
+      console.error('Error cancelling subscription:', error)
+      return false
+    }
     return true
   } catch (error) {
     console.error('Error cancelling subscription:', error)
@@ -156,7 +191,7 @@ export function hasReachedLimit(
   limitType: 'team_members' | 'products' | 'locations'
 ): boolean {
   if (!subscription) return true
-  if (!subscription.plan) return false
+  if (!subscription.plan) return true
 
   const limits = {
     team_members: subscription.plan.max_team_members,

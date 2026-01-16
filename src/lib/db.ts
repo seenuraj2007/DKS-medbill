@@ -1,280 +1,178 @@
-import Database from 'better-sqlite3'
-import { join, dirname } from 'path'
-import { existsSync, mkdirSync } from 'fs'
+import { supabase } from './supabase'
 
-const dataDir = join(process.cwd(), 'data')
-
-if (!existsSync(dataDir)) {
-  mkdirSync(dataDir, { recursive: true })
+export interface User {
+  id: string
+  email: string
+  full_name?: string
+  organization_id?: string
+  role?: string
+  status?: string
+  created_at: string
+  updated_at: string
 }
 
-const dbPath = join(dataDir, 'stockalert.db')
-const db = new Database(dbPath)
+export interface Product {
+  id: string
+  user_id: string
+  name: string
+  sku?: string
+  barcode?: string
+  category?: string
+  current_quantity: number
+  reorder_point: number
+  supplier_name?: string
+  supplier_email?: string
+  supplier_phone?: string
+  supplier_id?: string
+  unit_cost?: number
+  selling_price?: number
+  unit?: string
+  image_url?: string
+  created_at: string
+  updated_at: string
+}
 
-db.pragma('journal_mode = WAL')
+export interface Location {
+  id: string
+  user_id: string
+  name: string
+  address?: string
+  city?: string
+  state?: string
+  zip?: string
+  country?: string
+  is_primary: boolean
+  created_at: string
+  updated_at: string
+}
 
-db.exec(`
-  CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    full_name TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  );
+export interface Supplier {
+  id: string
+  user_id: string
+  name: string
+  contact_person?: string
+  email?: string
+  phone?: string
+  address?: string
+  notes?: string
+  created_at: string
+  updated_at: string
+}
 
-  CREATE TABLE IF NOT EXISTS locations (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    name TEXT NOT NULL,
-    address TEXT,
-    city TEXT,
-    state TEXT,
-    zip TEXT,
-    country TEXT,
-    is_primary INTEGER DEFAULT 0,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE(user_id, name)
-  );
+export interface StockHistory {
+  id: string
+  product_id: string
+  location_id?: string
+  previous_quantity: number
+  quantity_change: number
+  new_quantity: number
+  change_type: 'add' | 'remove' | 'restock' | 'transfer_in' | 'transfer_out'
+  notes?: string
+  reference_id?: number
+  reference_type?: string
+  created_at: string
+}
 
-  CREATE TABLE IF NOT EXISTS suppliers (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    name TEXT NOT NULL,
-    contact_person TEXT,
-    email TEXT,
-    phone TEXT,
-    address TEXT,
-    notes TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-  );
+export interface Alert {
+  id: string
+  user_id: string
+  product_id: string
+  location_id?: string
+  organization_id?: string
+  alert_type: 'low_stock' | 'out_of_stock' | 'purchase_order'
+  message: string
+  is_read: boolean
+  is_sent: boolean
+  sent_at?: string
+  reference_id?: number
+  reference_type?: string
+  created_at: string
+}
 
-  CREATE TABLE IF NOT EXISTS products (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    name TEXT NOT NULL,
-    sku TEXT,
-    category TEXT,
-    current_quantity INTEGER NOT NULL DEFAULT 0,
-    reorder_point INTEGER NOT NULL DEFAULT 0,
-    supplier_name TEXT,
-    supplier_email TEXT,
-    supplier_phone TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-  );
+export async function ensureDefaultLocations(userId: string) {
+  if (!userId) return
 
-  CREATE TABLE IF NOT EXISTS stock_history (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    product_id INTEGER NOT NULL,
-    previous_quantity INTEGER NOT NULL,
-    quantity_change INTEGER NOT NULL,
-    new_quantity INTEGER NOT NULL,
-    change_type TEXT NOT NULL CHECK (change_type IN ('add', 'remove', 'restock')),
-    notes TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
-  );
+  const { data: existingLocation } = await supabase
+    .from('locations')
+    .select('id')
+    .eq('user_id', userId)
+    .single()
 
-  CREATE TABLE IF NOT EXISTS alerts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    product_id INTEGER NOT NULL,
-    alert_type TEXT NOT NULL CHECK (alert_type IN ('low_stock', 'out_of_stock')),
-    message TEXT NOT NULL,
-    is_read INTEGER DEFAULT 0,
-    is_sent INTEGER DEFAULT 0,
-    sent_at DATETIME,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
-  );
-
-  CREATE INDEX IF NOT EXISTS idx_products_user ON products(user_id);
-  CREATE INDEX IF NOT EXISTS idx_stock_history_product ON stock_history(product_id);
-  CREATE INDEX IF NOT EXISTS idx_alerts_user ON alerts(user_id);
-  CREATE INDEX IF NOT EXISTS idx_alerts_read ON alerts(is_read);
-  CREATE INDEX IF NOT EXISTS idx_locations_user ON locations(user_id);
-  CREATE INDEX IF NOT EXISTS idx_suppliers_user ON suppliers(user_id);
-`)
-
-function addColumnIfNotExists(tableName: string, columnName: string, columnDefinition: string) {
-  try {
-    const result = db.prepare(`PRAGMA table_info(${tableName})`).all() as any[]
-    const columnExists = result.some(col => col.name === columnName)
-    
-    if (!columnExists) {
-      db.prepare(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${columnDefinition}`).run()
-      console.log(`Added column ${columnName} to table ${tableName}`)
-    }
-  } catch (error) {
-    console.log(`Column ${columnName} may already exist in table ${tableName}`)
+  if (!existingLocation) {
+    await supabase
+      .from('locations')
+      .insert({
+        user_id: userId,
+        name: 'Default Location',
+        address: 'Main warehouse',
+        is_primary: true
+      })
   }
 }
 
-addColumnIfNotExists('products', 'barcode', 'TEXT')
-addColumnIfNotExists('products', 'supplier_id', 'INTEGER')
-addColumnIfNotExists('products', 'unit_cost', 'REAL DEFAULT 0')
-addColumnIfNotExists('products', 'selling_price', 'REAL DEFAULT 0')
-addColumnIfNotExists('products', 'unit', "TEXT DEFAULT 'unit'")
-addColumnIfNotExists('products', 'image_url', 'TEXT')
+export async function getProductTotalQuantity(productId: string): Promise<number> {
+  const { data, error } = await supabase
+    .from('product_stock')
+    .select('quantity')
+    .eq('product_id', productId)
 
-addColumnIfNotExists('stock_history', 'location_id', 'INTEGER')
-addColumnIfNotExists('stock_history', 'reference_id', 'INTEGER')
-addColumnIfNotExists('stock_history', 'reference_type', 'TEXT')
-addColumnIfNotExists('stock_history', 'change_type', "TEXT CHECK (change_type IN ('add', 'remove', 'restock', 'transfer_in', 'transfer_out'))")
+  if (error) {
+    console.error('Error getting product total quantity:', error)
+    return 0
+  }
 
-addColumnIfNotExists('alerts', 'location_id', 'INTEGER')
-addColumnIfNotExists('alerts', 'organization_id', 'INTEGER')
-addColumnIfNotExists('alerts', 'alert_type', "TEXT CHECK (alert_type IN ('low_stock', 'out_of_stock', 'purchase_order'))")
-addColumnIfNotExists('alerts', 'reference_id', 'INTEGER')
-addColumnIfNotExists('alerts', 'reference_type', 'TEXT')
+  return data?.reduce((sum, item) => sum + item.quantity, 0) || 0
+}
 
-db.exec(`
-  CREATE TABLE IF NOT EXISTS product_stock (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    product_id INTEGER NOT NULL,
-    location_id INTEGER NOT NULL,
-    quantity INTEGER NOT NULL DEFAULT 0,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
-    FOREIGN KEY (location_id) REFERENCES locations(id) ON DELETE CASCADE,
-    UNIQUE(product_id, location_id)
-  );
+export async function getProductQuantityAtLocation(
+  productId: string,
+  locationId: string
+): Promise<number> {
+  const { data, error } = await supabase
+    .from('product_stock')
+    .select('quantity')
+    .eq('product_id', productId)
+    .eq('location_id', locationId)
+    .single()
 
-  CREATE TABLE IF NOT EXISTS purchase_orders (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    supplier_id INTEGER NOT NULL,
-    order_number TEXT UNIQUE NOT NULL,
-    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'sent', 'received', 'cancelled')),
-    total_cost REAL DEFAULT 0,
-    notes TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (supplier_id) REFERENCES suppliers(id) ON DELETE CASCADE
-  );
+  if (error || !data) {
+    return 0
+  }
 
-  CREATE TABLE IF NOT EXISTS purchase_order_items (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    purchase_order_id INTEGER NOT NULL,
-    product_id INTEGER NOT NULL,
-    quantity INTEGER NOT NULL,
-    unit_cost REAL NOT NULL,
-    total_cost REAL NOT NULL,
-    received_quantity INTEGER DEFAULT 0,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (purchase_order_id) REFERENCES purchase_orders(id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
-  );
+  return data.quantity
+}
 
-  CREATE TABLE IF NOT EXISTS stock_transfers (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    from_location_id INTEGER NOT NULL,
-    to_location_id INTEGER NOT NULL,
-    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'in_transit', 'completed', 'cancelled')),
-    notes TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (from_location_id) REFERENCES locations(id) ON DELETE CASCADE,
-    FOREIGN KEY (to_location_id) REFERENCES locations(id) ON DELETE CASCADE
-  );
+export async function updateProductQuantityAtLocation(
+  productId: string,
+  locationId: string,
+  change: number
+): Promise<number> {
+  const currentQuantity = await getProductQuantityAtLocation(productId, locationId)
+  const newQuantity = currentQuantity + change
 
-  CREATE TABLE IF NOT EXISTS stock_transfer_items (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    stock_transfer_id INTEGER NOT NULL,
-    product_id INTEGER NOT NULL,
-    quantity INTEGER NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (stock_transfer_id) REFERENCES stock_transfers(id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
-  );
-
-  CREATE INDEX IF NOT EXISTS idx_products_sku ON products(sku);
-  CREATE INDEX IF NOT EXISTS idx_products_barcode ON products(barcode);
-  CREATE INDEX IF NOT EXISTS idx_products_supplier ON products(supplier_id);
-  CREATE INDEX IF NOT EXISTS idx_product_stock_product ON product_stock(product_id);
-  CREATE INDEX IF NOT EXISTS idx_product_stock_location ON product_stock(location_id);
-  CREATE INDEX IF NOT EXISTS idx_stock_history_location ON stock_history(location_id);
-  CREATE INDEX IF NOT EXISTS idx_stock_history_date ON stock_history(created_at DESC);
-  CREATE INDEX IF NOT EXISTS idx_purchase_orders_user ON purchase_orders(user_id);
-  CREATE INDEX IF NOT EXISTS idx_purchase_orders_supplier ON purchase_orders(supplier_id);
-  CREATE INDEX IF NOT EXISTS idx_purchase_orders_status ON purchase_orders(status);
-  CREATE INDEX IF NOT EXISTS idx_stock_transfers_user ON stock_transfers(user_id);
-  CREATE INDEX IF NOT EXISTS idx_stock_transfers_from ON stock_transfers(from_location_id);
-  CREATE INDEX IF NOT EXISTS idx_stock_transfers_to ON stock_transfers(to_location_id);
-  CREATE INDEX IF NOT EXISTS idx_alerts_reference ON alerts(reference_id, reference_type);
-`)
-
-let initialized = false
-
-export function ensureDefaultLocations() {
-  if (initialized) return
-  initialized = true
-  
-  try {
-    const users = db.prepare('SELECT id FROM users').all() as { id: number }[]
-
-    users.forEach(user => {
-      const existingLocation = db.prepare('SELECT id FROM locations WHERE user_id = ?').get(user.id)
-      if (!existingLocation) {
-        db.prepare(`
-          INSERT INTO locations (user_id, name, address, is_primary)
-          VALUES (?, ?, ?, 1)
-        `).run(user.id, 'Default Location', 'Main warehouse')
-      }
+  const { error } = await supabase
+    .from('product_stock')
+    .upsert({
+      product_id: productId,
+      location_id: locationId,
+      quantity: newQuantity
     })
-  } catch (error) {
-    console.log('Could not ensure default locations:', error instanceof Error ? error.message : String(error))
+
+  if (error) {
+    console.error('Error updating product quantity:', error)
+    throw error
   }
+
+  return newQuantity
 }
 
-// Helper function to get total product quantity across all locations
-export function getProductTotalQuantity(productId: number): number {
-  const result = db.prepare(`
-    SELECT COALESCE(SUM(quantity), 0) as total
-    FROM product_stock
-    WHERE product_id = ?
-  `).get(productId) as { total: number }
-  return result.total
+export async function updateProductCurrentQuantity(productId: string): Promise<void> {
+  const totalQuantity = await getProductTotalQuantity(productId)
+
+  await supabase
+    .from('products')
+    .update({ current_quantity: totalQuantity })
+    .eq('id', productId)
 }
 
-// Helper function to get product quantity at specific location
-export function getProductQuantityAtLocation(productId: number, locationId: number): number {
-  const result = db.prepare(`
-    SELECT COALESCE(quantity, 0) as qty
-    FROM product_stock
-    WHERE product_id = ? AND location_id = ?
-  `).get(productId, locationId) as { qty: number } | undefined
-  return result?.qty || 0
-}
-
-// Helper function to update product quantity at location
-export function updateProductQuantityAtLocation(
-  productId: number,
-  locationId: number,
-  change: number,
-  userId: number | null = null
-): number {
-  const stmt = db.prepare(`
-    INSERT INTO product_stock (product_id, location_id, quantity, updated_at)
-    VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-    ON CONFLICT(product_id, location_id) DO UPDATE SET
-      quantity = quantity + ?,
-      updated_at = CURRENT_TIMESTAMP
-  `)
-
-  stmt.run(productId, locationId, change, change)
-
-  return getProductQuantityAtLocation(productId, locationId)
-}
-
-export default db
+export default supabase

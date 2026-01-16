@@ -1,72 +1,124 @@
 import { NextRequest, NextResponse } from 'next/server'
-import db from '@/lib/db'
-import bcrypt from 'bcryptjs'
-import { addDays } from 'date-fns'
+import { supabase } from '@/lib/supabase'
+import { signupSchema } from '@/lib/validators'
+import { handleApiError } from '@/lib/errorHandler'
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, full_name } = await req.json()
+    const validatedData = signupSchema.parse(await req.json())
 
-    if (!email || !password) {
-      return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
+    const orgName = validatedData.full_name ? `${validatedData.full_name}'s Organization` : 'My Organization'
+
+    const { data: orgData, error: orgError } = await supabase
+      .from('organizations')
+      .insert({ name: orgName })
+      .select()
+      .single()
+
+    if (orgError) {
+      console.error('Organization creation error:', orgError)
+      throw new Error('Failed to create organization')
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
-      return NextResponse.json({ error: 'Invalid email format' }, { status: 400 })
+    const orgId = orgData.id
+
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email: validatedData.email,
+      password: validatedData.password,
+      options: {
+        data: {
+          full_name: validatedData.full_name,
+          organization_id: orgId
+        }
+      }
+    })
+
+    if (authError) {
+      await supabase.from('organizations').delete().eq('id', orgId)
+      if (authError.message.includes('already registered')) {
+        throw new Error('Email already registered')
+      }
+      console.error('Auth signup error:', authError)
+      throw new Error('Failed to create user')
     }
 
-    if (password.length < 6) {
-      return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 })
+    if (!authData.user) {
+      await supabase.from('organizations').delete().eq('id', orgId)
+      throw new Error('Failed to create user')
     }
 
-    const existingUser = db.prepare('SELECT id FROM users WHERE email = ?').get(email)
-    if (existingUser) {
-      return NextResponse.json({ error: 'Email already registered' }, { status: 400 })
+    const { data: planData } = await supabase
+      .from('subscription_plans')
+      .select('id')
+      .eq('name', 'free')
+      .single()
+
+    if (planData) {
+      const trialEndDate = new Date()
+      trialEndDate.setDate(trialEndDate.getDate() + 30)
+
+      await supabase.from('subscriptions').insert({
+        organization_id: orgId,
+        plan_id: planData.id,
+        status: 'trial',
+        trial_end_date: trialEndDate.toISOString()
+      })
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10)
+    await supabase
+      .from('users')
+      .upsert({
+        id: authData.user.id,
+        email: validatedData.email,
+        full_name: validatedData.full_name,
+        organization_id: orgId,
+        role: 'owner',
+        status: 'active'
+      })
 
-    const orgName = full_name ? `${full_name}'s Organization` : 'My Organization'
+    await supabase
+      .from('organizations')
+      .update({ owner_id: authData.user.id })
+      .eq('id', orgId)
 
-    db.prepare('BEGIN TRANSACTION').run()
+    await supabase
+      .from('locations')
+      .insert({
+        user_id: authData.user.id,
+        name: 'Default Location',
+        address: 'Main warehouse',
+        is_primary: true
+      })
 
-    const orgResult = db.prepare(
-      'INSERT INTO organizations (name, owner_id) VALUES (?, ?)'
-    ).run(orgName, 0)
+    const { data: user } = await supabase
+      .from('users')
+      .select('id, email, full_name, organization_id, role, status, created_at, updated_at')
+      .eq('id', authData.user.id)
+      .single()
 
-    const orgId = orgResult.lastInsertRowid
+    const response = NextResponse.json({ user }, { status: 201 })
 
-    const userResult = db.prepare(
-      'INSERT INTO users (email, password, full_name, organization_id, role, status) VALUES (?, ?, ?, ?, ?, ?)'
-    ).run(email, hashedPassword, full_name || null, orgId, 'owner', 'active')
+    if (authData.session) {
+      response.cookies.set('sb-access-token', authData.session.access_token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7
+      })
 
-    db.prepare(
-      'UPDATE organizations SET owner_id = ? WHERE id = ?'
-    ).run(userResult.lastInsertRowid, orgId)
-
-    const freePlan = db.prepare("SELECT id FROM subscription_plans WHERE name = 'free'").get() as { id: number } | undefined
-    if (!freePlan) {
-      db.prepare('ROLLBACK').run()
-      return NextResponse.json({ error: 'Free plan not found' }, { status: 500 })
+      response.cookies.set('sb-refresh-token', authData.session.refresh_token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7
+      })
     }
 
-    const trialEndDate = addDays(new Date(), 30).toISOString()
-    db.prepare(`
-      INSERT INTO subscriptions (organization_id, plan_id, status, trial_end_date)
-      VALUES (?, ?, 'trial', ?)
-    `).run(orgId, freePlan.id, trialEndDate)
-
-    db.prepare('COMMIT').run()
-
-    const user = db.prepare(`
-      SELECT id, email, full_name, organization_id, role, status, created_at
-      FROM users WHERE id = ?
-    `).get(userResult.lastInsertRowid)
-
-    return NextResponse.json({ user }, { status: 201 })
+    return response
   } catch (error) {
     console.error('Signup error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return handleApiError(error)
   }
 }

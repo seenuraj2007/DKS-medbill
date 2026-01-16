@@ -1,9 +1,21 @@
 import { NextResponse } from 'next/server'
+import { supabase } from '@/lib/supabase'
 
 export async function POST() {
-  const response = NextResponse.json({ message: 'Logged out successfully' }, { status: 200 })
+  try {
+    await supabase.auth.signOut()
 
-  response.cookies.delete('user_id')
+    const response = NextResponse.json({ message: 'Logged out successfully' }, { status: 200 })
 
-  return response
+    response.cookies.delete('sb-access-token')
+    response.cookies.delete('sb-refresh-token')
+
+    return response
+  } catch (error) {
+    console.error('Logout error:', error)
+    const response = NextResponse.json({ message: 'Logged out successfully' }, { status: 200 })
+    response.cookies.delete('sb-access-token')
+    response.cookies.delete('sb-refresh-token')
+    return response
+  }
 }

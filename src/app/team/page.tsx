@@ -34,7 +34,9 @@ export default function TeamPage() {
   const fetchTeam = async () => {
     try {
       setLoading(true)
-      const res = await fetch('/api/team')
+      const res = await fetch('/api/team', {
+        credentials: 'include'
+      })
       if (!res.ok) throw new Error('Failed to fetch team')
 
       const data = await res.json()
@@ -56,7 +58,8 @@ export default function TeamPage() {
       const res = await fetch('/api/team', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(createForm)
+        body: JSON.stringify(createForm),
+        credentials: 'include'
       })
 
       const data = await res.json()
@@ -81,7 +84,8 @@ export default function TeamPage() {
 
     try {
       const res = await fetch(`/api/team/${memberId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        credentials: 'include'
       })
 
       if (!res.ok) throw new Error('Failed to remove team member')

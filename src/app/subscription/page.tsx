@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CreditCard, Check, AlertTriangle, Calendar, Users, Package, MapPin, Crown, Zap, ArrowRight, Loader2 } from 'lucide-react'
 import Link from 'next/link'
+import { get, post } from '@/lib/fetch'
 
 interface Plan {
   id: number
@@ -48,7 +49,7 @@ export default function SubscriptionPage() {
 
   const fetchSubscription = async () => {
     try {
-      const res = await fetch('/api/subscription')
+      const res = await get('/api/subscription')
       if (res.status === 401) {
         router.push('/auth')
         return
@@ -75,12 +76,7 @@ export default function SubscriptionPage() {
     setSuccess('')
 
     try {
-      const res = await fetch('/api/subscription', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId })
-      })
-
+      const res = await post('/api/subscription', { planId })
       const data = await res.json()
 
       if (!res.ok) {

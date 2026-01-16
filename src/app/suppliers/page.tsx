@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Plus, Truck, Edit, Trash2, ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
+import { get, del } from '@/lib/fetch'
 
 interface Supplier {
   id: number
@@ -27,7 +28,7 @@ export default function SuppliersPage() {
 
   const fetchSuppliers = async () => {
     try {
-      const res = await fetch('/api/suppliers')
+      const res = await get('/api/suppliers')
       if (res.status === 401) {
         router.push('/auth')
         return
@@ -45,7 +46,7 @@ export default function SuppliersPage() {
     if (!confirm('Are you sure you want to delete this supplier?')) return
 
     try {
-      const res = await fetch(`/api/suppliers/${id}`, { method: 'DELETE' })
+      const res = await del(`/api/suppliers/${id}`)
       if (res.ok) {
         fetchSuppliers()
       }

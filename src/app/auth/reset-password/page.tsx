@@ -56,8 +56,9 @@ function ResetPasswordContent() {
       }
 
       setSuccess(true)
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to reset password'
+      setError(message)
     } finally {
       setLoading(false)
     }

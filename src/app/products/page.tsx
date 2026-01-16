@@ -16,6 +16,7 @@ interface Product {
   created_at: string
   needs_restock: boolean
   is_out_of_stock: boolean
+  image_url: string | null
 }
 
 export default function ProductsPage() {
@@ -31,7 +32,9 @@ export default function ProductsPage() {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch('/api/products')
+      const res = await fetch('/api/products', {
+        credentials: 'include'
+      })
       if (res.status === 401) {
         router.push('/auth')
         return
@@ -49,7 +52,7 @@ export default function ProductsPage() {
     if (!confirm('Are you sure you want to delete this product?')) return
 
     try {
-      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' })
+      const res = await fetch(`/api/products/${id}`, { method: 'DELETE', credentials: 'include' })
       if (res.ok) {
         fetchProducts()
       }
@@ -196,13 +199,21 @@ export default function ProductsPage() {
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                            product.is_out_of_stock ? 'bg-red-100' : product.needs_restock ? 'bg-yellow-100' : 'bg-green-100'
-                          }`}>
-                            <Package className={`w-5 h-5 ${
-                              product.is_out_of_stock ? 'text-red-600' : product.needs_restock ? 'text-yellow-600' : 'text-green-600'
-                            }`} />
-                          </div>
+                          {product.image_url ? (
+                            <img
+                              src={product.image_url}
+                              alt={product.name}
+                              className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
+                            />
+                          ) : (
+                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                              product.is_out_of_stock ? 'bg-red-100' : product.needs_restock ? 'bg-yellow-100' : 'bg-green-100'
+                            }`}>
+                              <Package className={`w-5 h-5 ${
+                                product.is_out_of_stock ? 'text-red-600' : product.needs_restock ? 'text-yellow-600' : 'text-green-600'
+                              }`} />
+                            </div>
+                          )}
                           <span className="font-medium text-gray-900 truncate">{product.name}</span>
                         </div>
                       </td>

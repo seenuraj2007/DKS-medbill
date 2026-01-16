@@ -9,12 +9,17 @@ interface Product {
   id: number
   name: string
   sku: string | null
+  barcode: string | null
   category: string | null
   current_quantity: number
   reorder_point: number
   supplier_name: string | null
   supplier_email: string | null
   supplier_phone: string | null
+  unit_cost: number | null
+  selling_price: number | null
+  unit: string | null
+  image_url: string | null
   created_at: string
   updated_at: string
 }
@@ -218,6 +223,16 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             ) : null}
           </div>
         </div>
+
+        {product.image_url && (
+          <div className="mb-6">
+            <img
+              src={product.image_url}
+              alt={product.name}
+              className="max-w-xs rounded-xl border border-gray-200 shadow-sm"
+            />
+          </div>
+        )}
 
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl">

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import db from '@/lib/db'
 import { getUserFromRequest } from '@/lib/auth'
 import { getOrganizationSubscription, hasReachedLimit } from '@/lib/subscription'
+import { supabase } from '@/lib/supabase'
 
 export async function GET(req: NextRequest) {
   try {
@@ -10,38 +10,54 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const subscription = getOrganizationSubscription(user.organization_id)
+    const subscription = await getOrganizationSubscription(user.organization_id)
     if (!subscription) {
       return NextResponse.json({ error: 'No subscription found' }, { status: 400 })
     }
 
-    const teamCount = db.prepare(`
-      SELECT COUNT(*) as count FROM users WHERE organization_id = ?
-    `).get(user.organization_id) as { count: number }
+    const teamResult = await supabase
+      .from('users')
+      .select('*', { count: 'exact', head: true })
+      .eq('organization_id', user.organization_id)
 
-    const productCount = db.prepare(`
-      SELECT COUNT(*) as count FROM products WHERE user_id IN (SELECT id FROM users WHERE organization_id = ?)
-    `).get(user.organization_id) as { count: number }
+    const teamCount = teamResult.count || 0
 
-    const locationCount = db.prepare(`
-      SELECT COUNT(*) as count FROM locations WHERE user_id IN (SELECT id FROM users WHERE organization_id = ?)
-    `).get(user.organization_id) as { count: number }
+    const { data: orgUsers } = await supabase
+      .from('users')
+      .select('id')
+      .eq('organization_id', user.organization_id)
+
+    const userIds = orgUsers?.map(u => u.id) || []
+
+    const [productResult, locationResult] = await Promise.all([
+      supabase
+        .from('products')
+        .select('*', { count: 'exact', head: true })
+        .in('user_id', userIds),
+      supabase
+        .from('locations')
+        .select('*', { count: 'exact', head: true })
+        .in('user_id', userIds)
+    ])
+
+    const productCount = productResult.count || 0
+    const locationCount = locationResult.count || 0
 
     const limits = {
       teamMembers: {
-        current: teamCount.count,
+        current: teamCount,
         limit: subscription.plan?.max_team_members || -1,
-        reached: hasReachedLimit(subscription, teamCount.count, 'team_members')
+        reached: hasReachedLimit(subscription, teamCount, 'team_members')
       },
       products: {
-        current: productCount.count,
+        current: productCount,
         limit: subscription.plan?.max_products || -1,
-        reached: hasReachedLimit(subscription, productCount.count, 'products')
+        reached: hasReachedLimit(subscription, productCount, 'products')
       },
       locations: {
-        current: locationCount.count,
+        current: locationCount,
         limit: subscription.plan?.max_locations || -1,
-        reached: hasReachedLimit(subscription, locationCount.count, 'locations')
+        reached: hasReachedLimit(subscription, locationCount, 'locations')
       }
     }
 

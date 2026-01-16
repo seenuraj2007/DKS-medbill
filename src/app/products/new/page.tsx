@@ -2,9 +2,10 @@
 
 import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Save, Package, Tag, Hash, AlertTriangle, Mail, Phone, DollarSign, Box, Image as ImageIcon, Scan } from 'lucide-react'
+import { ArrowLeft, Save, Package, Tag, Hash, AlertTriangle, Mail, Phone, DollarSign, Box, Scan } from 'lucide-react'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
+import ImageUpload from '@/components/ImageUpload'
 
 const BarcodeScanner = dynamic(() => import('@/components/BarcodeScanner'), {
   ssr: false,
@@ -288,14 +289,10 @@ export default function ProductFormPage({ params }: { params?: Promise<{ id?: st
             </div>
 
             <div className="pt-6 border-t border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Product Image</h3>
-              <InputField
-                label="Image URL"
-                icon={ImageIcon}
-                name="image_url"
+              <ImageUpload
                 value={formData.image_url}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, image_url: e.target.value })}
-                placeholder="https://example.com/image.jpg"
+                onChange={(url) => setFormData({ ...formData, image_url: url })}
+                onRemove={() => setFormData({ ...formData, image_url: '' })}
               />
             </div>
 

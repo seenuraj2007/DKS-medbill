@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import db from '@/lib/db'
+import { supabase } from '@/lib/supabase'
 import { getUserFromRequest } from '@/lib/auth'
 import { PermissionsService } from '@/lib/permissions'
-import { AuditService, AuditActions } from '@/lib/audit'
 
 export async function GET(req: NextRequest) {
   try {
@@ -11,26 +10,32 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const org = db.prepare(`
-      SELECT id, name, created_at, updated_at
-      FROM organizations
-      WHERE id = ?
-    `).get(user.organization_id)
+    const { data: org, error } = await supabase
+      .from('organizations')
+      .select('id, name, created_at, updated_at')
+      .eq('id', user.organization_id)
+      .single()
 
-    const owner = db.prepare(`
-      SELECT id, email, full_name
-      FROM users
-      WHERE id = (SELECT owner_id FROM organizations WHERE id = ?)
-    `).get(user.organization_id) as any
+    if (error || !org) {
+      return NextResponse.json({ error: 'Organization not found' }, { status: 404 })
+    }
 
-    const memberCount = db.prepare(`
-      SELECT COUNT(*) as count FROM users WHERE organization_id = ?
-    `).get(user.organization_id) as { count: number }
+    const { data: ownerData } = await supabase
+      .from('users')
+      .select('id, email, full_name')
+      .eq('organization_id', user.organization_id)
+      .eq('role', 'owner')
+      .single()
+
+    const { count: memberCount } = await supabase
+      .from('users')
+      .select('id', { count: 'exact', head: true })
+      .eq('organization_id', user.organization_id)
 
     return NextResponse.json({
       organization: org,
-      owner,
-      memberCount: memberCount.count
+      owner: ownerData,
+      memberCount: memberCount || 0
     })
   } catch (error) {
     console.error('Get organization error:', error)
@@ -60,29 +65,27 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: 'Organization name must be at least 2 characters' }, { status: 400 })
     }
 
-    const currentOrg = db.prepare('SELECT name FROM organizations WHERE id = ?').get(user.organization_id) as { name: string }
+    const { data: currentOrg, error: currentError } = await supabase
+      .from('organizations')
+      .select('name')
+      .eq('id', user.organization_id)
+      .single()
 
-    db.prepare(`
-      UPDATE organizations
-      SET name = ?, updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?
-    `).run(name.trim(), user.organization_id)
+    if (currentError || !currentOrg) {
+      return NextResponse.json({ error: 'Organization not found' }, { status: 404 })
+    }
 
-    const updatedOrg = db.prepare(`
-      SELECT id, name, created_at, updated_at
-      FROM organizations
-      WHERE id = ?
-    `).get(user.organization_id)
+    const { data: updatedOrg, error: updateError } = await supabase
+      .from('organizations')
+      .update({ name: name.trim() })
+      .eq('id', user.organization_id)
+      .select('id, name, created_at, updated_at')
+      .single()
 
-    AuditService.logAction(
-      user.id,
-      user.organization_id,
-      AuditActions.ORGANIZATION_UPDATED,
-      'organization',
-      user.organization_id,
-      { name: currentOrg.name },
-      { name: name.trim() }
-    )
+    if (updateError) {
+      console.error('Update organization error:', updateError)
+      return NextResponse.json({ error: 'Failed to update organization' }, { status: 500 })
+    }
 
     return NextResponse.json({ organization: updatedOrg })
   } catch (error) {

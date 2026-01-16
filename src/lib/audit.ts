@@ -1,75 +1,38 @@
-import db from './db'
-
-export function migrateAuditTrail() {
-  try {
-    console.log('Starting audit trail migration...')
-
-    // 1. Create audit_logs table
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS audit_logs (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        organization_id INTEGER,
-        action TEXT NOT NULL,
-        resource_type TEXT NOT NULL,
-        resource_id INTEGER,
-        old_value TEXT,
-        new_value TEXT,
-        ip_address TEXT,
-        user_agent TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
-        FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
-      );
-    `)
-
-    // 2. Create indexes
-    db.exec(`
-      CREATE INDEX IF NOT EXISTS idx_audit_logs_user ON audit_logs(user_id);
-      CREATE INDEX IF NOT EXISTS idx_audit_logs_organization ON audit_logs(organization_id);
-      CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action);
-      CREATE INDEX IF NOT EXISTS idx_audit_logs_resource ON audit_logs(resource_type, resource_id);
-      CREATE INDEX IF NOT EXISTS idx_audit_logs_created ON audit_logs(created_at DESC);
-    `)
-
-    console.log('Audit trail migration completed successfully!')
-  } catch (error) {
-    console.error('Migration failed:', error)
-    throw error
-  }
-}
+import { supabase } from './supabase'
 
 export class AuditService {
   /**
    * Log user action
    */
-  static logAction(
-    userId: number | null,
-    organizationId: number | null,
+  static async logAction(
+    userId: string | number | null,
+    organizationId: string | number | null,
     action: string,
     resourceType: string,
-    resourceId: number | null = null,
-    oldValue: any = null,
-    newValue: any = null,
+    resourceId: string | number | null = null,
+    oldValue: unknown = null,
+    newValue: unknown = null,
     ipAddress: string | null = null,
     userAgent: string | null = null
   ) {
     try {
-      db.prepare(`
-        INSERT INTO audit_logs (user_id, organization_id, action, resource_type, resource_id,
-                              old_value, new_value, ip_address, user_agent)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `).run(
-        userId,
-        organizationId,
-        action,
-        resourceType,
-        resourceId,
-        oldValue ? JSON.stringify(oldValue) : null,
-        newValue ? JSON.stringify(newValue) : null,
-        ipAddress,
-        userAgent
-      )
+      const { error } = await supabase
+        .from('audit_logs')
+        .insert({
+          user_id: userId,
+          organization_id: organizationId,
+          action,
+          resource_type: resourceType,
+          resource_id: resourceId,
+          old_value: oldValue ? JSON.stringify(oldValue) : null,
+          new_value: newValue ? JSON.stringify(newValue) : null,
+          ip_address: ipAddress,
+          user_agent: userAgent
+        })
+
+      if (error) {
+        console.error('Failed to log audit entry:', error)
+      }
     } catch (error) {
       console.error('Failed to log audit entry:', error)
     }
@@ -78,123 +41,116 @@ export class AuditService {
   /**
    * Get audit logs for organization
    */
-  static getOrganizationLogs(
-    organizationId: number,
+  static async getOrganizationLogs(
+    organizationId: string | number,
     filters: {
-      userId?: number
+      userId?: string | number
       resourceType?: string
-      resourceId?: number
+      resourceId?: string | number
       startDate?: string
       endDate?: string
       limit?: number
       offset?: number
     } = {}
-  ): any[] {
-    let query = `
-      SELECT 
-        al.*,
-        u.email as user_email,
-        u.full_name as user_name
-      FROM audit_logs al
-      LEFT JOIN users u ON al.user_id = u.id
-      WHERE al.organization_id = ?
-    `
-    const params: any[] = [organizationId]
+  ): Promise<Array<{ id: string; user_email?: string; user_name?: string }>> {
+    let query = supabase
+      .from('audit_logs')
+      .select(`
+        *,
+        users!user_id (email, full_name)
+      `)
+      .eq('organization_id', organizationId)
 
     if (filters.userId) {
-      query += ' AND al.user_id = ?'
-      params.push(filters.userId)
+      query = query.eq('user_id', filters.userId)
     }
 
     if (filters.resourceType) {
-      query += ' AND al.resource_type = ?'
-      params.push(filters.resourceType)
+      query = query.eq('resource_type', filters.resourceType)
     }
 
     if (filters.resourceId) {
-      query += ' AND al.resource_id = ?'
-      params.push(filters.resourceId)
+      query = query.eq('resource_id', filters.resourceId)
     }
 
     if (filters.startDate) {
-      query += ' AND al.created_at >= ?'
-      params.push(filters.startDate)
+      query = query.gte('created_at', filters.startDate)
     }
 
     if (filters.endDate) {
-      query += ' AND al.created_at <= ?'
-      params.push(filters.endDate)
+      query = query.lte('created_at', filters.endDate)
     }
 
-    query += ' ORDER BY al.created_at DESC'
+    query = query.order('created_at', { ascending: false })
 
     if (filters.limit) {
-      query += ' LIMIT ?'
-      params.push(filters.limit)
+      query = query.limit(filters.limit)
     }
 
     if (filters.offset) {
-      query += ' OFFSET ?'
-      params.push(filters.offset)
+      query = query.range(filters.offset, filters.offset + (filters.limit || 10) - 1)
     }
 
-    return db.prepare(query).all(...params)
+    const { data, error } = await query
+
+    if (error) {
+      console.error('Failed to get audit logs:', error)
+      return []
+    }
+
+    return data || []
   }
 
   /**
    * Get audit logs for specific resource
    */
-  static getResourceLogs(
+  static async getResourceLogs(
     resourceType: string,
-    resourceId: number,
+    resourceId: string | number,
     limit: number = 50
-  ): any[] {
-    return db.prepare(`
-      SELECT 
-        al.*,
-        u.email as user_email,
-        u.full_name as user_name
-      FROM audit_logs al
-      LEFT JOIN users u ON al.user_id = u.id
-      WHERE al.resource_type = ? AND al.resource_id = ?
-      ORDER BY al.created_at DESC
-      LIMIT ?
-    `).all(resourceType, resourceId, limit)
+  ): Promise<Array<{ id: string; user_email?: string; user_name?: string }>> {
+    const { data, error } = await supabase
+      .from('audit_logs')
+      .select(`
+        *,
+        users!user_id ()
+      `)
+      .eq('email, full_nameresource_type', resourceType)
+      .eq('resource_id', resourceId)
+      .order('created_at', { ascending: false })
+      .limit(limit)
+
+    if (error) {
+      console.error('Failed to get resource logs:', error)
+      return []
+    }
+
+    return data || []
   }
 
   /**
    * Get recent activity
    */
-  static getRecentActivity(
-    organizationId: number,
+  static async getRecentActivity(
+    organizationId: string | number,
     limit: number = 20
-  ): any[] {
-    return db.prepare(`
-      SELECT 
-        al.*,
-        u.email as user_email,
-        u.full_name as user_name
-      FROM audit_logs al
-      LEFT JOIN users u ON al.user_id = u.id
-      WHERE al.organization_id = ?
-      ORDER BY al.created_at DESC
-      LIMIT ?
-    `).all(organizationId, limit)
-  }
+  ): Promise<Array<{ id: string; user_email?: string; user_name?: string }>> {
+    const { data, error } = await supabase
+      .from('audit_logs')
+      .select(`
+        *,
+        users!user_id (email, full_name)
+      `)
+      .eq('organization_id', organizationId)
+      .order('created_at', { ascending: false })
+      .limit(limit)
 
-  /**
-   * Clean old audit logs (retention policy)
-   */
-  static cleanOldLogs(daysToKeep: number = 90) {
-    const cutoffDate = new Date()
-    cutoffDate.setDate(cutoffDate.getDate() - daysToKeep)
+    if (error) {
+      console.error('Failed to get recent activity:', error)
+      return []
+    }
 
-    const result = db.prepare(`
-      DELETE FROM audit_logs
-      WHERE created_at < ?
-    `).run(cutoffDate.toISOString())
-
-    return result.changes
+    return data || []
   }
 }
 
@@ -287,8 +243,3 @@ export const ResourceTypes = {
   SETTINGS: 'settings',
   BACKUP: 'backup',
 } as const
-
-// Run migration if executed directly
-if (require.main === module) {
-  migrateAuditTrail()
-}

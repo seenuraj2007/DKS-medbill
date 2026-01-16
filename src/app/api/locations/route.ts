@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import db from '@/lib/db'
+import { supabase } from '@/lib/supabase'
 import { getUserFromRequest } from '@/lib/auth'
 import { getOrganizationSubscription, hasReachedLimit } from '@/lib/subscription'
 
@@ -10,18 +10,27 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const locations = db.prepare(`
-      SELECT 
-        l.*,
-        COUNT(ps.id) as total_products
-      FROM locations l
-      LEFT JOIN product_stock ps ON l.id = ps.location_id
-      WHERE l.user_id = ?
-      GROUP BY l.id
-      ORDER BY l.is_primary DESC, l.name ASC
-    `).all(user.id)
+    const { data: locations, error } = await supabase
+      .from('locations')
+      .select(`
+        *,
+        product_stock (count)
+      `)
+      .eq('user_id', user.id)
+      .order('is_primary', { ascending: false })
+      .order('name', { ascending: true })
 
-    return NextResponse.json({ locations })
+    if (error) {
+      console.error('Get locations error:', error)
+      return NextResponse.json({ error: 'Failed to fetch locations' }, { status: 500 })
+    }
+
+    const formattedLocations = (locations || []).map(loc => ({
+      ...loc,
+      total_products: loc.product_stock?.length || 0
+    }))
+
+    return NextResponse.json({ locations: formattedLocations })
   } catch (error) {
     console.error('Get locations error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -42,21 +51,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Location name is required' }, { status: 400 })
     }
 
-    // Check subscription limits
     if (user.organization_id) {
-      const subscription = getOrganizationSubscription(user.organization_id)
+      const subscription = await getOrganizationSubscription(user.organization_id)
       if (subscription && subscription.status !== 'trial') {
         if (subscription.status === 'expired' || subscription.status === 'cancelled') {
           return NextResponse.json({ error: 'Subscription is not active' }, { status: 403 })
         }
 
-        const currentLocationCount = db.prepare('SELECT COUNT(*) as count FROM locations WHERE user_id IN (SELECT id FROM users WHERE organization_id = ?)').get(user.organization_id) as { count: number }
+        const { count, error: countError } = await supabase
+          .from('locations')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id)
 
-        if (hasReachedLimit(subscription, currentLocationCount.count, 'locations')) {
+        if (countError) {
+          console.error('Error counting locations:', countError)
+        }
+
+        if (count && hasReachedLimit(subscription, count, 'locations')) {
           return NextResponse.json({
             error: 'Location limit reached',
             limit: subscription.plan?.max_locations,
-            current: currentLocationCount.count,
+            current: count,
             upgradeUrl: '/subscription'
           }, { status: 403 })
         }
@@ -64,22 +79,38 @@ export async function POST(req: NextRequest) {
     }
 
     if (is_primary) {
-      db.prepare('UPDATE locations SET is_primary = 0 WHERE user_id = ?').run(user.id)
+      await supabase
+        .from('locations')
+        .update({ is_primary: false })
+        .eq('user_id', user.id)
     }
 
-    const result = db.prepare(`
-      INSERT INTO locations (user_id, name, address, city, state, zip, country, is_primary)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(user.id, name, address || null, city || null, state || null, zip || null, country || null, is_primary ? 1 : 0)
+    const { data: location, error: insertError } = await supabase
+      .from('locations')
+      .insert({
+        user_id: user.id,
+        name,
+        address: address || null,
+        city: city || null,
+        state: state || null,
+        zip: zip || null,
+        country: country || null,
+        is_primary: is_primary || false
+      })
+      .select()
+      .single()
 
-    const location = db.prepare('SELECT * FROM locations WHERE id = ?').get(result.lastInsertRowid)
+    if (insertError) {
+      console.error('Create location error:', insertError)
+      if (insertError.message.includes('duplicate key')) {
+        return NextResponse.json({ error: 'Location name already exists' }, { status: 409 })
+      }
+      return NextResponse.json({ error: 'Failed to create location' }, { status: 500 })
+    }
 
     return NextResponse.json({ location }, { status: 201 })
   } catch (error) {
     console.error('Create location error:', error)
-    if ((error as any).code === 'SQLITE_CONSTRAINT') {
-      return NextResponse.json({ error: 'Location name already exists' }, { status: 409 })
-    }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

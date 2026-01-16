@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import { Html5Qrcode } from 'html5-qrcode'
 
 interface BarcodeScannerProps {
@@ -11,6 +11,16 @@ interface BarcodeScannerProps {
 export default function BarcodeScanner({ onDetected, onClose }: BarcodeScannerProps) {
   const scannerRef = useRef<Html5Qrcode | null>(null)
   const containerId = 'barcode-scanner-container'
+
+  const stopScanner = useCallback(async () => {
+    if (scannerRef.current) {
+      try {
+        await scannerRef.current.stop()
+      } catch (err) {
+        console.error('Error stopping scanner:', err)
+      }
+    }
+  }, [])
 
   useEffect(() => {
     const startScanner = async () => {
@@ -39,17 +49,7 @@ export default function BarcodeScanner({ onDetected, onClose }: BarcodeScannerPr
     return () => {
       stopScanner()
     }
-  }, [])
-
-  const stopScanner = async () => {
-    if (scannerRef.current) {
-      try {
-        await scannerRef.current.stop()
-      } catch (err) {
-        console.error('Error stopping scanner:', err)
-      }
-    }
-  }
+  }, [onDetected, stopScanner])
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">

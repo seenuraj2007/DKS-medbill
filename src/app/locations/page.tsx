@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Plus, MapPin, Edit, Trash2, ArrowUpRight, Home } from 'lucide-react'
 import Link from 'next/link'
+import { get, del } from '@/lib/fetch'
 
 interface Location {
   id: number
@@ -27,7 +28,7 @@ export default function LocationsPage() {
 
   const fetchLocations = async () => {
     try {
-      const res = await fetch('/api/locations')
+      const res = await get('/api/locations')
       if (res.status === 401) {
         router.push('/auth')
         return
@@ -45,7 +46,7 @@ export default function LocationsPage() {
     if (!confirm('Are you sure you want to delete this location?')) return
 
     try {
-      const res = await fetch(`/api/locations/${id}`, { method: 'DELETE' })
+      const res = await del(`/api/locations/${id}`)
       if (res.ok) {
         fetchLocations()
       }

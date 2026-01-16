@@ -1,8 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Package, AlertCircle, Mail, Lock, User, ArrowRight } from 'lucide-react'
+
+const getCSRFToken = (): string => {
+  if (typeof document !== 'undefined') {
+    const match = document.cookie.match(/csrf-token=([^;]+)/)
+    return match ? match[1] : ''
+  }
+  return ''
+}
 
 export default function AuthPage() {
   const router = useRouter()
@@ -21,10 +29,15 @@ export default function AuthPage() {
     try {
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/signup'
       const body = isLogin ? { email, password } : { email, password, full_name: fullName }
+      const csrfToken = getCSRFToken()
 
       const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken && { 'X-CSRF-Token': csrfToken })
+        },
+        credentials: 'include',
         body: JSON.stringify(body)
       })
 
@@ -36,8 +49,9 @@ export default function AuthPage() {
 
       router.push('/dashboard')
       router.refresh()
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Authentication failed'
+      setError(message)
     } finally {
       setLoading(false)
     }

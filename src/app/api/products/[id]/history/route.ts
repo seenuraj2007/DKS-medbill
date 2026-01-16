@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import db from '@/lib/db'
+import { supabase } from '@/lib/supabase'
 import { getUserFromRequest } from '@/lib/auth'
 
 export async function GET(
@@ -13,16 +13,38 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const history = db.prepare(`
-      SELECT sh.*, l.name as location_name
-      FROM stock_history sh
-      LEFT JOIN locations l ON sh.location_id = l.id
-      WHERE sh.product_id = ? AND sh.product_id IN (SELECT id FROM products WHERE user_id = ?)
-      ORDER BY sh.created_at DESC
-      LIMIT 50
-    `).all(id, user.id) as any[]
+    const { data: product, error: productError } = await supabase
+      .from('products')
+      .select('id')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .single()
 
-    return NextResponse.json({ history })
+    if (productError || !product) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 })
+    }
+
+    const { data: history, error: historyError } = await supabase
+      .from('stock_history')
+      .select(`
+        *,
+        locations (name)
+      `)
+      .eq('product_id', id)
+      .order('created_at', { ascending: false })
+      .limit(50)
+
+    if (historyError) {
+      console.error('Error fetching stock history:', historyError)
+      return NextResponse.json({ error: 'Failed to fetch history' }, { status: 500 })
+    }
+
+    const formattedHistory = (history || []).map(h => ({
+      ...h,
+      location_name: h.locations?.name || null
+    }))
+
+    return NextResponse.json({ history: formattedHistory })
   } catch (error) {
     console.error('Get stock history error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

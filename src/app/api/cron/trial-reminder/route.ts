@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import db from '@/lib/db'
+import { supabase } from '@/lib/supabase'
 import { sendEmail, generateTrialEndingEmail } from '@/lib/email'
-import { addDays, isBefore } from 'date-fns'
+import { isBefore } from 'date-fns'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -21,19 +21,29 @@ export async function GET(req: NextRequest) {
       errors: [] as string[]
     }
 
-    const trialSubscriptions = db.prepare(`
-      SELECT s.id, s.organization_id, s.trial_end_date, o.name as org_name, u.email as owner_email, u.full_name as owner_name
-      FROM subscriptions s
-      JOIN organizations o ON s.organization_id = o.id
-      JOIN users u ON o.owner_id = u.id
-      WHERE s.status = 'trial' AND s.trial_end_date IS NOT NULL
-    `).all() as any[]
+    const { data: trialSubscriptions, error } = await supabase
+      .from('subscriptions')
+      .select(`
+        id,
+        organization_id,
+        trial_end_date,
+        organizations (name),
+        users (email, full_name)
+      `)
+      .eq('status', 'trial')
+      .not('trial_end_date', 'is', null)
 
-    results.checked = trialSubscriptions.length
+    if (error) {
+      throw error
+    }
 
-    for (const sub of trialSubscriptions) {
+    results.checked = trialSubscriptions?.length || 0
+
+    for (const sub of trialSubscriptions || []) {
       try {
-        const trialEnd = new Date(sub.trial_end_date)
+        const org = sub.organizations as unknown as Array<{ name: string }>
+        const owner = sub.users as unknown as Array<{ email: string; full_name: string }>
+        const trialEnd = new Date(sub.trial_end_date!)
         const now = new Date()
         
         const daysRemaining = Math.ceil((trialEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
@@ -41,28 +51,26 @@ export async function GET(req: NextRequest) {
         if (daysRemaining <= 7 && daysRemaining > 0) {
           const upgradeUrl = `${process.env.APP_URL || 'http://localhost:3000'}/subscription`
           
-          const success = await sendEmail({
-            to: sub.owner_email,
+          await sendEmail({
+            to: owner[0]?.email,
             ...generateTrialEndingEmail(daysRemaining, upgradeUrl)
           })
 
-          if (success) {
-            results.remindersSent++
-            console.log(`Trial reminder sent to ${sub.owner_email} (${daysRemaining} days left)`)
-          }
+          results.remindersSent++
+          console.log(`Trial reminder sent to ${owner[0]?.email} (${daysRemaining} days left)`)
         }
         
         if (isBefore(trialEnd, now)) {
-          db.prepare(`
-            UPDATE subscriptions
-            SET status = 'expired', updated_at = CURRENT_TIMESTAMP
-            WHERE id = ?
-          `).run(sub.id)
+          await supabase
+            .from('subscriptions')
+            .update({ status: 'expired' })
+            .eq('id', sub.id)
           
           console.log(`Trial expired for organization ${sub.organization_id}`)
         }
-      } catch (err: any) {
-        results.errors.push(`Error processing subscription ${sub.id}: ${err.message}`)
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Unknown error'
+        results.errors.push(`Error processing subscription ${sub.id}: ${message}`)
       }
     }
 

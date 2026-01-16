@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Bell, Check, CheckCheck, X, AlertTriangle, Package, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { get, patch } from '@/lib/fetch'
 
 interface Alert {
   id: number
@@ -28,7 +29,7 @@ export default function AlertsPage() {
 
   const fetchAlerts = async () => {
     try {
-      const res = await fetch(`/api/alerts?unread=${unreadOnly}`)
+      const res = await get(`/api/alerts?unread=${unreadOnly}`)
       if (res.status === 401) {
         router.push('/auth')
         return
@@ -44,11 +45,7 @@ export default function AlertsPage() {
 
   const markAsRead = async (alertIds: number[]) => {
     try {
-      await fetch('/api/alerts', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ alert_ids: alertIds, mark_as_read: true })
-      })
+      await patch('/api/alerts', { alert_ids: alertIds, mark_as_read: true })
       fetchAlerts()
     } catch (error) {
       console.error('Error marking alerts as read:', error)
@@ -57,11 +54,7 @@ export default function AlertsPage() {
 
   const markAsUnread = async (alertIds: number[]) => {
     try {
-      await fetch('/api/alerts', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ alert_ids: alertIds, mark_as_read: false })
-      })
+      await patch('/api/alerts', { alert_ids: alertIds, mark_as_read: false })
       fetchAlerts()
     } catch (error) {
       console.error('Error marking alerts as unread:', error)

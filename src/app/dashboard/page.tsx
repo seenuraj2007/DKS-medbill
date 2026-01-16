@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Package, TrendingDown, AlertTriangle, Bell, LogOut, Plus, Search, Filter, MoreVertical, ArrowUpRight, ArrowDownRight, MapPin, Truck, FileText, ArrowUpDown, Menu, X, Users, CreditCard, Zap, Settings, User, History } from 'lucide-react'
+import { Package, TrendingDown, AlertTriangle, Bell, LogOut, Plus, Search, Filter, MoreVertical, ArrowUpRight, ArrowDownRight, MapPin, Truck, FileText, ArrowUpDown, Menu, X, Users, CreditCard, Zap, Settings, User, History, Calculator } from 'lucide-react'
 import Link from 'next/link'
 
 interface DashboardStats {
@@ -10,7 +10,7 @@ interface DashboardStats {
   lowStockProducts: number
   outOfStockProducts: number
   unreadAlerts: number
-  lowStockItems: any[]
+  lowStockItems: Array<{ id: string; name: string; current_quantity: number; reorder_point: number }>
   subscription?: {
     status: string
     plan?: {
@@ -36,7 +36,9 @@ export default function DashboardPage() {
 
   const fetchDashboard = async () => {
     try {
-      const res = await fetch('/api/dashboard/stats')
+      const res = await fetch('/api/dashboard/stats', {
+        credentials: 'include'
+      })
       if (res.status === 401) {
         router.push('/auth')
         return
@@ -51,7 +53,7 @@ export default function DashboardPage() {
   }
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' })
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
     router.push('/auth')
   }
 
@@ -206,6 +208,13 @@ export default function DashboardPage() {
                   >
                     <ArrowUpDown className="w-5 h-5" />
                     Stock Transfers
+                  </Link>
+                  <Link
+                    href="/billing"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                  >
+                    <Calculator className="w-5 h-5" />
+                    Billing / POS
                   </Link>
                   <Link
                     href="/alerts"

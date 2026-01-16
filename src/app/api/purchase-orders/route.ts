@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import db from '@/lib/db'
+import { supabase } from '@/lib/supabase'
 import { getUserFromRequest } from '@/lib/auth'
 
 export async function GET(req: NextRequest) {
@@ -13,32 +13,32 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get('status')
     const supplier_id = searchParams.get('supplier_id')
 
-    let query = `
-      SELECT 
-        po.*,
-        s.name as supplier_name,
-        COUNT(poi.id) as total_items
-      FROM purchase_orders po
-      JOIN suppliers s ON po.supplier_id = s.id
-      WHERE po.user_id = ?
-    `
-    const params: any[] = [user.id]
+    let query = supabase
+      .from('purchase_orders')
+      .select(`
+        *,
+        suppliers (name),
+        purchase_order_items (count)
+      `)
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
 
     if (status) {
-      query += ' AND po.status = ?'
-      params.push(status)
+      query = query.eq('status', status)
     }
 
     if (supplier_id) {
-      query += ' AND po.supplier_id = ?'
-      params.push(supplier_id)
+      query = query.eq('supplier_id', supplier_id)
     }
 
-    query += ' GROUP BY po.id ORDER BY po.created_at DESC'
+    const { data: orders, error } = await query
 
-    const orders = db.prepare(query).all(...params)
+    if (error) {
+      console.error('Get purchase orders error:', error)
+      return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 })
+    }
 
-    return NextResponse.json({ orders })
+    return NextResponse.json({ orders: orders || [] })
   } catch (error) {
     console.error('Get purchase orders error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -59,44 +59,62 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Supplier and items are required' }, { status: 400 })
     }
 
-    const supplier = db.prepare('SELECT * FROM suppliers WHERE id = ? AND user_id = ?').get(supplier_id, user.id) as any
-    if (!supplier) {
+    const { data: supplier, error: supplierError } = await supabase
+      .from('suppliers')
+      .select('*')
+      .eq('id', supplier_id)
+      .eq('user_id', user.id)
+      .single()
+
+    if (supplierError || !supplier) {
       return NextResponse.json({ error: 'Supplier not found' }, { status: 404 })
     }
 
-    const totalCost = items.reduce((sum: number, item: any) => sum + (item.unit_cost * item.quantity), 0)
-
+    const totalCost = items.reduce((sum: number, item: { unit_cost: number; quantity: number }) => sum + (item.unit_cost * item.quantity), 0)
     const orderNumber = `PO-${Date.now()}-${Math.floor(Math.random() * 1000)}`
 
-    const result = db.prepare(`
-      INSERT INTO purchase_orders (user_id, supplier_id, order_number, status, total_cost, notes)
-      VALUES (?, ?, ?, 'pending', ?, ?)
-    `).run(user.id, supplier_id, orderNumber, totalCost, notes || null)
+    const { data: order, error: orderError } = await supabase
+      .from('purchase_orders')
+      .insert({
+        user_id: user.id,
+        supplier_id,
+        order_number: orderNumber,
+        status: 'pending',
+        total_cost: totalCost,
+        notes: notes || null
+      })
+      .select()
+      .single()
 
-    const orderId = result.lastInsertRowid as number
-
-    for (const item of items) {
-      const product = db.prepare('SELECT * FROM products WHERE id = ? AND user_id = ?').get(item.product_id, user.id)
-      if (!product) {
-        continue
-      }
-
-      const itemTotalCost = item.unit_cost * item.quantity
-
-      db.prepare(`
-        INSERT INTO purchase_order_items (purchase_order_id, product_id, quantity, unit_cost, total_cost)
-        VALUES (?, ?, ?, ?, ?)
-      `).run(orderId, item.product_id, item.quantity, item.unit_cost, itemTotalCost)
+    if (orderError) {
+      console.error('Create order error:', orderError)
+      return NextResponse.json({ error: 'Failed to create order' }, { status: 500 })
     }
 
-    const order = db.prepare(`
-      SELECT po.*, s.name as supplier_name
-      FROM purchase_orders po
-      JOIN suppliers s ON po.supplier_id = s.id
-      WHERE po.id = ?
-    `).get(orderId)
+    const orderItems = items
+      .filter((item: { product_id?: string }) => item.product_id)
+      .map((item: { product_id: string; quantity: number; unit_cost: number }) => ({
+        purchase_order_id: order.id,
+        product_id: item.product_id,
+        quantity: item.quantity,
+        unit_cost: item.unit_cost,
+        total_cost: item.unit_cost * item.quantity
+      }))
 
-    return NextResponse.json({ order }, { status: 201 })
+    if (orderItems.length > 0) {
+      await supabase.from('purchase_order_items').insert(orderItems)
+    }
+
+    const { data: createdOrder } = await supabase
+      .from('purchase_orders')
+      .select(`
+        *,
+        suppliers (name)
+      `)
+      .eq('id', order.id)
+      .single()
+
+    return NextResponse.json({ order: createdOrder }, { status: 201 })
   } catch (error) {
     console.error('Create purchase order error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

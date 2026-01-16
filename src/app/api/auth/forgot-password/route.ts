@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import db from '@/lib/db'
-import { sendEmail, generatePasswordResetEmail } from '@/lib/email'
-import { v4 as uuidv4 } from 'uuid'
-import { addHours } from 'date-fns'
+import { supabase } from '@/lib/supabase'
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,25 +14,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid email format' }, { status: 400 })
     }
 
-    const user = db.prepare('SELECT id, email, full_name FROM users WHERE email = ?').get(email) as any
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${process.env.APP_URL || 'http://localhost:3000'}/auth/reset-password`
+    })
 
-    if (user) {
-      const token = uuidv4()
-      const expiresAt = addHours(new Date(), 1)
-
-      db.prepare(`
-        INSERT INTO password_reset_tokens (user_id, token, expires_at)
-        VALUES (?, ?, ?)
-      `).run(user.id, token, expiresAt.toISOString())
-
-      const resetUrl = `${process.env.APP_URL || 'http://localhost:3000'}/auth/reset-password?token=${token}`
-      
-      const emailResult = sendEmail({
-        to: email,
-        ...generatePasswordResetEmail(resetUrl, '1 hour'),
-      })
-
-      console.log('Password reset email sent:', emailResult)
+    if (error && !error.message.includes('user not found')) {
+      console.error('Forgot password error:', error)
+      return NextResponse.json({ error: 'Failed to send password reset email' }, { status: 500 })
     }
 
     return NextResponse.json({

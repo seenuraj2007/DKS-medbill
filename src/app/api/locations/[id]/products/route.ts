@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { supabase } from '@/lib/supabase'
 import { getUserFromRequest } from '@/lib/auth'
-import db from '@/lib/db'
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -11,20 +11,37 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const { id } = await params
 
-    const location = db.prepare('SELECT * FROM locations WHERE id = ? AND user_id = ?').get(id, user.id)
-    if (!location) {
+    const { data: location, error } = await supabase
+      .from('locations')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .single()
+
+    if (error || !location) {
       return NextResponse.json({ error: 'Location not found' }, { status: 404 })
     }
 
-    const products = db.prepare(`
-      SELECT p.*, ps.quantity as location_quantity
-      FROM products p
-      INNER JOIN product_stock ps ON p.id = ps.product_id
-      WHERE ps.location_id = ? AND p.user_id = ?
-      ORDER BY p.name
-    `).all(id, user.id)
+    const { data: products, error: productsError } = await supabase
+      .from('product_stock')
+      .select(`
+        *,
+        products (*)
+      `)
+      .eq('location_id', id)
+      .eq('products.user_id', user.id)
 
-    return NextResponse.json({ products })
+    if (productsError) {
+      console.error('Get location products error:', productsError)
+      return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 })
+    }
+
+    const formattedProducts = (products || []).map(ps => ({
+      ...ps.products,
+      location_quantity: ps.quantity
+    }))
+
+    return NextResponse.json({ products: formattedProducts })
   } catch (error) {
     console.error('Get location products error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import db from '@/lib/db'
+import { supabase } from '@/lib/supabase'
 import { getUserFromRequest } from '@/lib/auth'
 import { PermissionsService } from '@/lib/permissions'
 
@@ -12,7 +12,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }
 
     const resolvedParams = await params
-    const memberId = parseInt(resolvedParams.id)
+    const memberId = resolvedParams.id
     const body = await req.json()
     const { role } = body
 
@@ -30,13 +30,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }
 
     // Get team member to update
-    const targetMember = db.prepare(`
-      SELECT id, role, email, organization_id
-      FROM users
-      WHERE id = ?
-    `).get(memberId) as { id: number, role: string, email: string, organization_id: number } | undefined
+    const { data: targetMember, error } = await supabase
+      .from('users')
+      .select('id, role, email, organization_id')
+      .eq('id', memberId)
+      .single()
 
-    if (!targetMember) {
+    if (error || !targetMember) {
       return NextResponse.json({ error: 'Team member not found' }, { status: 404 })
     }
 
@@ -56,11 +56,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }
 
     // Update role
-    db.prepare(`
-      UPDATE users
-      SET role = ?, updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?
-    `).run(role, memberId)
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ role, updated_at: new Date().toISOString() })
+      .eq('id', memberId)
+
+    if (updateError) {
+      console.error('Error updating team member role:', updateError)
+      return NextResponse.json({ error: 'Failed to update role' }, { status: 500 })
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {
@@ -78,7 +82,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     }
 
     const resolvedParams = await params
-    const memberId = parseInt(resolvedParams.id)
+    const memberId = resolvedParams.id
 
     // Only owner can remove team members
     if (!PermissionsService.isOwner(user)) {
@@ -86,13 +90,13 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     }
 
     // Get team member to remove
-    const targetMember = db.prepare(`
-      SELECT id, role, email, organization_id
-      FROM users
-      WHERE id = ?
-    `).get(memberId) as { id: number, role: string, email: string, organization_id: number } | undefined
+    const { data: targetMember, error } = await supabase
+      .from('users')
+      .select('id, role, email, organization_id')
+      .eq('id', memberId)
+      .single()
 
-    if (!targetMember) {
+    if (error || !targetMember) {
       return NextResponse.json({ error: 'Team member not found' }, { status: 404 })
     }
 
@@ -112,11 +116,15 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     }
 
     // Remove team member (set organization_id to null, keep user account)
-    db.prepare(`
-      UPDATE users
-      SET organization_id = NULL, role = NULL, updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?
-    `).run(memberId)
+    const { error: deleteError } = await supabase
+      .from('users')
+      .update({ organization_id: null as unknown as string, role: null, updated_at: new Date().toISOString() })
+      .eq('id', memberId)
+
+    if (deleteError) {
+      console.error('Error removing team member:', deleteError)
+      return NextResponse.json({ error: 'Failed to remove team member' }, { status: 500 })
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {

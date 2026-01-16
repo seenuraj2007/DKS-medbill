@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import db from '@/lib/db'
+import { supabase } from '@/lib/supabase'
 import { getUserFromRequest } from '@/lib/auth'
 
 export async function GET(req: NextRequest) {
@@ -12,29 +12,29 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const status = searchParams.get('status')
 
-    let query = `
-      SELECT 
-        st.*,
-        l_from.name as from_location_name,
-        l_to.name as to_location_name,
-        COUNT(sti.id) as total_items
-      FROM stock_transfers st
-      JOIN locations l_from ON st.from_location_id = l_from.id
-      JOIN locations l_to ON st.to_location_id = l_to.id
-      WHERE st.user_id = ?
-    `
-    const params: any[] = [user.id]
+    let query = supabase
+      .from('stock_transfers')
+      .select(`
+        *,
+        locations!from_location_id (name),
+        locations!to_location_id (name),
+        stock_transfer_items (count)
+      `)
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
 
     if (status) {
-      query += ' AND st.status = ?'
-      params.push(status)
+      query = query.eq('status', status)
     }
 
-    query += ' GROUP BY st.id ORDER BY st.created_at DESC'
+    const { data: transfers, error } = await query
 
-    const transfers = db.prepare(query).all(...params)
+    if (error) {
+      console.error('Get stock transfers error:', error)
+      return NextResponse.json({ error: 'Failed to fetch transfers' }, { status: 500 })
+    }
 
-    return NextResponse.json({ transfers })
+    return NextResponse.json({ transfers: transfers || [] })
   } catch (error) {
     console.error('Get stock transfers error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -59,45 +59,44 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Source and destination locations cannot be the same' }, { status: 400 })
     }
 
-    const fromLocation = db.prepare('SELECT * FROM locations WHERE id = ? AND user_id = ?').get(from_location_id, user.id)
-    const toLocation = db.prepare('SELECT * FROM locations WHERE id = ? AND user_id = ?').get(to_location_id, user.id)
+    const { data: transfer, error } = await supabase
+      .from('stock_transfers')
+      .insert({
+        user_id: user.id,
+        from_location_id,
+        to_location_id,
+        status: 'pending',
+        notes: notes || null
+      })
+      .select()
+      .single()
 
-    if (!fromLocation || !toLocation) {
-      return NextResponse.json({ error: 'Location not found' }, { status: 404 })
+    if (error) {
+      console.error('Create stock transfer error:', error)
+      return NextResponse.json({ error: 'Failed to create transfer' }, { status: 500 })
     }
 
-    for (const item of items) {
-      const productStock = db.prepare('SELECT * FROM product_stock WHERE product_id = ? AND location_id = ?').get(item.product_id, from_location_id) as any
-      if (!productStock || productStock.quantity < item.quantity) {
-        return NextResponse.json({ error: `Insufficient stock for product` }, { status: 400 })
-      }
+    const transferItems = items.map((item: { product_id: string; quantity: number }) => ({
+      stock_transfer_id: transfer.id,
+      product_id: item.product_id,
+      quantity: item.quantity
+    }))
+
+    if (transferItems.length > 0) {
+      await supabase.from('stock_transfer_items').insert(transferItems)
     }
 
-    const result = db.prepare(`
-      INSERT INTO stock_transfers (user_id, from_location_id, to_location_id, status, notes)
-      VALUES (?, ?, ?, 'pending', ?)
-    `).run(user.id, from_location_id, to_location_id, notes || null)
+    const { data: createdTransfer } = await supabase
+      .from('stock_transfers')
+      .select(`
+        *,
+        locations!from_location_id (name),
+        locations!to_location_id (name)
+      `)
+      .eq('id', transfer.id)
+      .single()
 
-    const transferId = result.lastInsertRowid as number
-
-    for (const item of items) {
-      db.prepare(`
-        INSERT INTO stock_transfer_items (stock_transfer_id, product_id, quantity)
-        VALUES (?, ?, ?)
-      `).run(transferId, item.product_id, item.quantity)
-    }
-
-    const transfer = db.prepare(`
-      SELECT st.*, 
-             l_from.name as from_location_name,
-             l_to.name as to_location_name
-      FROM stock_transfers st
-      JOIN locations l_from ON st.from_location_id = l_from.id
-      JOIN locations l_to ON st.to_location_id = l_to.id
-      WHERE st.id = ?
-    `).get(transferId)
-
-    return NextResponse.json({ transfer }, { status: 201 })
+    return NextResponse.json({ transfer: createdTransfer }, { status: 201 })
   } catch (error) {
     console.error('Create stock transfer error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
