@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Users, UserPlus, Mail, Shield, MoreVertical, X, RefreshCw, Lock, ChevronRight } from 'lucide-react'
+import { Users, UserPlus, Mail, Shield, X, RefreshCw, Lock, ChevronRight } from 'lucide-react'
 import { SubscriptionGate } from '@/components/SubscriptionGate'
 import { useUpgradeToast } from '@/components/UpgradeNotification'
 import Link from 'next/link'

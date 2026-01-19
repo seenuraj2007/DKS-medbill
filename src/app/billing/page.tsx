@@ -3,11 +3,10 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { 
-  Plus, Minus, Trash2, Search, X, CreditCard, DollarSign, 
-  Printer, Receipt, Package, Barcode, User, RotateCcw,
-  Calculator, CheckCircle, AlertTriangle, ShoppingCart, 
-  History, Key, Zap, Grid, List, Clock, Tag, Percent,
-  Wallet, Landmark, RefreshCw
+  Plus, Minus, Trash2, Search, X, DollarSign, 
+  Printer, Receipt, Package, Barcode, User,
+  Calculator, CheckCircle, ShoppingCart, 
+  History, Grid, List, Clock, Percent
 } from 'lucide-react'
 import Link from 'next/link'
 import { SubscriptionGate } from '@/components/SubscriptionGate'

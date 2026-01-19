@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, Save, MapPin, Building2, Mail, Phone, User, Globe, MapPinHouse } from 'lucide-react'
 import Link from 'next/link'
-import { get } from '@/lib/fetch'
 import { useUpgradeToast } from '@/components/UpgradeNotification'
 
 interface Location {

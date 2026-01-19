@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bell, Check, CheckCheck, X, AlertTriangle, Package, ArrowLeft, RefreshCw, ChevronRight } from 'lucide-react'
+import { Bell, Check, CheckCheck, X, AlertTriangle, Package, ArrowLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { get, patch } from '@/lib/fetch'
 import { SubscriptionGate } from '@/components/SubscriptionGate'

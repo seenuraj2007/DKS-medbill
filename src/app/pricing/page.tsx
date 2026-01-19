@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Package, CheckCircle, HelpCircle, ArrowRight, Zap, Shield, BarChart3, Users, MapPin, Crown, Star, ChevronRight, Check, X } from 'lucide-react'
+import { Package, HelpCircle, ArrowRight, Zap, Shield, BarChart3, Users, Crown, Star, ChevronRight, Check, X } from 'lucide-react'
 
 export const metadata = {
   title: 'Pricing - StockAlert',

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { CreditCard, Check, AlertTriangle, Calendar, Users, Package, MapPin, Crown, Zap, ArrowRight, Loader2, ChevronRight, Package as PackageIcon, Mail } from 'lucide-react'
+import { Check, AlertTriangle, Calendar, Users, Package, MapPin, Crown, Zap, ArrowRight, Loader2, ChevronRight, Package as PackageIcon, Mail } from 'lucide-react'
 import Link from 'next/link'
 import { get, post } from '@/lib/fetch'
 

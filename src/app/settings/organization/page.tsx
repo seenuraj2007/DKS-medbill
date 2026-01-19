@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Building, Save, Loader2, AlertCircle, CheckCircle, Users, Calendar, ArrowLeft } from 'lucide-react'
+import { Building, Save, Users, Calendar, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { SubscriptionGate } from '@/components/SubscriptionGate'
 

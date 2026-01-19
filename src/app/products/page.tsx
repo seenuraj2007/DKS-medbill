@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Search, Filter, Package, Edit, Trash2, ArrowUpRight, AlertTriangle, ChevronRight } from 'lucide-react'
+import { Plus, Search, Filter, Package, Edit, Trash2, ArrowUpRight, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
 import { SubscriptionGate } from '@/components/SubscriptionGate'
 
