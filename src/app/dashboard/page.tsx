@@ -2,7 +2,7 @@
 
 import { useEffect, useState, memo } from 'react'
 import { useRouter } from 'next/navigation'
-import { Package, TrendingDown, AlertTriangle, Bell, LogOut, Plus, Search, MoreVertical, ArrowUpRight, ArrowDownRight, MapPin, Truck, FileText, ArrowUpDown, Menu, X, Users, CreditCard, Zap, Settings, User, Calculator, ChevronRight } from 'lucide-react'
+import { Package, TrendingDown, AlertTriangle, Bell, LogOut, Plus, Search, ArrowUpRight, ArrowDownRight, MapPin, Truck, FileText, ArrowUpDown, Menu, X, Users, CreditCard, Zap, Settings, User, Calculator, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { SubscriptionGate } from '@/components/SubscriptionGate'
 
@@ -30,7 +30,15 @@ interface DashboardStats {
   }
 }
 
-const StatCard = memo(({ title, value, icon: Icon, color, trend }: any) => (
+interface StatCardProps {
+  title: string
+  value: number | string
+  icon: React.ComponentType<{ className?: string }>
+  color: string
+  trend?: number
+}
+
+const StatCard = memo(({ title, value, icon: Icon, color, trend }: StatCardProps) => (
   <div className="bg-white/80 backdrop-blur-xl rounded-xl border border-gray-100 shadow-lg shadow-gray-200/50 p-4 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
     <div className="flex items-center justify-between mb-3">
       <div className={`w-10 h-10 rounded-lg ${color} flex items-center justify-center shadow-lg`}>
@@ -52,7 +60,17 @@ const StatCard = memo(({ title, value, icon: Icon, color, trend }: any) => (
 
 StatCard.displayName = 'StatCard'
 
-const LowStockItem = memo(({ item, onClick }: any) => (
+interface LowStockItemProps {
+  item: {
+    id: string
+    name: string
+    current_quantity: number
+    reorder_point: number
+  }
+  onClick: () => void
+}
+
+const LowStockItem = memo(({ item, onClick }: LowStockItemProps) => (
   <div
     className="flex items-center justify-between p-3 bg-gray-50/50 rounded-lg hover:bg-gray-100 hover:shadow-md transition-all duration-300 cursor-pointer border border-gray-100"
     onClick={onClick}
@@ -198,7 +216,7 @@ export default function DashboardPage() {
                 <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
                   <AlertTriangle className="w-4 h-4" />
                 </div>
-                <span className="font-medium">You're on the free plan with limited features</span>
+                <span className="font-medium">You&apos;re on the free plan with limited features</span>
               </div>
               <Link href="/subscription" className="text-sm font-medium text-amber-700 hover:underline flex items-center gap-1 cursor-pointer">
                 Upgrade to Pro <ChevronRight className="w-4 h-4" />
@@ -401,7 +419,7 @@ export default function DashboardPage() {
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      {stats?.lowStockItems?.map((item: any) => (
+                      {stats?.lowStockItems?.map((item) => (
                         <LowStockItem
                           key={item.id}
                           item={item}

@@ -86,7 +86,7 @@ export default function PlanLimitBanner({ usage, plan }: { usage?: Usage; plan?:
           <div className="flex items-center gap-3">
             <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0" />
             <div className="flex items-center gap-2 text-yellow-800 text-sm">
-              <span className="font-medium">You've exceeded your {limitInfo[0]?.displayName || 'plan'} limit:</span>
+              <span className="font-medium">You&apos;ve exceeded your {limitInfo[0]?.displayName || 'plan'} limit:</span>
               <span className="hidden sm:inline">
                 {limitInfo.map(l => `${l.displayName}: ${l.current}/${l.limit}`).join(', ')}
               </span>

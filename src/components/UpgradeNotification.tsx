@@ -69,6 +69,13 @@ export function UpgradeNotification({
   const [visible, setVisible] = useState(true)
   const [isAnimating, setIsAnimating] = useState(true)
 
+  const handleClose = () => {
+    setVisible(false)
+    setTimeout(() => {
+      onClose?.()
+    }, 300)
+  }
+
   useEffect(() => {
     // Entry animation
     const timer = setTimeout(() => setIsAnimating(false), 100)
@@ -82,14 +89,7 @@ export function UpgradeNotification({
       }, autoCloseDelay)
       return () => clearTimeout(timer)
     }
-  }, [autoClose, autoCloseDelay])
-
-  const handleClose = () => {
-    setVisible(false)
-    setTimeout(() => {
-      onClose?.()
-    }, 300)
-  }
+  }, [autoClose, autoCloseDelay, handleClose])
 
   if (!visible) return null
 

@@ -3,6 +3,20 @@ import { createClient } from '@supabase/supabase-js'
 import { getUserFromRequest } from '@/lib/auth'
 import { getOrganizationSubscription } from '@/lib/subscription'
 
+interface Location {
+  id: string
+  user_id: string
+  name: string
+  address?: string
+  city?: string
+  state?: string
+  zip?: string
+  country?: string
+  is_primary?: boolean
+  created_at?: string
+  product_stock?: Array<{ count: number }>
+}
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
@@ -42,7 +56,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch locations' }, { status: 500 })
     }
 
-    const formattedLocations = (locations || []).map((loc: any) => ({
+    const formattedLocations = (locations || []).map((loc: Location) => ({
       ...loc,
       total_products: loc.product_stock?.length || 0
     }))
@@ -74,7 +88,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Location name is required' }, { status: 400 })
     }
 
-    let location: any
+    let location: Location | null = null
 
     // Check subscription limits for all users (with or without organization_id)
     const subscription = await getOrganizationSubscription(user.organization_id || '')

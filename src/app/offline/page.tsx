@@ -9,10 +9,10 @@ export default function OfflinePage() {
           <WifiOff className="w-10 h-10 text-red-600" />
         </div>
         <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-          You're Offline
+          You&apos;re Offline
         </h1>
         <p className="text-lg text-gray-600 mb-8">
-          It looks like you've lost your internet connection. Please check your network settings and try again.
+          It looks like you&apos;ve lost your internet connection. Please check your network settings and try again.
         </p>
         <button
           onClick={() => window.location.reload()}
@@ -22,7 +22,7 @@ export default function OfflinePage() {
           Try Again
         </button>
         <p className="text-sm text-gray-500 mt-8">
-          Some features may not be available while offline. Your data will sync automatically once you're back online.
+          Some features may not be available while offline. Your data will sync automatically once you&apos;re back online.
         </p>
       </div>
     </div>

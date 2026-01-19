@@ -52,7 +52,7 @@ export default function TermsPage() {
                   <h2 className="text-2xl font-semibold text-gray-900">Acceptance of Terms</h2>
                 </div>
                 <p className="text-gray-600 ml-13 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100/50">
-                  By accessing or using StockAlert's services, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any part of these terms, you may not use our services.
+                  By accessing or using StockAlert&apos;s services, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any part of these terms, you may not use our services.
                 </p>
               </section>
 

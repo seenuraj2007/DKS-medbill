@@ -348,7 +348,7 @@ export default function HomePage() {
           <div className="text-center mb-16">
             <span className="text-indigo-600 font-semibold text-sm uppercase tracking-wider mb-3 block">Pricing</span>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Simple, Transparent Pricing</h2>
-            <p className="text-xl text-gray-600">Start free, upgrade when you're ready.</p>
+            <p className="text-xl text-gray-600">Start free, upgrade when you&apos;re ready.</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -408,7 +408,7 @@ export default function HomePage() {
                     <Star key={star} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                   ))}
                 </div>
-                <p className="text-gray-600 mb-6 leading-relaxed">"{testimonial.content}"</p>
+                <p className="text-gray-600 mb-6 leading-relaxed">&quot;{testimonial.content}&quot;</p>
                 <div className="flex items-center gap-4">
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg ${testimonial.avatar}`}>
                     {testimonial.name.charAt(0)}

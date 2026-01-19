@@ -442,11 +442,22 @@ export default function BillingPage() {
     window.print()
   }
 
+  const safeCalculate = (expression: string): string => {
+    try {
+      const sanitized = expression.replace(/[^0-9+\-*/.()]/g, '')
+      if (!sanitized) return '0'
+      const result = Function('"use strict";return (' + sanitized + ')')()
+      return typeof result === 'number' ? result.toString() : 'Error'
+    } catch {
+      return 'Error'
+    }
+  }
+
   const handleCalc = (op: string) => {
     try {
       switch (op) {
         case 'C': setCalcValue(''); break
-        case '=': setCalcValue(eval(calcValue).toString()); break
+        case '=': setCalcValue(safeCalculate(calcValue)); break
         case '←': setCalcValue(calcValue.slice(0, -1)); break
         default: setCalcValue(calcValue + op);
       }

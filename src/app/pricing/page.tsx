@@ -151,7 +151,7 @@ export default function PricingPage() {
               Simple, Transparent Pricing
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              Start free and upgrade when you're ready. No hidden fees, no surprises.
+              Start free and upgrade when you&apos;re ready. No hidden fees, no surprises.
             </p>
           </div>
 
@@ -220,7 +220,7 @@ export default function PricingPage() {
           <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-20">
             <div className="p-8 md:p-10 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
               <h2 className="text-3xl font-bold text-gray-900 text-center">Feature Comparison</h2>
-              <p className="text-gray-600 text-center mt-2">See exactly what's included in each plan</p>
+              <p className="text-gray-600 text-center mt-2">See exactly what&apos;s included in each plan</p>
             </div>
             
             <div className="overflow-x-auto">

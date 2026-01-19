@@ -371,7 +371,7 @@ export default function PurchaseOrderFormPage({ params }: { params?: Promise<{ i
                   <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-xl">
                     <Package className="w-12 h-12 text-gray-200 mx-auto mb-3" />
                     <p className="text-gray-500">No items added yet</p>
-                    <p className="text-sm text-gray-400 mt-1">Click "Add Item" to get started</p>
+                    <p className="text-sm text-gray-400 mt-1">Click &quot;Add Item&quot; to get started</p>
                   </div>
                 ) : (
                   <div className="space-y-4">

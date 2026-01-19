@@ -199,7 +199,7 @@ export default function SubscriptionPage() {
               <div>
                 <h3 className="font-semibold text-amber-800">Free Plan Limitations</h3>
                 <p className="text-amber-700 mt-1">
-                  You're on the free plan with limited features. Upgrade to Pro for unlimited access.
+                  You&apos;re on the free plan with limited features. Upgrade to Pro for unlimited access.
                 </p>
               </div>
             </div>
