@@ -103,6 +103,15 @@ export async function POST(req: NextRequest) {
       .select('*', { count: 'exact', head: true })
       .eq('organization_id', user.organization_id)
 
+    console.log('Team member limit check:', { 
+      count: currentTeamCount, 
+      maxLimit: subscription?.plan?.max_team_members,
+      subscriptionStatus: subscription?.status,
+      planName: subscription?.plan?.display_name || 'Free',
+      planType: subscription?.plan?.name || 'free',
+      orgId: user.organization_id
+    })
+
     if (hasReachedLimit(subscription, currentTeamCount || 0, 'team_members')) {
       return NextResponse.json({
         error: 'Team member limit reached',

@@ -242,8 +242,7 @@ CREATE TABLE IF NOT EXISTS organizations (
 INSERT INTO subscription_plans (name, display_name, description, monthly_price, yearly_price, max_team_members, max_products, max_locations, features, is_active) VALUES
 ('free', 'Free', 'Perfect for personal use', 0, 0, 1, 10, 1, ARRAY['Basic inventory tracking', '1 location', '10 products', 'Email support'], true),
 ('starter', 'Starter', 'Great for small businesses', 9, 90, 3, 100, 5, ARRAY['All features in Free', 'Up to 3 team members', 'Up to 100 products', 'Up to 5 locations', 'Priority email support'], true),
-('pro', 'Professional', 'For growing businesses', 29, 290, 10, 1000, 20, ARRAY['All features in Starter', 'Up to 10 team members', 'Up to 1000 products', 'Up to 20 locations', 'Stock transfers', 'Purchase orders', 'Bulk operations', 'Priority support'], true),
-('enterprise', 'Enterprise', 'Custom solutions for large organizations', 99, 990, -1, -1, -1, ARRAY['All features in Pro', 'Unlimited team members', 'Unlimited products', 'Unlimited locations', 'Custom integrations', 'Dedicated account manager', 'SLA guarantee', 'Custom branding'], true)
+('pro', 'Professional', 'For growing businesses', 29, 290, 10, 1000, 20, ARRAY['All features in Starter', 'Up to 10 team members', 'Up to 1000 products', 'Up to 20 locations', 'Stock transfers', 'Purchase orders', 'Bulk operations', 'Priority support'], true)
 ON CONFLICT (name) DO NOTHING;
 
 -- Trigger to update subscription_plans updated_at

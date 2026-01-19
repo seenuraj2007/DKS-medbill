@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import PlanLimitBanner from '@/components/PlanLimitBanner'
+import { useUpgradeToast } from '@/components/UpgradeNotification'
 
 interface Usage {
   teamMembers: number
@@ -32,10 +33,47 @@ export function SubscriptionGate({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [usage, setUsage] = useState<Usage>({ teamMembers: 0, products: 0, locations: 0 })
   const [plan, setPlan] = useState<Plan | null>(null)
+  const [hasShownWarning, setHasShownWarning] = useState(false)
+  const { showLimitWarning, showLimitReached } = useUpgradeToast()
 
   useEffect(() => {
     checkSubscription()
   }, [])
+
+  // Check and show warnings for limits approaching
+  useEffect(() => {
+    if (loading || hasShownWarning || !plan) return
+
+    const NEAR_LIMIT_THRESHOLD = 80
+
+    const checkLimitAndNotify = (
+      type: 'products' | 'team_members' | 'locations',
+      current: number,
+      max: number
+    ) => {
+      if (max === -1) return false // Unlimited
+      const percentage = Math.round((current / max) * 100)
+      
+      if (current >= max) {
+        showLimitReached(type, current, max, plan.display_name)
+        return true
+      } else if (percentage >= NEAR_LIMIT_THRESHOLD) {
+        showLimitWarning(type, current, max, plan.display_name)
+        return true
+      }
+      return false
+    }
+
+    // Check each limit type and show notification for the first one that's near/at limit
+    const shown = 
+      checkLimitAndNotify('products', usage.products, plan.max_products) ||
+      checkLimitAndNotify('team_members', usage.teamMembers, plan.max_team_members) ||
+      checkLimitAndNotify('locations', usage.locations, plan.max_locations)
+
+    if (shown) {
+      setHasShownWarning(true)
+    }
+  }, [loading, usage, plan, hasShownWarning, showLimitWarning, showLimitReached])
 
   const checkSubscription = async () => {
     try {

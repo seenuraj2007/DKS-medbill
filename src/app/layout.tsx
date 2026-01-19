@@ -1,12 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { Providers } from "@/components/Providers";
 
 const inter = Inter({
   variable: "--font-geist-sans",
   subsets: ["latin"],
   display: "swap",
   fallback: ["system-ui", "arial"],
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -37,16 +39,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={inter.variable}>
       <head>
         <link rel="icon" href="/icon.svg" />
         <link rel="apple-touch-icon" href="/icon.svg" />
         <meta name="theme-color" content="#4f46e5" />
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className={`${inter.variable} font-sans antialiased`}>
-        {children}
+      <body className="font-sans antialiased">
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );

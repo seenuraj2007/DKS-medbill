@@ -15,10 +15,9 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   experimental: {
-    optimizeCss: true,
     optimizePackageImports: ['lucide-react', 'recharts'],
   },
-  headers: async () => {
+  async headers() {
     return [
       {
         source: '/:path*',
@@ -30,8 +29,25 @@ const nextConfig: NextConfig = {
           {
             key: 'X-Frame-Options',
             value: 'SAMEORIGIN'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin'
           }
         ]
+      }
+    ]
+  },
+  async redirects() {
+    return [
+      {
+        source: '/home',
+        destination: '/dashboard',
+        permanent: true
       }
     ]
   }
@@ -67,17 +83,18 @@ const nextConfig: NextConfig = {
 //         }
 //       }
 //     },
-//     {
-//       urlPattern: /\.(?:jpg|jpeg|png|gif|webp|svg)$/i,
-//       handler: "NetworkFirst",
-//       options: {
-//         cacheName: "images-cache",
-//         expiration: {
-//           maxEntries: 60,
-//           maxAgeSeconds: 30 * 24 * 60 * 60
+//       {
+//         urlPattern: /\.(?:jpg|jpeg|png|gif|webp|svg)$/i,
+//         handler: "NetworkFirst",
+//         options: {
+//           cacheName: "images-cache",
+//           expiration: {
+//             maxEntries: 60,
+//             maxAgeSeconds: 30 * 24 * 60 * 60
+//           }
 //         }
 //       }
-//     }
+//     ]
 //   ]
 // })(nextConfig);
 

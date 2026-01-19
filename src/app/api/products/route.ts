@@ -121,31 +121,43 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Product name is required' }, { status: 400 })
     }
 
-    if (user.organization_id) {
-      const subscription = await getOrganizationSubscription(user.organization_id)
-      if (subscription) {
-        if (subscription.status === 'expired' || subscription.status === 'cancelled') {
-          return NextResponse.json({ error: 'Subscription is not active' }, { status: 403 })
-        }
+    // Check subscription limits for all users (with or without organization_id)
+    const subscription = await getOrganizationSubscription(user.organization_id || '')
+    const maxProducts = subscription?.plan?.max_products || 10 // Default to 10 for free plan
 
-        const { count, error: countError } = await supabase
-          .from('products')
-          .select('id', { count: 'exact', head: true })
-          .eq('user_id', user.id)
+    // Check if subscription is active
+    if (subscription && (subscription.status === 'expired' || subscription.status === 'cancelled')) {
+      return NextResponse.json({ error: 'Subscription is not active' }, { status: 403 })
+    }
 
-        if (countError) {
-          console.error('Error counting products:', countError)
-        }
+    // Count current products
+    const { count, error: countError } = await supabase
+      .from('products')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
 
-        if (count && hasReachedLimit(subscription, count, 'products')) {
-          return NextResponse.json({
-            error: 'Product limit reached',
-            limit: subscription.plan?.max_products,
-            current: count,
-            upgradeUrl: '/subscription'
-          }, { status: 403 })
-        }
-      }
+    if (countError) {
+      console.error('Error counting products:', countError)
+    }
+
+    console.log('Product limit check:', { 
+      count, 
+      maxLimit: maxProducts,
+      subscriptionStatus: subscription?.status,
+      planName: subscription?.plan?.display_name || 'Free',
+      planType: subscription?.plan?.name || 'free',
+      hasOrg: !!user.organization_id
+    })
+
+    // Enforce limit (unless unlimited: -1)
+    if (maxProducts !== -1 && count !== null && count >= maxProducts) {
+      console.log('Blocking product creation - limit reached')
+      return NextResponse.json({
+        error: 'Product limit reached',
+        limit: maxProducts,
+        current: count,
+        upgradeUrl: '/subscription'
+      }, { status: 403 })
     }
 
     const { data: product, error: productError } = await supabase

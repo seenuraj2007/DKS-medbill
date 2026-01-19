@@ -5,6 +5,7 @@ import LocationFormPage from '../../new/page'
 
 export default function EditLocationPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params)
+  const { id } = resolvedParams
   
-  return <LocationFormPage editId={resolvedParams.id} />
+  return <LocationFormPage params={{ editId: id }} />
 }

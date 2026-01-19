@@ -49,19 +49,21 @@ export async function GET(req: NextRequest) {
     let locationsCount = 0
 
     if (user.organization_id) {
-      const [teamResult, locationsResult] = await Promise.all([
+      const [teamResult] = await Promise.all([
         supabase
           .from('organization_members')
-          .select('id', { count: 'exact', head: true })
-          .eq('organization_id', user.organization_id),
-        supabase
-          .from('locations')
           .select('id', { count: 'exact', head: true })
           .eq('organization_id', user.organization_id)
       ])
       teamMembersCount = teamResult.count || 0
-      locationsCount = locationsResult.count || 0
     }
+
+    // Count locations by user_id (not organization_id) - locations table doesn't have organization_id
+    const locationsResult = await supabase
+      .from('locations')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+    locationsCount = locationsResult.count || 0
 
     const totalProducts = productsCount.count
     const allProducts = productsData.data || []
@@ -102,6 +104,10 @@ export async function GET(req: NextRequest) {
         teamMembers: teamMembersCount,
         products: totalProducts || 0,
         locations: locationsCount
+      }
+    }, {
+      headers: {
+        'Cache-Control': 'private, max-age=30',
       }
     })
   } catch (error) {
