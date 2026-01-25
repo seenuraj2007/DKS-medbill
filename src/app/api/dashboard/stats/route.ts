@@ -27,6 +27,53 @@ export async function GET(req: NextRequest) {
 
     const supabase = createServiceClient()
 
+    // Check if user has organization, if not and has products, create one
+    if (!user.organization_id) {
+      const { count: productCount } = await supabase
+        .from('products')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+
+      if (productCount && productCount > 0) {
+        const orgName = user.full_name ? `${user.full_name}'s Organization` : 'My Organization'
+
+        const { data: newOrg, error: orgError } = await supabase
+          .from('organizations')
+          .insert({ name: orgName })
+          .select()
+          .single()
+
+        if (!orgError && newOrg) {
+          await supabase
+            .from('users')
+            .update({ organization_id: newOrg.id })
+            .eq('id', user.id)
+
+          const { data: freePlan } = await supabase
+            .from('subscription_plans')
+            .select('id')
+            .eq('name', 'free')
+            .single()
+
+          if (freePlan) {
+            const trialEndDate = new Date()
+            trialEndDate.setDate(trialEndDate.getDate() + 14)
+
+            await supabase
+              .from('subscriptions')
+              .insert({
+                organization_id: newOrg.id,
+                plan_id: freePlan.id,
+                status: 'trial',
+                trial_end_date: trialEndDate.toISOString()
+              })
+          }
+
+          user.organization_id = newOrg.id
+        }
+      }
+    }
+
     const [productsCount, productsData, alertsCount] = await Promise.all([
       supabase
         .from('products')

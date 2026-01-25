@@ -48,7 +48,6 @@ export async function GET(req: NextRequest) {
 
     for (const sub of trialSubscriptions || []) {
       try {
-        const org = sub.organizations as unknown as Array<{ name: string }>
         const owner = sub.users as unknown as Array<{ email: string; full_name: string }>
         const trialEnd = new Date(sub.trial_end_date!)
         const now = new Date()

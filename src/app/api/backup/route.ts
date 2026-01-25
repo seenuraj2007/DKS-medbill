@@ -126,6 +126,6 @@ async function exportSQLBackup(userId: string, filename: string, tables: string[
   })
 }
 
-export async function POST(req: NextRequest) {
+export async function POST() {
   return NextResponse.json({ error: 'Restore functionality not available in Supabase mode' }, { status: 501 })
 }

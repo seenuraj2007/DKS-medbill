@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/serverSupabase'
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const health = {
       status: 'healthy',

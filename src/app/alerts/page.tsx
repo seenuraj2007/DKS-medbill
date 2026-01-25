@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bell, Check, CheckCheck, X, AlertTriangle, ArrowLeft, ChevronRight } from 'lucide-react'
+import { Bell, Check, X, AlertTriangle, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { get, patch } from '@/lib/fetch'
 import { SubscriptionGate } from '@/components/SubscriptionGate'
@@ -25,11 +25,7 @@ export default function AlertsPage() {
   const [unreadOnly, setUnreadOnly] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetchAlerts()
-  }, [unreadOnly])
-
-  const fetchAlerts = async () => {
+  const fetchAlerts = useCallback(async () => {
     try {
       const res = await get(`/api/alerts?unread=${unreadOnly}`)
       if (res.status === 401) {
@@ -43,7 +39,11 @@ export default function AlertsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [unreadOnly, router])
+
+  useEffect(() => {
+    fetchAlerts()
+  }, [fetchAlerts])
 
   const markAsRead = async (alertIds: number[]) => {
     try {

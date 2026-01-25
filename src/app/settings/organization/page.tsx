@@ -55,6 +55,13 @@ export default function OrganizationSettingsPage() {
         return
       }
       const data = await res.json()
+
+      // If organization was auto-created, fetch again to get full data
+      if (data.autoCreated) {
+        await fetchOrganization()
+        return
+      }
+
       setOrg(data.organization)
       setOwner(data.owner)
       setMemberCount(data.memberCount)
@@ -329,9 +336,9 @@ export default function OrganizationSettingsPage() {
             The owner has full control over the organization, including billing, team management, and deletion.
             To transfer ownership, please contact support.
           </p>
-        </div>
+          </div>
         </main>
-        </div>
+      </div>
       </SubscriptionGate>
     </SidebarLayout>
   )

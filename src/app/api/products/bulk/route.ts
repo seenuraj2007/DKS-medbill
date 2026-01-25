@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
             .eq('user_id', user.id)
 
           results.push({ id: productId, success: !error, error: error ? 'Failed to delete' : undefined })
-        } catch (error) {
+        } catch {
           results.push({ id: productId, success: false, error: 'Failed to delete' })
         }
       }
@@ -139,7 +139,7 @@ export async function POST(req: NextRequest) {
           } else {
             results.push({ id: productId, success: false, error: 'Product not found' })
           }
-        } catch (error) {
+        } catch {
           results.push({ id: productId, success: false, error: 'Failed to update stock' })
         }
       }
@@ -154,7 +154,7 @@ export async function POST(req: NextRequest) {
             .eq('id', productId)
             .eq('user_id', user.id)
           results.push({ id: productId, success: true })
-        } catch (error) {
+        } catch {
           results.push({ id: productId, success: false, error: 'Failed to update supplier' })
         }
       }
@@ -169,7 +169,7 @@ export async function POST(req: NextRequest) {
             .eq('id', productId)
             .eq('user_id', user.id)
           results.push({ id: productId, success: true })
-        } catch (error) {
+        } catch {
           results.push({ id: productId, success: false, error: 'Failed to update category' })
         }
       }
@@ -184,7 +184,7 @@ export async function POST(req: NextRequest) {
             .eq('id', productId)
             .eq('user_id', user.id)
           results.push({ id: productId, success: true })
-        } catch (error) {
+        } catch {
           results.push({ id: productId, success: false, error: 'Failed to update reorder point' })
         }
       }

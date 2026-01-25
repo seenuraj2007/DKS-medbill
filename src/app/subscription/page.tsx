@@ -61,6 +61,13 @@ export default function SubscriptionPage() {
         return
       }
       const data = await res.json()
+
+      // If organization was auto-created, refresh to get proper data
+      if (data.needsRefresh) {
+        await fetchSubscription()
+        return
+      }
+
       if (data.needsOrganization) {
         // User has no organization yet
         setSubscription(null)
