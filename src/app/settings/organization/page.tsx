@@ -124,7 +124,7 @@ export default function OrganizationSettingsPage() {
       <SidebarLayout>
         <SubscriptionGate>
           <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-            <nav className="bg-white/90 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+            <nav className="bg-white/90 backdrop-blur-xl border-b border-gray-200 sticky top-0 shadow-sm">
               <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center gap-4 h-16">
                   <Link href="/profile" className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all cursor-pointer">
@@ -166,7 +166,7 @@ export default function OrganizationSettingsPage() {
     <SidebarLayout>
       <SubscriptionGate>
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <nav className="bg-white/90 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+      <nav className="bg-white/90 backdrop-blur-xl border-b border-gray-200 sticky top-0 shadow-sm">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4 h-16">
             <Link href="/profile" className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all cursor-pointer">

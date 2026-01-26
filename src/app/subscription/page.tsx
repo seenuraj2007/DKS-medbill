@@ -151,7 +151,7 @@ export default function SubscriptionPage() {
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-4">Setup Your Organization</h1>
             <p className="text-gray-600 mb-8 text-lg">
-              Create your organization to start using StockAlert and access all features.
+              Create your organization to start using DKS StockAlert and access all features.
             </p>
             <Link 
               href="/products/new"

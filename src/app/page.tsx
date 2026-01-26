@@ -14,13 +14,13 @@ const stats = [
   { label: 'Total Products', value: '1,247', change: '+12%', color: 'from-blue-500 to-blue-600', Icon: Package },
   { label: 'Low Stock', value: '23', change: '-5', color: 'from-yellow-500 to-orange-500', Icon: TrendingDown },
   { label: 'Out of Stock', value: '5', change: '-2', color: 'from-red-500 to-red-600', Icon: AlertTriangle },
-  { label: 'This Month', value: '+$48,320', change: '+8%', color: 'from-green-500 to-green-600', Icon: BarChart3 },
+  { label: 'This Month (₹)', value: '+45,000', change: '+8%', color: 'from-green-500 to-green-600', Icon: BarChart3 },
 ]
 
 const alerts = [
-  { name: 'Wireless Mouse', stock: 5, reorder: 20, status: 'critical' },
-  { name: 'USB-C Cable', stock: 8, reorder: 50, status: 'warning' },
-  { name: 'Notebook A5', stock: 12, reorder: 100, status: 'warning' },
+  { name: 'Basmati Rice (5kg)', stock: 5, reorder: 20, status: 'critical' },
+  { name: 'Cotton T-Shirt (L)', stock: 8, reorder: 50, status: 'warning' },
+  { name: 'Masala Powder (Pack of 10)', stock: 12, reorder: 100, status: 'warning' },
 ]
 
 const features = [
@@ -39,11 +39,11 @@ const features = [
     glow: 'from-purple-500/20 to-pink-500/20'
   },
   {
-    icon: MapPin,
-    title: 'Multi-Location',
-    description: 'Manage inventory across multiple warehouses, stores, or locations from one dashboard.',
+    icon: Shield,
+    title: 'GST Compliant',
+    description: 'Generate GST-ready invoices automatically. Stay compliant with India\'s tax regulations effortlessly.',
     size: 'small',
-    glow: 'from-indigo-500/20 to-violet-500/20'
+    glow: 'from-green-500/20 to-emerald-500/20'
   },
   {
     icon: Truck,
@@ -53,11 +53,11 @@ const features = [
     glow: 'from-orange-500/20 to-red-500/20'
   },
   {
-    icon: Layers,
-    title: 'Stock Transfers',
-    description: 'Move inventory between locations seamlessly with tracking and approval workflows.',
+    icon: Database,
+    title: 'Data Stored in India',
+    description: 'Your data stays in Indian servers. ISO 27001 certified for maximum security and compliance.',
     size: 'small',
-    glow: 'from-cyan-500/20 to-blue-500/20'
+    glow: 'from-indigo-500/20 to-violet-500/20'
   },
   {
     icon: Target,
@@ -77,21 +77,21 @@ const howItWorksSteps = [
 const plans = [
   {
     name: 'Free',
-    price: '$0',
+    price: '₹0',
     description: 'Perfect for personal use',
     features: ['1 team member', '10 products', '1 location', 'Basic tracking', 'Email support'],
     cta: 'Get Started Free',
   },
   {
     name: 'Starter',
-    price: '$9',
+    price: '₹499',
     description: 'Great for small businesses',
     features: ['3 team members', '100 products', '5 locations', 'Priority email support'],
     cta: 'Start Free Trial',
   },
   {
     name: 'Professional',
-    price: '$29',
+    price: '₹1,499',
     description: 'For growing businesses',
     features: ['10 team members', '1000 products', '20 locations', 'Stock transfers', 'Priority support'],
     cta: 'Start Free Trial',
@@ -102,9 +102,9 @@ const plans = [
 const techStack = [
   { name: 'Next.js', icon: Code2, color: 'text-white' },
   { name: 'React', icon: Globe, color: 'text-cyan-400' },
-  { name: 'Stripe', icon: Lock, color: 'text-purple-400' },
+  { name: 'Cashfree', icon: Lock, color: 'text-blue-400' },
   { name: 'Supabase', icon: Database, color: 'text-green-400' },
-  { name: 'TypeScript', icon: Cpu, color: 'text-blue-400' },
+  { name: 'TypeScript', icon: Cpu, color: 'text-indigo-400' },
   { name: 'Tailwind', icon: Sparkles, color: 'text-teal-400' },
 ]
 
@@ -195,7 +195,7 @@ export default function HomePage() {
               <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-fuchsia-600 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/25 group-hover:shadow-violet-500/40 transition-all group-hover:scale-110">
                 <Package className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">StockAlert</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">DKS StockAlert</span>
             </Link>
             
             <div className="hidden md:flex items-center gap-8">
@@ -284,15 +284,15 @@ export default function HomePage() {
               Now with 30-day free trial - No credit card required
             </motion.div>
             
-            <motion.h1 
+            <motion.h1
               className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight tracking-tight"
               variants={itemVariants}
             >
-              <span className="bg-gradient-to-r from-white via-white to-white/70 bg-clip-text text-transparent">Inventory Intelligence.</span>
+              <span className="bg-gradient-to-r from-white via-white to-white/70 bg-clip-text text-transparent">Inventory Management,</span>
               <br />
               <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent relative inline-block">
-                Zero Stress.
-                <motion.div 
+                Built for India.
+                <motion.div
                   className="absolute -inset-2 bg-gradient-to-r from-violet-500/20 via-fuchsia-500/20 to-cyan-500/20 blur-2xl -z-10"
                   animate={{
                     opacity: [0.2, 0.4, 0.2],
@@ -307,21 +307,20 @@ export default function HomePage() {
                 />
               </span>
             </motion.h1>
-            
-            <motion.p 
+
+            <motion.p
               className="text-xl text-white/60 mb-10 max-w-2xl mx-auto leading-relaxed"
               variants={itemVariants}
             >
-              Track stock levels, manage suppliers, and never run out of inventory. 
-              Free for small teams, powerful features for growing businesses.
+              Track stock in Rupees, generate GST-ready invoices, and manage your inventory with zero headache. Simple, reliable, and powerful.
             </motion.p>
             
-            <motion.div 
+            <motion.div
               className="flex flex-col sm:flex-row items-center justify-center gap-4"
               variants={itemVariants}
             >
               <Link href="/auth" className="w-full sm:w-auto bg-gradient-to-r from-violet-600 via-fuchsia-600 to-violet-700 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:from-violet-700 hover:via-fuchsia-700 hover:to-violet-800 transition-all shadow-xl shadow-violet-500/25 hover:shadow-violet-500/40 hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer">
-                Start Free Trial
+                Start Free - No Credit Card
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <a href="#features" className="w-full sm:w-auto px-8 py-4 rounded-xl font-semibold text-lg text-white border-2 border-white/10 hover:border-white/20 hover:bg-white/5 backdrop-blur-sm transition-all flex items-center justify-center gap-2 cursor-pointer">
@@ -455,7 +454,7 @@ export default function HomePage() {
 
       <section className="py-12 border-y border-white/5 bg-slate-900/30 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4">
-          <p className="text-center text-white/60 mb-6 font-medium text-sm">Trusted by modern operations teams</p>
+          <p className="text-center text-white/60 mb-6 font-medium text-sm">Built with modern, secure technologies</p>
           <Marquee items={techStack} />
         </div>
       </section>
@@ -585,7 +584,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="pricing" className="py-24 px-4 relative">
+      <section id="pricing" className="py-10 px-4 relative">
         <div className="max-w-7xl mx-auto">
           <motion.div 
             className="text-center mb-16"
@@ -598,7 +597,7 @@ export default function HomePage() {
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
               <span className="bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">Simple, Transparent Pricing</span>
             </h2>
-            <p className="text-xl text-white/60">Start free, upgrade when you're ready.</p>
+            <p className="text-xl text-white/60">Start free, upgrade when you&apos;re ready.</p>
           </motion.div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -664,14 +663,36 @@ export default function HomePage() {
                     : 'bg-white/10 text-white hover:bg-white/15 border border-white/10'}`}>
                     {plan.cta}
                   </Link>
+                  {plan.price === '₹0' && (
+                    <p className="text-center text-white/50 text-xs mt-3">No credit card required</p>
+                  )}
+                  {plan.price !== '₹0' && (
+                    <p className="text-center text-white/50 text-xs mt-3 flex items-center justify-center gap-2">
+                      <Shield className="w-3 h-3 text-violet-400" />
+                      No credit card required • UPI accepted
+                    </p>
+                  )}
                 </motion.div>
               )
             })}
           </div>
+          <motion.div 
+            className="mt-8 text-center"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <p className="text-white/50 text-sm mb-2">Accepts UPI, GPay, PhonePe, Net Banking & Credit Cards</p>
+            <div className="flex items-center justify-center gap-2">
+              <Shield className="w-4 h-4 text-green-400" />
+              <span className="text-white/60 text-sm">Powered by Cashfree • Secure Payments</span>
+            </div>
+          </motion.div>
         </div>
       </section>
 
-      <section className="py-24 px-4 relative">
+      <section className="py-10 px-4 relative">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div 
             className="bg-gradient-to-br from-violet-600/90 to-fuchsia-600/90 backdrop-blur-xl rounded-3xl p-12 relative overflow-hidden border border-white/10 shadow-2xl"
@@ -688,7 +709,7 @@ export default function HomePage() {
             <div className="relative">
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Ready to Get Started?</h2>
               <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
-                Join modern operations teams using StockAlert to manage their inventory.
+                Join modern operations teams using DKS StockAlert to manage their inventory.
               </p>
               <Link href="/auth" className="inline-flex items-center gap-2 bg-white text-violet-600 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/90 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-0.5 cursor-pointer">
                 Start Free Trial
@@ -708,7 +729,7 @@ export default function HomePage() {
                     times: [0, 0.5, 1],
                   }}
                 />
-                No credit card required • 30-day free trial • Cancel anytime
+                No credit card required • UPI/Net Banking accepted • Cancel anytime
               </p>
             </div>
           </motion.div>
@@ -717,52 +738,41 @@ export default function HomePage() {
 
       <footer className="bg-slate-950/50 backdrop-blur-sm border-t border-white/5 text-white/60 py-16 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
+          <div className="grid md:grid-cols-2 gap-12 mb-12">
             <div>
               <Link href="/" className="flex items-center gap-2 mb-6 group cursor-pointer">
                 <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-fuchsia-600 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/20 group-hover:shadow-violet-500/40 transition-all">
                   <Package className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-xl font-bold text-white">StockAlert</span>
+                <span className="text-xl font-bold text-white">DKS StockAlert</span>
               </Link>
               <p className="text-sm leading-relaxed">
                 Smart inventory management for growing businesses. Track stock, manage suppliers, never run out.
               </p>
             </div>
-            
-            <div>
-              <h4 className="text-white font-semibold mb-4">Product</h4>
-              <ul className="space-y-3 text-sm">
-                <li><a href="#features" className="hover:text-white transition-colors cursor-pointer flex items-center gap-2">Features <ChevronRight className="w-3 h-3" /></a></li>
-                <li><Link href="/pricing" className="hover:text-white transition-colors cursor-pointer flex items-center gap-2">Pricing <ChevronRight className="w-3 h-3" /></Link></li>
-                <li><a href="#" className="hover:text-white transition-colors cursor-pointer flex items-center gap-2">API Docs <ChevronRight className="w-3 h-3" /></a></li>
-                <li><a href="#" className="hover:text-white transition-colors cursor-pointer flex items-center gap-2">Integrations <ChevronRight className="w-3 h-3" /></a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="text-white font-semibold mb-4">Company</h4>
-              <ul className="space-y-3 text-sm">
-                <li><a href="#" className="hover:text-white transition-colors cursor-pointer flex items-center gap-2">About <ChevronRight className="w-3 h-3" /></a></li>
-                <li><a href="#" className="hover:text-white transition-colors cursor-pointer flex items-center gap-2">Blog <ChevronRight className="w-3 h-3" /></a></li>
-                <li><a href="#" className="hover:text-white transition-colors cursor-pointer flex items-center gap-2">Careers <ChevronRight className="w-3 h-3" /></a></li>
-                <li><a href="#" className="hover:text-white transition-colors cursor-pointer flex items-center gap-2">Contact <ChevronRight className="w-3 h-3" /></a></li>
-              </ul>
-            </div>
-            
+
             <div>
               <h4 className="text-white font-semibold mb-4">Legal</h4>
               <ul className="space-y-3 text-sm">
                 <li><Link href="/privacy" className="hover:text-white transition-colors cursor-pointer flex items-center gap-2">Privacy Policy <ChevronRight className="w-3 h-3" /></Link></li>
                 <li><Link href="/terms" className="hover:text-white transition-colors cursor-pointer flex items-center gap-2">Terms of Service <ChevronRight className="w-3 h-3" /></Link></li>
-                <li><a href="#" className="hover:text-white transition-colors cursor-pointer flex items-center gap-2">Cookie Policy <ChevronRight className="w-3 h-3" /></a></li>
+                <li><Link href="/cookies" className="hover:text-white transition-colors cursor-pointer flex items-center gap-2">Cookie Policy <ChevronRight className="w-3 h-3" /></Link></li>
               </ul>
             </div>
           </div>
           
           <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between">
-            <p className="text-sm">© {new Date().getFullYear()} StockAlert. All rights reserved.</p>
+            <div className="flex flex-col items-center md:items-start gap-1">
+              <p className="text-sm">© {new Date().getFullYear()} DKS StockAlert. All rights reserved.</p>
+              <p className="text-xs text-white/40 flex items-center gap-1">
+                Made with ❤️ in India • <span className="text-violet-400">ISO 27001 Certified</span> • Data stored in India
+              </p>
+            </div>
             <div className="flex items-center gap-4 mt-4 md:mt-0">
+              <div className="flex items-center gap-2 text-xs text-white/50">
+                <Shield className="w-4 h-4 text-green-400" />
+                <span>Powered by Cashfree</span>
+              </div>
               <a href="#" className="hover:text-white transition-colors p-2 hover:bg-white/5 rounded-lg cursor-pointer">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
               </a>

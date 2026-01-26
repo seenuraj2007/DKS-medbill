@@ -1,7 +1,16 @@
 {
-  "name": "stockalert",
+  "name": "DKSstockalert",
   "version": "0.1.0",
   "private": true,
+  "author": "seenuraj2007",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seenuraj2007/stockalert.git"
+  },
+  "bugs": {
+    "url": "https://github.com/seenuraj2007/stockalert/issues"
+  },
+  "homepage": "https://github.com/seenuraj2007/stockalert#readme",
   "engines": {
     "node": ">=20.12.0"
   },
@@ -25,6 +34,7 @@
     "critters": "^0.0.23",
     "date-fns": "^4.1.0",
     "file-type": "^21.3.0",
+    "framer-motion": "^12.29.0",
     "html5-qrcode": "^2.3.8",
     "lucide-react": "^0.562.0",
     "next": "16.1.1",
@@ -46,23 +56,18 @@
     "@types/node": "^20.19.30",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@vitejs/plugin-react": "^5.1.2",
+    "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
-    "jsdom": "^27.4.0",
+    "jsdom": "^25.0.1",
     "tailwindcss": "^4",
     "ts-node": "^1.7.1",
     "typescript": "^5",
-    "vitest": "^3.0.0"
+    "vitest": "^2.1.8"
   },
   "overrides": {
-    "@exodus/bytes": "1.8.0",
-    "html-encoding-sniffer": "^6.0.0",
-    "rollup-plugin-terser": {
-      "rollup": "^4.0.0"
-    },
-    "sourcemap-codec": {
-      "rollup": "^4.0.0"
+    "html-encoding-sniffer": {
+      "@exodus/bytes": "1.8.0"
     }
   }
 }

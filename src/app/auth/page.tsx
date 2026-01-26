@@ -131,7 +131,7 @@ export default function AuthPage() {
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl mb-5 shadow-xl shadow-indigo-200">
               <Package className="w-10 h-10 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">StockAlert</h1>
+            <h1 className="text-3xl font-bold text-gray-900">DKS StockAlert</h1>
             <p className="text-gray-500 mt-2">{isLogin ? 'Welcome back! Sign in to continue.' : 'Start managing your inventory today.'}</p>
           </div>
 

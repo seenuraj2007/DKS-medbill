@@ -1,5 +1,3 @@
-import crypto from 'crypto'
-
 export interface WooCommerceConfig {
   storeUrl: string
   consumerKey: string
@@ -324,7 +322,7 @@ export class WooCommerceClient {
     const callbackUrl = `${process.env.APP_URL}/api/integrations/woocommerce/callback`
     
     return `${this.storeUrl}/wc-auth/authorize?` +
-      `app_name=StockAlert` +
+      `app_name=DKS%20StockAlert` +
       `&scope=read_write` +
       `&user_id=1` +
       `&return_url=${encodeURIComponent(callbackUrl)}` +

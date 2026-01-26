@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useState, memo } from 'react'
+import { useEffect, useState, memo, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { Package, TrendingDown, AlertTriangle, Bell, LogOut, Plus, Search, ArrowUpRight, ArrowDownRight, MapPin, Truck, FileText, ArrowUpDown, Menu, X, Users, CreditCard, Zap, Settings, User, Calculator, ChevronRight, TrendingUp, DollarSign } from 'lucide-react'
+import { Package, TrendingDown, AlertTriangle, Bell, LogOut, Plus, Search, ArrowUpRight, ArrowDownRight, Menu, X, ChevronRight, TrendingUp, DollarSign, Zap } from 'lucide-react'
 import Link from 'next/link'
 import SidebarMenu from '@/components/SidebarMenu'
 
@@ -136,14 +136,7 @@ export default function DashboardClient({ initialStats }: { initialStats: Dashbo
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [trialDaysLeft, setTrialDaysLeft] = useState<number | null>(null)
 
-  useEffect(() => {
-    if (stats?.subscription?.status === 'trial' && stats.subscription.trial_end_date) {
-      const days = Math.ceil((new Date(stats.subscription.trial_end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
-      setTrialDaysLeft(days > 0 ? days : 0)
-    }
-  }, [stats?.subscription?.status, stats?.subscription?.trial_end_date])
-
-  const fetchDashboard = async () => {
+  const fetchDashboard = useCallback(async () => {
     try {
       const res = await fetch('/api/dashboard/stats', {
         credentials: 'include',
@@ -158,9 +151,9 @@ export default function DashboardClient({ initialStats }: { initialStats: Dashbo
     } catch (error) {
       console.error('Error fetching dashboard:', error)
     }
-  }
+  }, [router])
 
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     try {
       const res = await fetch('/api/analytics?period=30', {
         credentials: 'include'
@@ -170,14 +163,22 @@ export default function DashboardClient({ initialStats }: { initialStats: Dashbo
     } catch (error) {
       console.error('Error fetching analytics:', error)
     }
-  }
+  }, [])
 
   useEffect(() => {
     if (!initialStats) {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchDashboard()
     }
     fetchAnalytics()
-  }, [initialStats])
+  }, [initialStats, fetchDashboard, fetchAnalytics])
+
+  useEffect(() => {
+    if (stats?.subscription?.status === 'trial' && stats.subscription.trial_end_date) {
+      const days = Math.ceil((new Date(stats.subscription.trial_end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+      setTrialDaysLeft(days > 0 ? days : 0)
+    }
+  }, [stats?.subscription?.status, stats?.subscription?.trial_end_date])
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
@@ -193,7 +194,7 @@ export default function DashboardClient({ initialStats }: { initialStats: Dashbo
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200 group-hover:shadow-indigo-300 transition-shadow">
                 <Package className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
               </div>
-              <span className="text-lg sm:text-xl font-bold text-gray-900 hidden sm:block">StockAlert</span>
+              <span className="text-lg sm:text-xl font-bold text-gray-900 hidden sm:block">DKS StockAlert</span>
             </Link>
 
             <div className="flex items-center gap-1.5 sm:gap-4">

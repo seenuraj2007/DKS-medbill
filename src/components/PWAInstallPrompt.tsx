@@ -53,7 +53,7 @@ export default function PWAInstallPrompt() {
             <Download className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600" />
           </div>
           <div>
-            <p className="font-semibold text-sm sm:text-base">Install StockAlert App</p>
+            <p className="font-semibold text-sm sm:text-base">Install DKS StockAlert App</p>
             <p className="text-xs sm:text-sm text-white/80">Get quick access from your home screen</p>
           </div>
         </div>

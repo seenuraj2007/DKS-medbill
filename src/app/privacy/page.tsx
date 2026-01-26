@@ -2,8 +2,8 @@ import Link from 'next/link'
 import { Package, ArrowLeft, Shield, Eye, Lock, Globe } from 'lucide-react'
 
 export const metadata = {
-  title: 'Privacy Policy - StockAlert',
-  description: 'Privacy Policy for StockAlert inventory management platform.',
+  title: 'Privacy Policy - DKS StockAlert',
+  description: 'Privacy Policy for DKS StockAlert inventory management platform.',
 }
 
 export default function PrivacyPage() {
@@ -16,7 +16,7 @@ export default function PrivacyPage() {
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-200">
                 <Package className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xl font-bold text-gray-900">StockAlert</span>
+              <span className="text-xl font-bold text-gray-900">DKS StockAlert</span>
             </Link>
             <Link href="/auth" className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2.5 rounded-xl font-medium hover:from-indigo-600 hover:to-purple-700 transition-all hover:-translate-y-0.5 shadow-lg shadow-purple-200">
               Get Started
@@ -52,7 +52,7 @@ export default function PrivacyPage() {
                   <h2 className="text-2xl font-semibold text-gray-900">Introduction</h2>
                 </div>
                 <p className="text-gray-600 ml-13">
-                  At StockAlert, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our inventory management platform. By using StockAlert, you agree to the collection and use of information in accordance with this policy.
+                  At DKS StockAlert, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our inventory management platform. By using DKS StockAlert, you agree to the collection and use of information in accordance with this policy.
                 </p>
               </section>
 
@@ -214,7 +214,7 @@ export default function PrivacyPage() {
 
       <footer className="bg-white/80 backdrop-blur-xl border-t border-gray-100 py-8 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-sm text-gray-500">© {new Date().getFullYear()} StockAlert. All rights reserved.</p>
+          <p className="text-sm text-gray-500">© {new Date().getFullYear()} DKS StockAlert. All rights reserved.</p>
         </div>
       </footer>
     </div>

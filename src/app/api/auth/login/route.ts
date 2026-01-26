@@ -28,6 +28,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Try to get user profile
+    // eslint-disable-next-line prefer-const
     let { data: user, error: userError } = await supabase
       .from('users')
       .select('*')
