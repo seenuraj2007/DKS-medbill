@@ -1,34 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { supabaseAdmin } from '@/lib/serverSupabase'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-function createServiceClient() {
-  if (!supabaseServiceKey) {
-    throw new Error('SUPABASE_SERVICE_ROLE_KEY is not defined')
-  }
-  return createClient(supabaseUrl, supabaseServiceKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  })
-}
-
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
-    const supabase = createServiceClient()
-
     const health = {
       status: 'healthy',
       timestamp: new Date().toISOString(),
-      version: process.env.npm_package_version || '1.0.0',
       checks: {} as Record<string, any>
     }
 
+    if (!supabaseAdmin) {
+      health.checks.database = { status: 'skipped', message: 'Admin client not configured' }
+      const response = NextResponse.json(health, { status: 200 })
+      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+      response.headers.set('X-Health-Check', 'true')
+      return response
+    }
+
     try {
-      const { error } = await supabase.from('users').select('id').limit(1)
+      const { error } = await supabaseAdmin.from('users').select('id').limit(1)
       health.checks.database = error ? { status: 'error', message: error.message } : { status: 'healthy' }
     } catch (dbError: any) {
       health.checks.database = { status: 'error', message: dbError.message }

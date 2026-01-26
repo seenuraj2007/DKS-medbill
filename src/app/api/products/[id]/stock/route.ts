@@ -69,7 +69,7 @@ export async function POST(
       .update({ current_quantity: newQuantity })
       .eq('id', id)
 
-    const { data: history, error: historyError } = await supabase
+    const { error: historyError } = await supabase
       .from('stock_history')
       .insert({
         product_id: id,
@@ -80,8 +80,6 @@ export async function POST(
         change_type,
         notes: notes || null
       })
-      .select()
-      .single()
 
     if (historyError) {
       console.error('Error creating stock history:', historyError)

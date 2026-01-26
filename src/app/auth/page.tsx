@@ -20,10 +20,30 @@ export default function AuthPage() {
   const [fullName, setFullName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [passwordError, setPasswordError] = useState('')
 
   useEffect(() => {
     checkAuth()
   }, [])
+
+  const validatePassword = (pwd: string): string => {
+    if (pwd.length < 8) {
+      return 'Password must be at least 8 characters'
+    }
+    if (pwd.length > 100) {
+      return 'Password too long'
+    }
+    if (!/[A-Z]/.test(pwd)) {
+      return 'Password must contain at least one uppercase letter'
+    }
+    if (!/[a-z]/.test(pwd)) {
+      return 'Password must contain at least one lowercase letter'
+    }
+    if (!/[0-9]/.test(pwd)) {
+      return 'Password must contain at least one number'
+    }
+    return ''
+  }
 
   const checkAuth = async () => {
     try {
@@ -38,6 +58,7 @@ export default function AuthPage() {
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setPasswordError('')
     setLoading(true)
 
     if (!email || !password) {
@@ -52,8 +73,15 @@ export default function AuthPage() {
       return
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters')
+    const pwdError = validatePassword(password)
+    if (pwdError) {
+      setError(pwdError)
+      setLoading(false)
+      return
+    }
+
+    if (!isLogin && !fullName.trim()) {
+      setError('Full name is required')
       setLoading(false)
       return
     }
@@ -103,12 +131,12 @@ export default function AuthPage() {
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl mb-5 shadow-xl shadow-indigo-200">
               <Package className="w-10 h-10 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">StockAlert</h1>
+            <h1 className="text-3xl font-bold text-gray-900">DKS StockAlert</h1>
             <p className="text-gray-500 mt-2">{isLogin ? 'Welcome back! Sign in to continue.' : 'Start managing your inventory today.'}</p>
           </div>
 
           {error && (
-            <div className="mb-6 flex items-center gap-3 bg-red-50/80 backdrop-blur-sm border border-red-200 text-red-700 px-4 py-4 rounded-2xl animate-pulse">
+            <div className="mb-6 flex items-center gap-3 bg-red-50/80 backdrop-blur-sm border border-red-200 text-red-700 px-4 py-4 rounded-2xl">
               <AlertCircle className="w-5 h-5 flex-shrink-0" />
               <p className="text-sm font-medium">{error}</p>
             </div>
@@ -162,12 +190,46 @@ export default function AuthPage() {
                 <input
                   type="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3.5 border border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all bg-gray-50/50 hover:bg-white hover:shadow-md cursor-text text-gray-900"
+                  onChange={(e) => {
+                    setPassword(e.target.value)
+                    if (!isLogin) {
+                      const error = validatePassword(e.target.value)
+                      setPasswordError(error)
+                    }
+                  }}
+                  onBlur={() => {
+                    if (!isLogin) {
+                      const error = validatePassword(password)
+                      setPasswordError(error)
+                    }
+                  }}
+                  className={`w-full pl-12 pr-4 py-3.5 border rounded-xl focus:ring-4 outline-none transition-all bg-gray-50/50 hover:bg-white hover:shadow-md cursor-text text-gray-900 ${
+                    passwordError ? 'border-red-300 focus:border-red-500 focus:ring-red-500/10' : 'border-gray-200 focus:border-indigo-500 focus:ring-indigo-500/10'
+                  }`}
                   placeholder="••••••••"
                   required
                 />
               </div>
+              {!isLogin && password && (
+                <div className="mt-2 space-y-1">
+                  <p className={`text-xs flex items-center gap-1.5 ${password.length >= 8 ? 'text-emerald-600' : 'text-red-500'}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${password.length >= 8 ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
+                    At least 8 characters
+                  </p>
+                  <p className={`text-xs flex items-center gap-1.5 ${/[A-Z]/.test(password) ? 'text-emerald-600' : 'text-red-500'}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${/[A-Z]/.test(password) ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
+                    One uppercase letter
+                  </p>
+                  <p className={`text-xs flex items-center gap-1.5 ${/[a-z]/.test(password) ? 'text-emerald-600' : 'text-red-500'}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${/[a-z]/.test(password) ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
+                    One lowercase letter
+                  </p>
+                  <p className={`text-xs flex items-center gap-1.5 ${/[0-9]/.test(password) ? 'text-emerald-600' : 'text-red-500'}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${/[0-9]/.test(password) ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
+                    One number
+                  </p>
+                </div>
+              )}
             </div>
 
             <button
@@ -199,6 +261,9 @@ export default function AuthPage() {
               onClick={() => {
                 setIsLogin(!isLogin)
                 setError('')
+                setPasswordError('')
+                setPassword('')
+                setFullName('')
               }}
               className="text-indigo-600 hover:text-indigo-800 font-medium text-sm transition-colors cursor-pointer inline-flex items-center gap-1"
             >

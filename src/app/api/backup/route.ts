@@ -29,9 +29,9 @@ export async function GET(req: NextRequest) {
     const filename = `stockalert-backup-${timestamp}.${format}`
 
     if (format === 'json') {
-      return exportJSONBackup(user.organization_id, filename, tables)
+      return exportJSONBackup(user.id, filename, tables)
     } else {
-      return exportSQLBackup(user.organization_id, filename, tables)
+      return exportSQLBackup(user.id, filename, tables)
     }
   } catch (error) {
     console.error('Backup error:', error)
@@ -39,11 +39,11 @@ export async function GET(req: NextRequest) {
   }
 }
 
-async function exportJSONBackup(organizationId: string | null, filename: string, tables: string[]) {
+async function exportJSONBackup(userId: string, filename: string, tables: string[]) {
   const backup: BackupData = {
     version: '2.0',
     exported_at: new Date().toISOString(),
-    organization_id: organizationId,
+    organization_id: userId,
     data: {}
   }
 
@@ -56,7 +56,7 @@ async function exportJSONBackup(organizationId: string | null, filename: string,
       const { data, error } = await supabase
         .from(table)
         .select('*')
-        .eq('user_id', organizationId)
+        .eq('user_id', userId)
 
       if (!error && data && data.length > 0) {
         backup.data[table] = data
@@ -74,12 +74,12 @@ async function exportJSONBackup(organizationId: string | null, filename: string,
   })
 }
 
-async function exportSQLBackup(organizationId: string | null, filename: string, tables: string[]) {
+async function exportSQLBackup(userId: string, filename: string, tables: string[]) {
   const sqlStatements: string[] = []
 
   sqlStatements.push('-- StockAlert Database Backup')
   sqlStatements.push(`-- Generated: ${new Date().toISOString()}`)
-  sqlStatements.push('-- Organization ID: ' + organizationId)
+  sqlStatements.push('-- User ID: ' + userId)
   sqlStatements.push('')
 
   const validTables = tables.includes('all')
@@ -91,7 +91,7 @@ async function exportSQLBackup(organizationId: string | null, filename: string, 
       const { data, error } = await supabase
         .from(table)
         .select('*')
-        .eq('user_id', organizationId)
+        .eq('user_id', userId)
 
       if (error || !data || data.length === 0) continue
 
@@ -126,6 +126,6 @@ async function exportSQLBackup(organizationId: string | null, filename: string, 
   })
 }
 
-export async function POST(req: NextRequest) {
+export async function POST() {
   return NextResponse.json({ error: 'Restore functionality not available in Supabase mode' }, { status: 501 })
 }

@@ -1,34 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import { supabase as globalSupabase } from '@/lib/supabase'
 import { getUserFromRequest } from '@/lib/auth'
 import { getOrganizationSubscription, hasReachedLimit } from '@/lib/subscription'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-function createServiceClient() {
-  if (!supabaseServiceKey) {
-    throw new Error('SUPABASE_SERVICE_ROLE_KEY is not defined')
-  }
-  return createClient(supabaseUrl, supabaseServiceKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  })
-}
-
-function createAuthenticatedClient(accessToken: string) {
-  return createClient(supabaseUrl, supabaseAnonKey, {
-    global: {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    }
-  })
-}
+import { supabaseAdmin } from '@/lib/serverSupabase'
 
 export async function GET(req: NextRequest) {
   try {
@@ -37,7 +11,6 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const supabase = createServiceClient()
     const user = await getUserFromRequest(req)
     
     if (!user) {
@@ -48,7 +21,7 @@ export async function GET(req: NextRequest) {
     const category = searchParams.get('category')
     const supplier_id = searchParams.get('supplier_id')
 
-    let query = supabase.from('products').select('*').eq('user_id', user.id)
+    let query = globalSupabase.from('products').select('*').eq('user_id', user.id)
 
     if (category) {
       query = query.eq('category', category)
@@ -92,7 +65,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const supabase = createServiceClient()
     const user = await getUserFromRequest(req)
     
     if (!user) {
@@ -121,17 +93,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Product name is required' }, { status: 400 })
     }
 
-    // Check subscription limits for all users (with or without organization_id)
     const subscription = await getOrganizationSubscription(user.organization_id || '')
-    const maxProducts = subscription?.plan?.max_products || 10 // Default to 10 for free plan
+    const maxProducts = subscription?.plan?.max_products || 10
 
-    // Check if subscription is active
     if (subscription && (subscription.status === 'expired' || subscription.status === 'cancelled')) {
       return NextResponse.json({ error: 'Subscription is not active' }, { status: 403 })
     }
 
-    // Count current products
-    const { count, error: countError } = await supabase
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+    }
+
+    const { count, error: countError } = await supabaseAdmin
       .from('products')
       .select('id', { count: 'exact', head: true })
       .eq('user_id', user.id)
@@ -149,7 +122,6 @@ export async function POST(req: NextRequest) {
       hasOrg: !!user.organization_id
     })
 
-    // Enforce limit (unless unlimited: -1)
     if (maxProducts !== -1 && count !== null && count >= maxProducts) {
       console.log('Blocking product creation - limit reached')
       return NextResponse.json({
@@ -160,7 +132,7 @@ export async function POST(req: NextRequest) {
       }, { status: 403 })
     }
 
-    const { data: product, error: productError } = await supabase
+    const { data: product, error: productError } = await supabaseAdmin
       .from('products')
       .insert({
         user_id: user.id,
@@ -187,7 +159,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to create product', details: productError?.message }, { status: 500 })
     }
 
-    const { data: location } = await supabase
+    const { data: location } = await globalSupabase
       .from('locations')
       .select('id')
       .eq('user_id', user.id)
@@ -195,7 +167,7 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (location) {
-      await supabase
+      await globalSupabase
         .from('product_stock')
         .insert({
           product_id: product.id,

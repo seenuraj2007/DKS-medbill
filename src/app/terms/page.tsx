@@ -2,8 +2,8 @@ import Link from 'next/link'
 import { Package, ArrowLeft, FileText, CheckCircle, AlertTriangle } from 'lucide-react'
 
 export const metadata = {
-  title: 'Terms of Service - StockAlert',
-  description: 'Terms of Service for StockAlert inventory management platform.',
+  title: 'Terms of Service - DKS StockAlert',
+  description: 'Terms of Service for DKS StockAlert inventory management platform.',
 }
 
 export default function TermsPage() {
@@ -16,7 +16,7 @@ export default function TermsPage() {
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-200">
                 <Package className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xl font-bold text-gray-900">StockAlert</span>
+              <span className="text-xl font-bold text-gray-900">DKS StockAlert</span>
             </Link>
             <Link href="/auth" className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2.5 rounded-xl font-medium hover:from-indigo-600 hover:to-purple-700 transition-all hover:-translate-y-0.5 shadow-lg shadow-purple-200">
               Get Started
@@ -52,7 +52,7 @@ export default function TermsPage() {
                   <h2 className="text-2xl font-semibold text-gray-900">Acceptance of Terms</h2>
                 </div>
                 <p className="text-gray-600 ml-13 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100/50">
-                  By accessing or using StockAlert&apos;s services, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any part of these terms, you may not use our services.
+                  By accessing or using DKS StockAlert&apos;s services, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any part of these terms, you may not use our services.
                 </p>
               </section>
 
@@ -64,7 +64,7 @@ export default function TermsPage() {
                   <h2 className="text-2xl font-semibold text-gray-900">Description of Service</h2>
                 </div>
                 <p className="text-gray-600 ml-13">
-                  StockAlert provides a cloud-based inventory management platform. We reserve the right to modify, suspend, or discontinue any aspect of our services at any time with reasonable notice.
+                  DKS StockAlert provides a cloud-based inventory management platform. We reserve the right to modify, suspend, or discontinue any aspect of our services at any time with reasonable notice.
                 </p>
               </section>
 
@@ -174,7 +174,7 @@ export default function TermsPage() {
 
       <footer className="bg-white/80 backdrop-blur-xl border-t border-gray-100 py-8 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-sm text-gray-500">© {new Date().getFullYear()} StockAlert. All rights reserved.</p>
+          <p className="text-sm text-gray-500">© {new Date().getFullYear()} DKS StockAlert. All rights reserved.</p>
         </div>
       </footer>
     </div>

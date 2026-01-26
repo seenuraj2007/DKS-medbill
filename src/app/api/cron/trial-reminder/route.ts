@@ -8,9 +8,16 @@ export const maxDuration = 60
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get('authorization')
-  const cronSecret = process.env.CRON_SECRET || 'your-cron-secret-here'
-  
-  if (authHeader !== `Bearer ${cronSecret}`) {
+  const cronSecret = process.env.CRON_SECRET
+
+  if (!cronSecret) {
+    if (process.env.NODE_ENV === 'production') {
+      return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 })
+    }
+    // Allow development without CRON_SECRET
+  }
+
+  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -41,7 +48,6 @@ export async function GET(req: NextRequest) {
 
     for (const sub of trialSubscriptions || []) {
       try {
-        const org = sub.organizations as unknown as Array<{ name: string }>
         const owner = sub.users as unknown as Array<{ email: string; full_name: string }>
         const trialEnd = new Date(sub.trial_end_date!)
         const now = new Date()

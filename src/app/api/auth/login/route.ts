@@ -14,7 +14,6 @@ export async function POST(req: NextRequest) {
     })
 
     if (authError) {
-      console.error('Supabase auth error:', authError)
       return NextResponse.json(
         { error: authError.message || 'Invalid email or password' },
         { status: 401 }
@@ -28,29 +27,42 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { data: user, error: userError } = await supabase
+    // Try to get user profile
+    // eslint-disable-next-line prefer-const
+    let { data: user, error: userError } = await supabase
       .from('users')
-      .select('id, email, full_name, organization_id, role, status, created_at, updated_at')
+      .select('*')
       .eq('id', authData.user.id)
       .single()
 
+    // If user doesn't exist, create them
     if (userError) {
-      console.error('User lookup error:', userError)
-      return NextResponse.json(
-        { error: 'Failed to retrieve user profile' },
-        { status: 500 }
-      )
-    }
+      console.log('Creating user profile for:', authData.user.id)
+      const { data: newUser, error: insertError } = await supabase
+        .from('users')
+        .insert({
+          id: authData.user.id,
+          email: authData.user.email,
+          full_name: authData.user.user_metadata?.full_name || null,
+          organization_id: null,
+          role: 'member',
+          status: 'active'
+        })
+        .select()
+        .single()
 
-    if (!user) {
-      return NextResponse.json(
-        { error: 'User profile not found. Please contact support.' },
-        { status: 404 }
-      )
+      if (insertError) {
+        console.error('Failed to create user:', insertError)
+        return NextResponse.json(
+          { error: 'Failed to create user profile: ' + insertError.message },
+          { status: 500 }
+        )
+      }
+
+      user = newUser
     }
 
     const response = NextResponse.json({ user }, { status: 200 })
-
     response.cookies.set('sb-access-token', authData.session.access_token, {
       httpOnly: true,
       secure: true,
@@ -58,7 +70,6 @@ export async function POST(req: NextRequest) {
       path: '/',
       maxAge: 60 * 60 * 24 * 7
     })
-
     response.cookies.set('sb-refresh-token', authData.session.refresh_token, {
       httpOnly: true,
       secure: true,
@@ -66,24 +77,17 @@ export async function POST(req: NextRequest) {
       path: '/',
       maxAge: 60 * 60 * 24 * 7
     })
-
     return response
   } catch (error) {
     console.error('Login error:', error)
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        {
-          error: 'Validation failed',
-          details: error.issues.map(e => ({
-            field: e.path.join('.'),
-            message: e.message
-          }))
-        },
+        { error: 'Validation failed', details: error.issues },
         { status: 400 }
       )
     }
     return NextResponse.json(
-      { error: 'An unexpected error occurred. Please try again.' },
+      { error: 'An unexpected error occurred' },
       { status: 500 }
     )
   }

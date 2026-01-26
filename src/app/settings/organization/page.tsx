@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Building, Save, Loader2, AlertCircle, CheckCircle, Users, Calendar, ArrowLeft } from 'lucide-react'
+import { Building, Save, Loader2, AlertCircle, CheckCircle, Users, Calendar, ArrowLeft, Package } from 'lucide-react'
 import Link from 'next/link'
 import { SubscriptionGate } from '@/components/SubscriptionGate'
+import SidebarLayout from '@/components/SidebarLayout'
 
 interface Organization {
   id: number
@@ -29,6 +30,7 @@ export default function OrganizationSettingsPage() {
   const [owner, setOwner] = useState<Owner | null>(null)
   const [memberCount, setMemberCount] = useState(0)
   const [name, setName] = useState('')
+  const [noOrg, setNoOrg] = useState(false)
 
   useEffect(() => {
     fetchOrganization()
@@ -41,12 +43,25 @@ export default function OrganizationSettingsPage() {
         router.push('/auth')
         return
       }
-      if (res.status === 403) {
-        setError('Only owners can access organization settings')
+      // Check for 404 - no organization yet
+      if (res.status === 404) {
+        setNoOrg(true)
+        setLoading(false)
+        return
+      }
+      if (!res.ok) {
+        setError('Failed to load organization')
         setLoading(false)
         return
       }
       const data = await res.json()
+
+      // If organization was auto-created, fetch again to get full data
+      if (data.autoCreated) {
+        await fetchOrganization()
+        return
+      }
+
       setOrg(data.organization)
       setOwner(data.owner)
       setMemberCount(data.memberCount)
@@ -88,24 +103,70 @@ export default function OrganizationSettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600"></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Building className="w-8 h-8 text-indigo-300" />
+      <SidebarLayout>
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="relative">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Building className="w-8 h-8 text-indigo-300" />
+              </div>
             </div>
+            <p className="text-gray-600 font-medium">Loading organization...</p>
           </div>
-          <p className="text-gray-600 font-medium">Loading organization...</p>
         </div>
-      </div>
+      </SidebarLayout>
+    )
+  }
+
+  if (noOrg) {
+    return (
+      <SidebarLayout>
+        <SubscriptionGate>
+          <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+            <nav className="bg-white/90 backdrop-blur-xl border-b border-gray-200 sticky top-0 shadow-sm">
+              <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex items-center gap-4 h-16">
+                  <Link href="/profile" className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all cursor-pointer">
+                    <ArrowLeft className="w-5 h-5" />
+                  </Link>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
+                      <Building className="w-5 h-5 text-white" />
+                    </div>
+                    <span className="text-xl font-bold text-gray-900">Organization Settings</span>
+                  </div>
+                </div>
+              </div>
+            </nav>
+
+            <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+              <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-xl shadow-indigo-200">
+                <Building className="w-10 h-10 text-white" />
+              </div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-4">No Organization Yet</h1>
+              <p className="text-gray-600 mb-8 text-lg">
+                Add your first product to automatically create your organization.
+              </p>
+              <Link 
+                href="/products/new"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 text-white px-8 py-4 rounded-xl font-semibold hover:from-indigo-600 hover:via-purple-600 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl cursor-pointer"
+              >
+                <Package className="w-5 h-5" />
+                Add Your First Product
+              </Link>
+            </main>
+          </div>
+        </SubscriptionGate>
+      </SidebarLayout>
     )
   }
 
   return (
-    <SubscriptionGate>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <nav className="bg-white/90 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <SidebarLayout>
+      <SubscriptionGate>
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <nav className="bg-white/90 backdrop-blur-xl border-b border-gray-200 sticky top-0 shadow-sm">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4 h-16">
             <Link href="/profile" className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all cursor-pointer">
@@ -275,9 +336,10 @@ export default function OrganizationSettingsPage() {
             The owner has full control over the organization, including billing, team management, and deletion.
             To transfer ownership, please contact support.
           </p>
-        </div>
-      </main>
-    </div>
-    </SubscriptionGate>
+          </div>
+        </main>
+      </div>
+      </SubscriptionGate>
+    </SidebarLayout>
   )
 }

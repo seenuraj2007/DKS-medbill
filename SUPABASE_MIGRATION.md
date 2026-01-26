@@ -1,6 +1,6 @@
 # Supabase Migration Guide
 
-This guide will help you migrate the StockAlert application from SQLite to Supabase.
+This guide will help you migrate the DKS StockAlert application from SQLite to Supabase.
 
 ## Prerequisites
 

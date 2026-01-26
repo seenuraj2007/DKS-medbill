@@ -1,8 +1,8 @@
-# StockAlert v2.0 - Major Update
+# DKS StockAlert v2.0 - Major Update
 
 ## 🎯 Overview
 
-This update transforms StockAlert from a single-user inventory tool into a comprehensive **multi-tenant enterprise-ready inventory management system** with team collaboration, sales tracking, batch management, and full audit trails.
+This update transforms DKS StockAlert from a single-user inventory tool into a comprehensive **multi-tenant enterprise-ready inventory management system** with team collaboration, sales tracking, batch management, and full audit trails.
 
 ## 🚀 New Features
 
@@ -399,7 +399,7 @@ v_batch_alerts     - Expiring/expired batches
 
 For issues or questions:
 1. Check migration logs
-2. Verify database schema: `sqlite3 data/stockalert.db .schema`
+2. Verify database schema: `sqlite3 data/dksstockalert.db .schema`
 3. Review audit logs: `SELECT * FROM audit_logs ORDER BY created_at DESC LIMIT 20`
 
 ## 📜 Changelog

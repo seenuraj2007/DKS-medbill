@@ -1,24 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import { getUserFromRequest } from '@/lib/auth'
 import { PermissionsService } from '@/lib/permissions'
 import bcrypt from 'bcryptjs'
 import { getOrganizationSubscription, hasReachedLimit } from '@/lib/subscription'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-function createServiceClient() {
-  if (!supabaseServiceKey) {
-    throw new Error('SUPABASE_SERVICE_ROLE_KEY is not defined')
-  }
-  return createClient(supabaseUrl, supabaseServiceKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  })
-}
+import { supabaseAdmin } from '@/lib/serverSupabase'
+import { supabase } from '@/lib/supabase'
 
 // GET /api/team - List team members
 export async function GET(req: NextRequest) {
@@ -27,8 +13,6 @@ export async function GET(req: NextRequest) {
     if (!user || !user.organization_id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-
-    const supabase = createServiceClient()
 
     const { data: team, error } = await supabase
       .from('users')
@@ -60,8 +44,6 @@ export async function POST(req: NextRequest) {
     if (!PermissionsService.isOwner(user)) {
       return NextResponse.json({ error: 'Only owners can create users' }, { status: 403 })
     }
-
-    const supabase = createServiceClient()
 
     const body = await req.json()
     const { email, password, full_name, role } = body
@@ -133,11 +115,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'User already exists in organization' }, { status: 400 })
     }
 
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+    }
+
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10)
 
     // Create user
-    const { data: newUser, error: insertError } = await supabase
+    const { data: newUser, error: insertError } = await supabaseAdmin
       .from('users')
       .insert({
         email,

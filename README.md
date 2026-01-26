@@ -1,4 +1,4 @@
-# StockAlert
+# DKS StockAlert
 
 Modern inventory management and restock alert system for small to medium businesses.
 
@@ -73,8 +73,8 @@ npm start
 ### Docker
 
 ```bash
-docker build -t stockalert .
-docker run -p 3000:3000 stockalert
+docker build -t dksstockalert .
+docker run -p 3000:3000 dksstockalert
 ```
 
 ## Testing
@@ -140,4 +140,4 @@ MIT License - see LICENSE file for details
 
 ## Support
 
-For issues and feature requests, please use GitHub Issues.
+For issues and feature requests, please use GitHub Issues: https://github.com/seenuraj2007/stockalert/issues

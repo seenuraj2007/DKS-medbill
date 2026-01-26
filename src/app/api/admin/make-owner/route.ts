@@ -1,8 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { getUserFromRequest } from '@/lib/auth'
+import { PermissionsService } from '@/lib/permissions'
 
 export async function POST(req: NextRequest) {
   try {
+    const user = await getUserFromRequest(req)
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if (!PermissionsService.isOwner(user)) {
+      return NextResponse.json({ error: 'Forbidden: Only owners can perform this action' }, { status: 403 })
+    }
+
     const { email } = await req.json()
 
     if (!email) {

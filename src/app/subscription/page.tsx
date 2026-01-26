@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { CreditCard, Check, AlertTriangle, Calendar, Users, Package, MapPin, Crown, Zap, ArrowRight, Loader2, ChevronRight, Package as PackageIcon, Mail } from 'lucide-react'
 import Link from 'next/link'
 import { get, post } from '@/lib/fetch'
+import SidebarLayout from '@/components/SidebarLayout'
 
 interface Plan {
   id: number
@@ -54,15 +55,29 @@ export default function SubscriptionPage() {
         router.push('/auth')
         return
       }
-      if (res.status === 403) {
-        setError('Only owners can view subscription')
+      if (!res.ok) {
+        setError('Failed to load subscription')
         setLoading(false)
         return
       }
       const data = await res.json()
-      setSubscription(data.subscription)
-      setPlans(data.plans)
-      setUsage(data.usage)
+
+      // If organization was auto-created, refresh to get proper data
+      if (data.needsRefresh) {
+        await fetchSubscription()
+        return
+      }
+
+      if (data.needsOrganization) {
+        // User has no organization yet
+        setSubscription(null)
+        setPlans(data.plans || [])
+        setUsage(data.usage)
+      } else {
+        setSubscription(data.subscription)
+        setPlans(data.plans || [])
+        setUsage(data.usage)
+      }
     } catch (err) {
       setError('Failed to load subscription')
     } finally {
@@ -109,43 +124,51 @@ export default function SubscriptionPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600"></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Crown className="w-8 h-8 text-indigo-300" />
+      <SidebarLayout>
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="flex flex-col items-center gap-4">
+            <div className="relative">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Crown className="w-8 h-8 text-indigo-300" />
+              </div>
             </div>
+            <p className="text-gray-600 font-medium">Loading subscription...</p>
           </div>
-          <p className="text-gray-600 font-medium">Loading subscription...</p>
         </div>
-      </div>
+      </SidebarLayout>
+    )
+  }
+
+  // Show setup prompt if user has no organization
+  if (!subscription) {
+    return (
+      <SidebarLayout>
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-2xl mx-auto text-center py-16">
+            <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-xl shadow-indigo-200">
+              <Crown className="w-10 h-10 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">Setup Your Organization</h1>
+            <p className="text-gray-600 mb-8 text-lg">
+              Create your organization to start using DKS StockAlert and access all features.
+            </p>
+            <Link 
+              href="/products/new"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 text-white px-8 py-4 rounded-xl font-semibold hover:from-indigo-600 hover:via-purple-600 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl cursor-pointer"
+            >
+              <Package className="w-5 h-5" />
+              Add Your First Product
+            </Link>
+            <p className="text-gray-500 mt-4 text-sm">This will automatically create your organization</p>
+          </div>
+        </main>
+      </SidebarLayout>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <nav className="bg-white/90 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/dashboard" className="flex items-center gap-3 group cursor-pointer">
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200 group-hover:shadow-indigo-300 transition-shadow">
-                <PackageIcon className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-xl font-bold text-gray-900">StockAlert</span>
-            </Link>
-            <div className="flex items-center gap-3">
-              <Link
-                href="/dashboard"
-                className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-4 py-2 rounded-lg transition-all text-sm font-medium cursor-pointer"
-              >
-                Dashboard
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
-
+    <SidebarLayout>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {error && (
           <div className="mb-6 p-4 bg-red-50/80 backdrop-blur-sm border border-red-200 text-red-700 rounded-2xl flex items-center gap-3">
@@ -427,7 +450,7 @@ export default function SubscriptionPage() {
           </div>
         </div>
       </main>
-    </div>
+    </SidebarLayout>
   )
 }
 

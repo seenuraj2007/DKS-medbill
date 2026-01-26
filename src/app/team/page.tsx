@@ -6,6 +6,7 @@ import { Users, UserPlus, Mail, Shield, MoreVertical, X, RefreshCw, Lock, Chevro
 import { SubscriptionGate } from '@/components/SubscriptionGate'
 import { useUpgradeToast } from '@/components/UpgradeNotification'
 import Link from 'next/link'
+import SidebarLayout from '@/components/SidebarLayout'
 
 interface TeamMember {
   id: number
@@ -152,38 +153,8 @@ export default function TeamPage() {
   }
 
   return (
-    <SubscriptionGate>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-        <nav className="bg-white/90 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <Link href="/dashboard" className="flex items-center gap-3 group cursor-pointer">
-                <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200 group-hover:shadow-indigo-300 transition-shadow">
-                  <Users className="w-6 h-6 text-white" />
-                </div>
-                <span className="text-xl font-bold text-gray-900">StockAlert</span>
-              </Link>
-
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={fetchTeam}
-                  className="p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all cursor-pointer"
-                  title="Refresh"
-                >
-                  <RefreshCw className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => setShowCreateForm(true)}
-                  className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer"
-                >
-                  <UserPlus className="w-5 h-5" />
-                  Create User
-                </button>
-              </div>
-            </div>
-          </div>
-        </nav>
-
+    <SidebarLayout>
+      <SubscriptionGate>
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {error && (
             <div className="mb-6 p-4 bg-red-50/80 backdrop-blur-sm border border-red-200 text-red-700 rounded-2xl flex items-center gap-3">
@@ -392,7 +363,7 @@ export default function TeamPage() {
             )}
           </div>
         </main>
-      </div>
-    </SubscriptionGate>
+      </SubscriptionGate>
+    </SidebarLayout>
   )
 }
