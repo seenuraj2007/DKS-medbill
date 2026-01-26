@@ -12,13 +12,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "StockAlert - Simple Inventory Tracking",
+  title: "DKS StockAlert - Simple Inventory Tracking",
   description: "Track inventory, get restock alerts, and never run out of stock again.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "StockAlert",
+    title: "DKS StockAlert",
   },
   formatDetection: {
     email: false,

@@ -39,21 +39,21 @@ interface StatCardProps {
 }
 
 const StatCard = memo(({ title, value, icon: Icon, color, trend }: StatCardProps) => (
-  <div className="bg-white/80 backdrop-blur-xl rounded-xl border border-gray-100 shadow-lg shadow-gray-200/50 p-4 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
-    <div className="flex items-center justify-between mb-3">
-      <div className={`w-10 h-10 rounded-lg ${color} flex items-center justify-center shadow-lg`}>
-        <Icon className="w-5 h-5 text-white" />
+  <div className="bg-white/80 backdrop-blur-xl rounded-lg sm:rounded-xl border border-gray-100 shadow-lg shadow-gray-200/50 p-3 sm:p-4 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
+    <div className="flex items-center justify-between mb-2 sm:mb-3">
+      <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg ${color} flex items-center justify-center shadow-lg`}>
+        <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
       </div>
       {trend !== undefined && (
-        <span className={`text-xs font-semibold flex items-center gap-0.5 px-2 py-0.5 rounded-full ${
+        <span className={`text-xs font-semibold flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 rounded-full ${
           trend > 0 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'
         }`}>
           {trend > 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-          {Math.abs(trend)}
+          <span className="hidden sm:inline">{Math.abs(trend)}</span>
         </span>
       )}
     </div>
-    <h3 className="text-2xl font-bold text-gray-900">{value}</h3>
+    <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{value}</h3>
     <p className="text-xs text-gray-500 mt-0.5">{title}</p>
   </div>
 ))
@@ -150,41 +150,42 @@ export default function DashboardPage() {
     <SubscriptionGate>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
         <nav className="bg-white/90 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <Link href="/dashboard" className="flex items-center gap-3 group cursor-pointer">
-                <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200 group-hover:shadow-indigo-300 transition-shadow">
-                  <Package className="w-6 h-6 text-white" />
+          <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8">
+            <div className="flex justify-between items-center h-14 sm:h-16">
+              <Link href="/dashboard" className="flex items-center gap-2 sm:gap-3 group cursor-pointer">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200 group-hover:shadow-indigo-300 transition-shadow">
+                  <Package className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
                 </div>
-                <span className="text-lg sm:text-xl font-bold text-gray-900">StockAlert</span>
+                <span className="text-base sm:text-lg xl:text-xl font-bold text-gray-900">DKS StockAlert</span>
               </Link>
 
-              <div className="flex items-center gap-2 sm:gap-4">
+              <div className="flex items-center gap-1 sm:gap-2 lg:gap-4">
                 <button
                   onClick={() => setSidebarOpen(!sidebarOpen)}
-                  className="lg:hidden p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all cursor-pointer"
+                  className="lg:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg sm:rounded-xl transition-all cursor-pointer touch-manipulation"
                 >
-                  <Menu className="w-5 h-5" />
+                  <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
                 <Link
                   href="/products/new"
                   prefetch={true}
-                  className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-3 py-2 sm:px-4 rounded-xl font-medium hover:from-indigo-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-2 text-xs sm:text-sm cursor-pointer"
+                  className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-2 py-1.5 sm:px-3 sm:py-2 lg:px-4 rounded-lg sm:rounded-xl font-medium hover:from-indigo-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm cursor-pointer touch-manipulation"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden xs:inline sm:hidden">+</span>
                   <span className="hidden sm:inline">Add Product</span>
                 </Link>
-                <Link href="/alerts" className="relative p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all cursor-pointer">
-                  <Bell className="w-5 h-5" />
+                <Link href="/alerts" className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg sm:rounded-xl transition-all cursor-pointer touch-manipulation">
+                  <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
                   {stats?.unreadAlerts && stats.unreadAlerts > 0 && (
-                    <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                    <span className="absolute top-1 right-1 w-2 h-2 sm:top-1.5 sm:right-1.5 sm:w-2.5 sm:h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
                   )}
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="p-2.5 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all cursor-pointer"
+                  className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg sm:rounded-xl transition-all cursor-pointer touch-manipulation"
                 >
-                  <LogOut className="w-5 h-5" />
+                  <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
             </div>
@@ -226,7 +227,7 @@ export default function DashboardPage() {
         )}
 
         <div className="flex">
-          <aside className={`fixed inset-y-0 left-0 z-40 w-72 bg-white/90 backdrop-blur-xl border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:top-0 lg:left-0 shadow-xl lg:shadow-none ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+          <aside className={`fixed inset-y-0 left-0 z-40 w-64 sm:w-72 bg-white/90 backdrop-blur-xl border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:top-0 lg:left-0 shadow-xl lg:shadow-none ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
             <div className="flex flex-col h-full">
               <div className="flex items-center justify-between p-4 border-b border-gray-200 lg:hidden">
                 <span className="text-lg font-bold text-gray-900">Menu</span>
@@ -373,12 +374,12 @@ export default function DashboardPage() {
           <div className="flex-1">
             <div onClick={() => setSidebarOpen(false)} className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-30 transition-opacity ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}></div>
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-              <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-                <p className="text-gray-500 mt-1">Overview of your inventory and alerts</p>
+              <div className="mb-6 sm:mb-8">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h1>
+                <p className="text-gray-500 mt-1 text-sm sm:text-base">Overview of your inventory and alerts</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
                 <StatCard
                   title="Total Products"
                   value={stats?.totalProducts || 0}
@@ -406,29 +407,30 @@ export default function DashboardPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-bold text-gray-900">Low Stock Items</h2>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                <div className="bg-white/80 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-4 sm:mb-6">
+                    <h2 className="text-lg sm:text-xl font-bold text-gray-900">Low Stock Items</h2>
                     <Link
                       href="/products"
-                      className="text-indigo-600 hover:text-indigo-800 text-sm font-semibold flex items-center gap-1 cursor-pointer hover:underline"
+                      className="text-indigo-600 hover:text-indigo-800 text-xs sm:text-sm font-semibold flex items-center gap-1 cursor-pointer hover:underline"
                     >
-                      View All
-                      <ArrowUpRight className="w-4 h-4" />
+                      <span className="hidden sm:inline">View All</span>
+                      <span className="sm:hidden">All</span>
+                      <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4" />
                     </Link>
                   </div>
 
                   {stats?.lowStockItems?.length === 0 ? (
-                    <div className="text-center py-12">
-                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Package className="w-8 h-8 text-gray-400" />
+                    <div className="text-center py-8 sm:py-12">
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                        <Package className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
                       </div>
-                      <p className="text-gray-500 font-medium">No low stock items</p>
-                      <p className="text-sm text-gray-400 mt-1">All your products are well stocked!</p>
+                      <p className="text-gray-500 font-medium text-sm sm:text-base">No low stock items</p>
+                      <p className="text-xs sm:text-sm text-gray-400 mt-1">All your products are well stocked!</p>
                     </div>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="space-y-2 sm:space-y-3">
                       {stats?.lowStockItems?.map((item) => (
                         <LowStockItem
                           key={item.id}
@@ -440,48 +442,48 @@ export default function DashboardPage() {
                   )}
                 </div>
 
-                <div className="bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-600 rounded-2xl shadow-xl p-6 text-white relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                  <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
-                  <h2 className="text-xl font-bold mb-6 relative">Quick Actions</h2>
-                  <div className="space-y-3 relative">
+                <div className="bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-600 rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 text-white relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 sm:w-64 sm:h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                  <div className="absolute bottom-0 left-0 w-32 h-32 sm:w-64 sm:h-64 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+                  <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 relative">Quick Actions</h2>
+                  <div className="space-y-2 sm:space-y-3 relative">
                     <Link
                       href="/products/new"
-                      className="block bg-white/20 backdrop-blur-sm rounded-xl p-4 hover:bg-white/30 hover:shadow-lg transition-all border border-white/10 cursor-pointer"
+                      className="block bg-white/20 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 hover:bg-white/30 hover:shadow-lg transition-all border border-white/10 cursor-pointer"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                          <Plus className="w-5 h-5" />
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
-                        <span className="font-semibold">Add New Product</span>
+                        <span className="font-semibold text-sm sm:text-base">Add New Product</span>
                       </div>
                     </Link>
                     <Link
                       href="/products"
-                      className="block bg-white/20 backdrop-blur-sm rounded-xl p-4 hover:bg-white/30 hover:shadow-lg transition-all border border-white/10 cursor-pointer"
+                      className="block bg-white/20 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 hover:bg-white/30 hover:shadow-lg transition-all border border-white/10 cursor-pointer"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                          <Search className="w-5 h-5" />
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                          <Search className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
-                        <span className="font-semibold">View All Products</span>
+                        <span className="font-semibold text-sm sm:text-base">View All Products</span>
                       </div>
                     </Link>
                     <Link
                       href="/alerts"
-                      className="block bg-white/20 backdrop-blur-sm rounded-xl p-4 hover:bg-white/30 hover:shadow-lg transition-all border border-white/10 cursor-pointer"
+                      className="block bg-white/20 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 hover:bg-white/30 hover:shadow-lg transition-all border border-white/10 cursor-pointer"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                          <Bell className="w-5 h-5" />
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                          <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
-                        <span className="font-semibold">Check Alerts</span>
+                        <span className="font-semibold text-sm sm:text-base">Check Alerts</span>
                       </div>
                     </Link>
                   </div>
 
-                  <div className="mt-6 p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/10 relative">
-                    <p className="text-sm text-white/90">
+                  <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl border border-white/10 relative">
+                    <p className="text-xs sm:text-sm text-white/90">
                       <span className="font-semibold">💡 Tip:</span> Set reorder points to automatically receive alerts when stock runs low.
                     </p>
                   </div>

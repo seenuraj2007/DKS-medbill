@@ -32,7 +32,7 @@ export default function SidebarLayout({ children }: SidebarProps) {
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
                 <Package className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xl font-bold text-gray-900 hidden sm:block">StockAlert</span>
+              <span className="text-xl font-bold text-gray-900 hidden sm:block">DKS StockAlert</span>
             </Link>
           </div>
 
@@ -78,7 +78,7 @@ export default function SidebarLayout({ children }: SidebarProps) {
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
                 <Package className="w-6 h-6 text-white" />
               </div>
-              <span className="text-lg font-bold text-gray-900">StockAlert</span>
+              <span className="text-lg font-bold text-gray-900">DKS StockAlert</span>
             </Link>
           </div>
 
