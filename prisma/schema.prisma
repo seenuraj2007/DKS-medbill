@@ -38,6 +38,8 @@ model Tenant {
   inventoryEvents InventoryEvent[]
   purchaseOrders  PurchaseOrder[]
   members         Member[]
+  whatsappSettings WhatsAppSettings?
+  productSettings ProductSettings?
 
   @@map("tenants")
 }
@@ -338,4 +340,39 @@ enum StockHistoryType {
   TRANSFER_IN
   TRANSFER_OUT
   ADJUSTMENT
+}
+
+model WhatsAppSettings {
+  id                    String    @id @default(uuid())
+  tenantId              String    @unique @map("tenant_id")
+  enabled               Boolean   @default(false)
+  phoneNumber           String?   @map("phone_number")
+  notifyLowStock        Boolean   @default(true) @map("notify_low_stock")
+  notifyOutOfStock      Boolean   @default(true) @map("notify_out_of_stock")
+  notifyPurchaseOrders  Boolean   @default(true) @map("notify_purchase_orders")
+  notifyDailySummary    Boolean   @default(false) @map("notify_daily_summary")
+  language              String    @default("en")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("whatsapp_settings")
+}
+
+model ProductSettings {
+  id                  String    @id @default(uuid())
+  tenantId            String    @unique @map("tenant_id")
+  defaultReorderPoint Int       @default(10) @map("default_reorder_point")
+  defaultUnit         String    @default("PCS") @map("default_unit")
+  enableBarcodes      Boolean   @default(true) @map("enable_barcodes")
+  trackExpiryDates    Boolean   @default(false) @map("track_expiry_dates")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("product_settings")
 }
