@@ -7,7 +7,8 @@ import { WhatsAppSettings } from '@/components/WhatsAppSettings'
 import { TallyImporter } from '@/components/TallyImporter'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Globe, MessageSquare, FileSpreadsheet, Building2, Bell, Shield } from 'lucide-react'
+import { Globe, MessageSquare, FileSpreadsheet, Building2, Bell, Shield, MapPin, Phone, Mail, FileText } from 'lucide-react'
+import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Settings - DKS StockAlert',
@@ -38,7 +39,7 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
         </div>
 
         <Tabs defaultValue="general" className="space-y-6">
-          <TabsList className="bg-slate-900 border border-slate-800 p-1 flex flex-wrap gap-1">
+          <TabsList className="bg-slate-900 border border-slate-800 p-1 flex flex-wrap gap-1 w-full">
             <TabsTrigger value="general" className="data-[state=active]:bg-violet-600">
               <Building2 className="w-4 h-4 mr-2" />
               General
@@ -74,10 +75,41 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-slate-400">
-                  Organization settings will be available here. You can manage your business name,
-                  address, GST number, and other details.
-                </p>
+                <div className="space-y-4">
+                  <p className="text-slate-400 mb-4">
+                    Configure your organization details for GST invoices and business operations.
+                  </p>
+                  <Link 
+                    href="/settings/organization"
+                    className="inline-flex items-center justify-center w-full px-4 py-3 bg-violet-600 hover:bg-violet-700 rounded-lg font-medium transition-colors"
+                  >
+                    <Building2 className="w-4 h-4 mr-2" />
+                    Manage Organization
+                  </Link>
+                  <div className="grid gap-3 mt-4">
+                    <div className="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg">
+                      <MapPin className="w-5 h-5 text-violet-400" />
+                      <div>
+                        <p className="text-sm text-slate-300">Business Address</p>
+                        <p className="text-xs text-slate-500">Set your business location</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg">
+                      <FileText className="w-5 h-5 text-violet-400" />
+                      <div>
+                        <p className="text-sm text-slate-300">GST Number</p>
+                        <p className="text-xs text-slate-500">Add GSTIN for tax compliance</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg">
+                      <Phone className="w-5 h-5 text-violet-400" />
+                      <div>
+                        <p className="text-sm text-slate-300">Contact Info</p>
+                        <p className="text-xs text-slate-500">Phone and email for invoices</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -117,6 +149,9 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
                       </li>
                     </ul>
                   </div>
+                  <p className="text-xs text-slate-500 mt-2">
+                    Switch between English and Hindi throughout the application interface.
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -135,11 +170,81 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-slate-400">
-                  Email and push notification settings will be available here.
-                  Configure your alert preferences for low stock, out of stock,
-                  and other important events.
-                </p>
+                <div className="space-y-4">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+                          <Bell className="w-5 h-5 text-yellow-400" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-slate-300">Low Stock Alerts</p>
+                          <p className="text-xs text-slate-500">Get notified when stock is low</p>
+                        </div>
+                      </div>
+                      <div className="w-12 h-6 bg-violet-600 rounded-full relative">
+                        <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center">
+                          <Bell className="w-5 h-5 text-red-400" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-slate-300">Out of Stock Alerts</p>
+                          <p className="text-xs text-slate-500">Critical alerts for stockouts</p>
+                        </div>
+                      </div>
+                      <div className="w-12 h-6 bg-violet-600 rounded-full relative">
+                        <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                          <FileText className="w-5 h-5 text-blue-400" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-slate-300">Purchase Order Updates</p>
+                          <p className="text-xs text-slate-500">Track your PO status</p>
+                        </div>
+                      </div>
+                      <div className="w-12 h-6 bg-violet-600 rounded-full relative">
+                        <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+                          <Mail className="w-5 h-5 text-green-400" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-slate-300">Daily Stock Summary</p>
+                          <p className="text-xs text-slate-500">End of day report</p>
+                        </div>
+                      </div>
+                      <div className="w-12 h-6 bg-slate-600 rounded-full relative">
+                        <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 p-4 bg-green-900/20 border border-green-500/20 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <MessageSquare className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-slate-300">WhatsApp Notifications</p>
+                        <p className="text-xs text-slate-400 mt-1">
+                          Configure WhatsApp alerts separately in the <span className="text-green-400">WhatsApp</span> tab.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
