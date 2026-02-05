@@ -42,51 +42,84 @@ export async function POST(req: NextRequest) {
     const saleNumber = `SALE-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`
     let total = 0
 
-    // Process each item
-    for (const item of items) {
-      const { productId, quantity, unitPrice, discount } = item
-      const itemTotal = (unitPrice * quantity) - (discount || 0)
-      total += itemTotal
+    // Process all items in a transaction to ensure atomicity
+    await prisma.$transaction(async (tx) => {
+      for (const item of items) {
+        // Support both snake_case (from billing page) and camelCase property names
+        const productId = item.productId || item.product_id
+        const quantity = item.quantity
+        const unitPrice = item.unitPrice || item.unit_price
+        const discount = item.discount || 0
+        
+        if (!productId || !quantity) {
+          throw new Error(`Invalid sale item: ${JSON.stringify(item)}`)
+        }
+        
+        // Verify product exists and has enough stock
+        const product = await tx.product.findFirst({
+          where: { 
+            id: productId,
+            tenantId: user.tenantId
+          }
+        })
+        
+        if (!product) {
+          throw new Error(`Product not found: ${productId}`)
+        }
+        
+        // Get current stock
+        const stockLevels = await tx.stockLevel.findMany({
+          where: { 
+            productId,
+            tenantId: user.tenantId
+          }
+        })
+        
+        const currentStock = stockLevels.reduce((sum, sl) => sum + sl.quantity, 0)
+        
+        if (currentStock < quantity) {
+          throw new Error(`Insufficient stock for ${product.name}. Available: ${currentStock}, Requested: ${quantity}`)
+        }
+        
+        const itemTotal = (unitPrice * quantity) - discount
+        total += itemTotal
 
-      // Create inventory event for the sale
-      await prisma.inventoryEvent.create({
-        data: {
-          tenantId: user.tenantId,
-          type: 'STOCK_SOLD',
-          productId,
-          quantityDelta: -quantity,
-          runningBalance: 0,
-          referenceType: 'SALE',
-          referenceId: saleNumber,
-          userId: user.userId,
-          notes: notes || `Sale: ${saleNumber}`,
-          metadata: {
-            paymentMethod,
-            paymentStatus,
-            customerId,
-            unitPrice,
-            discount
+        // Create inventory event for the sale
+        await tx.inventoryEvent.create({
+          data: {
+            tenantId: user.tenantId,
+            type: 'STOCK_SOLD',
+            productId,
+            quantityDelta: -quantity,
+            runningBalance: currentStock - quantity,
+            referenceType: 'SALE',
+            referenceId: saleNumber,
+            userId: user.userId,
+            notes: notes || `Sale: ${saleNumber}`,
+            metadata: {
+              paymentMethod,
+              paymentStatus,
+              customerId,
+              unitPrice,
+              discount
+            }
+          }
+        })
+
+        // Update stock levels
+        if (stockLevels.length > 0) {
+          const primaryLocation = stockLevels.find(sl => sl.quantity > 0) || stockLevels[0]
+          if (primaryLocation) {
+            await tx.stockLevel.update({
+              where: { id: primaryLocation.id },
+              data: {
+                quantity: { decrement: quantity }
+              }
+            })
           }
         }
-      })
-
-      // Update stock levels
-      const stockLevels = await prisma.stockLevel.findMany({
-        where: { productId }
-      })
-
-      if (stockLevels.length > 0) {
-        const primaryLocation = stockLevels.find(sl => sl.quantity > 0) || stockLevels[0]
-        if (primaryLocation) {
-          await prisma.stockLevel.update({
-            where: { id: primaryLocation.id },
-            data: {
-              quantity: primaryLocation.quantity - quantity
-            }
-          })
-        }
       }
-    }
+    })
 
     return NextResponse.json({ 
       sale: {
@@ -97,6 +130,7 @@ export async function POST(req: NextRequest) {
     }, { status: 201 })
   } catch (error) {
     console.error('Create sale error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error'
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }
