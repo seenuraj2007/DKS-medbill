@@ -1,10 +1,11 @@
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import {
   Package, MapPin, Truck, FileText, ArrowUpDown, Calculator,
   Bell, Users, CreditCard, Settings, User,
   BarChart3, TrendingUp
 } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 interface NavItem {
   href: string
@@ -23,23 +24,34 @@ const navItems: NavItem[] = [
   { href: '/billing', label: 'Billing / POS', icon: Calculator },
   { href: '/alerts', label: 'Alerts', icon: Bell },
   { href: '/team', label: 'Team', icon: Users },
-  // Subscription hidden for free tier launch
-  // { href: '/subscription', label: 'Subscription', icon: CreditCard },
   { href: '/profile', label: 'Profile', icon: User },
-  { href: '/settings/organization', label: 'Settings', icon: Settings },
+  { href: '/settings', label: 'Settings', icon: Settings },
 ]
 
 export default function SidebarMenu() {
   const pathname = usePathname()
+  const router = useRouter()
+  const [locale, setLocale] = useState('en')
+
+  useEffect(() => {
+    const pathParts = pathname.split('/')
+    if (pathParts[1] === 'en' || pathParts[1] === 'hi') {
+      setLocale(pathParts[1])
+    }
+  }, [pathname])
+
+  const getLocalizedHref = (href: string) => {
+    return `/${locale}${href}`
+  }
 
   return (
     <nav className="px-3 sm:px-4 space-y-1 sm:space-y-2">
       {navItems.map((item) => {
-        const isActive = pathname === item.href
+        const isActive = pathname === getLocalizedHref(item.href) || pathname.startsWith(getLocalizedHref(item.href) + '/')
         return (
           <Link
             key={item.href}
-            href={item.href}
+            href={getLocalizedHref(item.href)}
             className={`flex items-center gap-2.5 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-medium transition-all cursor-pointer hover:shadow-md ${
               isActive
                 ? 'text-gray-900 bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100'

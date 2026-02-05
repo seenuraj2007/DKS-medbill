@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { Package, Bell, Menu, X, LogOut } from 'lucide-react'
 import SidebarMenu from '@/components/SidebarMenu'
 
@@ -11,6 +12,19 @@ interface SidebarProps {
 
 export default function SidebarLayout({ children }: SidebarProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const pathname = usePathname()
+  const [locale, setLocale] = useState('en')
+
+  useEffect(() => {
+    const pathParts = pathname.split('/')
+    if (pathParts[1] === 'en' || pathParts[1] === 'hi') {
+      setLocale(pathParts[1])
+    }
+  }, [pathname])
+
+  const getLocalizedHref = (href: string) => {
+    return `/${locale}${href}`
+  }
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
@@ -28,7 +42,7 @@ export default function SidebarLayout({ children }: SidebarProps) {
             >
               <Menu className="w-6 h-6" />
             </button>
-            <Link href="/dashboard" className="flex items-center gap-2">
+            <Link href={getLocalizedHref('/dashboard')} className="flex items-center gap-2">
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
                 <Package className="w-6 h-6 text-white" />
               </div>
@@ -38,13 +52,13 @@ export default function SidebarLayout({ children }: SidebarProps) {
 
           <div className="flex items-center gap-2">
             <Link
-              href="/products/new"
+              href={getLocalizedHref('/products/new')}
               className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-xl font-medium hover:from-indigo-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl cursor-pointer text-sm"
             >
               <Package className="w-4 h-4" />
               <span className="hidden sm:inline">Add Product</span>
             </Link>
-            <Link href="/alerts" className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-colors cursor-pointer relative">
+            <Link href={getLocalizedHref('/alerts')} className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-colors cursor-pointer relative">
               <Bell className="w-5 h-5" />
             </Link>
           </div>
@@ -74,7 +88,7 @@ export default function SidebarLayout({ children }: SidebarProps) {
           </div>
 
           <div className="px-4 pb-4 border-b border-gray-200">
-            <Link href="/dashboard" className="flex items-center gap-2" onClick={() => setSidebarOpen(false)}>
+            <Link href={getLocalizedHref('/dashboard')} className="flex items-center gap-2" onClick={() => setSidebarOpen(false)}>
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
                 <Package className="w-6 h-6 text-white" />
               </div>
