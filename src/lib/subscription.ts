@@ -35,7 +35,7 @@ const DEFAULT_PLAN: SubscriptionPlan = {
   id: 1,
   name: 'free',
   display_name: 'Free Plan',
-  description: 'Free forever for small businesses - no limits',
+  description: 'Free for small businesses',
   monthly_price: 0,
   yearly_price: 0,
   max_team_members: 3,
@@ -52,7 +52,7 @@ export async function getOrganizationSubscription(_orgId: string): Promise<Subsc
     id: 0,
     organization_id: _orgId,
     plan_id: 1,
-    status: 'active', // Free forever - no trial
+    status: 'active',
     trial_end_date: null,
     current_period_start: new Date().toISOString(),
     current_period_end: null,

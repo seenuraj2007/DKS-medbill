@@ -304,7 +304,7 @@ export default function HomePage() {
               className="text-xl text-white/60 mb-10 max-w-2xl mx-auto leading-relaxed"
               variants={itemVariants}
             >
-              Track stock in Rupees, manage multiple locations, generate GST invoices — completely free forever. 
+              Track stock in Rupees, manage multiple locations, generate GST invoices. 
               Stop using Excel, start scaling your business.
             </motion.p>
             
@@ -313,7 +313,7 @@ export default function HomePage() {
               variants={itemVariants}
             >
               <Link href="/auth" className="w-full sm:w-auto bg-gradient-to-r from-violet-600 via-fuchsia-600 to-violet-700 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:from-violet-700 hover:via-fuchsia-700 hover:to-violet-800 transition-all shadow-xl shadow-violet-500/25 hover:shadow-violet-500/40 hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer">
-                Start Free Forever
+                Get Started Free
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <a href="#features" className="w-full sm:w-auto px-8 py-4 rounded-xl font-semibold text-lg text-white border-2 border-white/10 hover:border-white/20 hover:bg-white/5 backdrop-blur-sm transition-all flex items-center justify-center gap-2 cursor-pointer">
@@ -643,11 +643,10 @@ export default function HomePage() {
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center mb-6 shadow-lg shadow-violet-500/20">
                   <Sparkles className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-2">Free Forever</h3>
+                <h3 className="text-2xl font-bold text-white mb-2">Free Plan</h3>
                 <p className="text-white/60 mb-4">Perfect for small businesses getting started</p>
                 <div className="mb-6">
                   <span className="text-5xl font-bold text-white">₹0</span>
-                  <span className="text-white/60 text-lg">/forever</span>
                 </div>
               </div>
               
@@ -818,7 +817,7 @@ export default function HomePage() {
               <div className="flex flex-wrap items-center justify-center gap-6 mt-8 text-white/60 text-sm">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-green-400" />
-                  <span>Free forever</span>
+                  <span>Free to use</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-green-400" />

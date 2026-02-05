@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import { 
   Plus, Minus, Trash2, Search, X, 
   Package, Barcode, User, CheckCircle, ShoppingCart, 
-  History, Percent, CreditCard, Receipt, Zap,
-  ChevronRight, Save, RotateCcw, ArrowLeft, IndianRupee
+  History, Percent, Receipt, Zap,
+  ChevronRight, Save, ArrowLeft, IndianRupee
 } from 'lucide-react'
 import { SubscriptionGate } from '@/components/SubscriptionGate'
 
@@ -79,7 +79,7 @@ export default function BillingPage() {
   const [lastSale, setLastSale] = useState<SaleResult | null>(null)
   const [showScanner, setShowScanner] = useState(false)
   const [scannedBarcode, setScannedBarcode] = useState('')
-  const [taxRate, setTaxRate] = useState(10)
+  const [taxRate] = useState(10)
   const [globalDiscount, setGlobalDiscount] = useState(0)
   const [heldSales, setHeldSales] = useState<HeldSale[]>([])
   const [showHoldModal, setShowHoldModal] = useState(false)
@@ -214,6 +214,7 @@ export default function BillingPage() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cart.length])
 
   const addToCart = (product: Product) => {
@@ -257,7 +258,7 @@ export default function BillingPage() {
     lastItemRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
   }
 
-  const updateQuantity = (productId: number, newQuantity: number) => {
+  const updateQuantity = useCallback((productId: number, newQuantity: number) => {
     if (newQuantity < 1) {
       removeFromCart(productId)
       return
@@ -268,9 +269,9 @@ export default function BillingPage() {
         ? { ...item, quantity: newQuantity }
         : item
     ))
-  }
+  }, [])
 
-  const updateDiscount = (productId: number, discount: number) => {
+  const _updateDiscount = (productId: number, discount: number) => {
     setCart(prev => prev.map(item =>
       item.product.id === productId
         ? { ...item, discount: Math.max(0, Math.min(discount, item.unitPrice * item.quantity)) }
@@ -289,7 +290,7 @@ export default function BillingPage() {
     setCashReceived(0)
   }
 
-  const holdSale = () => {
+  const _holdSale = () => {
     if (cart.length === 0) return
     
     const subtotal = cart.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0)
@@ -584,6 +585,7 @@ export default function BillingPage() {
                           isOutOfStock ? 'bg-gray-100' : 'bg-gray-50'
                         }`}>
                           {product.image_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
                             <img src={product.image_url} alt={product.name} className="w-full h-full object-cover rounded-xl" />
                           ) : (
                             <Package className="w-12 h-12 text-gray-300" />

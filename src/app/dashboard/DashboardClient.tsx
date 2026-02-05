@@ -171,13 +171,14 @@ export default function DashboardClient({ initialStats }: { initialStats: Dashbo
     fetchAnalytics()
   }, [initialStats, fetchDashboard, fetchAnalytics])
 
+  const [currentTime] = useState(() => Date.now())
   const trialDaysLeft = useMemo(() => {
     if (stats?.subscription?.status === 'trial' && stats.subscription.trial_end_date) {
-      const days = Math.ceil((new Date(stats.subscription.trial_end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+      const days = Math.ceil((new Date(stats.subscription.trial_end_date).getTime() - currentTime) / (1000 * 60 * 60 * 24))
       return days > 0 ? days : 0
     }
     return null
-  }, [stats?.subscription?.status, stats?.subscription?.trial_end_date])
+  }, [stats?.subscription?.status, stats?.subscription?.trial_end_date, currentTime])
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
