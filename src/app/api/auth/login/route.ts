@@ -68,9 +68,10 @@ export async function POST(req: NextRequest) {
     }
 
     // Set session token cookie
+    const isProduction = process.env.NODE_ENV === 'production'
     const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProduction,
       sameSite: 'lax' as const,
       maxAge: 60 * 60 * 24 * 7, // 7 days
       path: '/',
@@ -79,14 +80,8 @@ export async function POST(req: NextRequest) {
     const response = NextResponse.json({ user: responseUser }, { status: 200 })
 
     // Add domain in production for proper cookie sharing across subdomains
-    if (process.env.NODE_ENV === 'production') {
-      response.cookies.set('auth_token', token, {
-        ...cookieOptions,
-        domain: process.env.COOKIE_DOMAIN || undefined,
-      })
-    } else {
-      response.cookies.set('auth_token', token, cookieOptions)
-    }
+    // Remove domain setting to avoid cookie issues
+    response.cookies.set('auth_token', token, cookieOptions)
 
     // Add rate limit headers
     response.headers.set('X-RateLimit-Limit', LOGIN_MAX_ATTEMPTS.toString())
