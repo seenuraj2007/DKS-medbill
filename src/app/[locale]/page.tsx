@@ -3,13 +3,13 @@
 import Link from 'next/link'
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
 import { useRef, useState } from 'react'
-import { 
-  Package, TrendingDown, AlertTriangle, Bell, Users, MapPin, 
-  Truck, BarChart3, Shield, Zap, ArrowRight, CheckCircle, 
-  ChevronRight, Layers, Target, Sparkles, Cpu, Lock, 
+import {
+  Package, TrendingDown, AlertTriangle, Bell, Users, MapPin,
+  Truck, BarChart3, Shield, Zap, ArrowRight, CheckCircle,
+  ChevronRight, Layers, Target, Sparkles, Cpu, Lock,
   Database, Code2, Globe, Server, Receipt, QrCode, FileText,
   IndianRupee, Building2, UserPlus, MessageSquare, Smartphone,
-  Download, Languages, Star, TrendingUp, Check
+  Download, Languages, Star, TrendingUp, Check, Clock
 } from 'lucide-react'
 
 const stats = [
@@ -29,10 +29,10 @@ const features = [
   {
     icon: MessageSquare,
     title: 'WhatsApp Alerts',
-    description: 'Get instant low stock and out-of-stock alerts directly on WhatsApp. The only inventory software in India with this feature!',
+    description: 'Coming Soon: Get instant low stock alerts on WhatsApp. Stay tuned for this feature!',
     size: 'wide',
     glow: 'from-green-500/20 to-emerald-500/20',
-    badge: 'EXCLUSIVE'
+    badge: 'COMING SOON'
   },
   {
     icon: Download,
@@ -51,11 +51,11 @@ const features = [
   },
   {
     icon: Languages,
-    title: 'Hindi & English',
-    description: 'Complete Hindi interface. Manage your business in the language you are most comfortable with. हिंदी में उपलब्ध!',
+    title: 'Multi-Language Ready',
+    description: 'Built with internationalization support. Easily add new languages as your business grows globally.',
     size: 'small',
     glow: 'from-orange-500/20 to-red-500/20',
-    badge: '40% OF INDIA'
+    badge: 'I18N READY'
   },
   {
     icon: Receipt,
@@ -88,16 +88,16 @@ const features = [
 ]
 
 const competitorFeatures = [
-  { name: 'DKS StockAlert', price: '₹0', whatsapp: true, tally: true, hindi: true, free: true },
-  { name: 'Zoho Inventory', price: '₹749/mo', whatsapp: false, tally: false, hindi: 'partial', free: false },
-  { name: 'Marg ERP', price: '₹18,000', whatsapp: false, tally: false, hindi: 'partial', free: false },
-  { name: 'Tally', price: '₹54,000', whatsapp: false, tally: false, hindi: false, free: false },
+  { name: 'DKS StockAlert', price: '₹0', whatsapp: 'coming', tally: true, free: true },
+  { name: 'Zoho Inventory', price: '₹749/mo', whatsapp: false, tally: false, free: false },
+  { name: 'Marg ERP', price: '₹18,000', whatsapp: false, tally: false, free: false },
+  { name: 'Tally', price: '₹54,000', whatsapp: false, tally: false, free: false },
 ]
 
 const howItWorksSteps = [
   { step: '01', title: 'Import from Tally or Start Fresh', desc: 'Migrate your existing Tally data in 1 click, or add products manually with barcode support. Set reorder levels and GST rates.', icon: Download },
-  { step: '02', title: 'Setup WhatsApp Alerts', desc: 'Configure WhatsApp notifications to get instant alerts on your phone. Never miss a low stock or out-of-stock warning.', icon: MessageSquare },
-  { step: '03', title: 'Manage in Hindi or English', desc: 'Use the app in your preferred language. Track stock, generate GST invoices, and manage inventory effortlessly.', icon: Languages },
+  { step: '02', title: 'Setup Alerts', desc: 'Configure in-app notifications to get instant alerts for low stock and out-of-stock items.', icon: Bell },
+  { step: '03', title: 'Track & Manage Inventory', desc: 'Track stock levels, generate GST invoices, and manage inventory effortlessly from a single dashboard.', icon: Languages },
 ]
 
 const techStack = [
@@ -108,13 +108,13 @@ const techStack = [
   { name: 'TypeScript', icon: Cpu, color: 'text-blue-400' },
   { name: 'Tailwind CSS', icon: Sparkles, color: 'text-teal-400' },
   { name: 'Framer Motion', icon: Zap, color: 'text-pink-400' },
-  { name: 'WhatsApp API', icon: Smartphone, color: 'text-green-400' },
+  { name: 'WhatsApp API', icon: MessageSquare, color: 'text-green-400' },
 ]
 
 function Marquee({ items }: { items: typeof techStack }) {
   return (
     <div className="relative overflow-hidden">
-      <motion.div 
+      <motion.div
         className="flex gap-8"
         animate={{
           x: [0, -2500],
@@ -129,8 +129,8 @@ function Marquee({ items }: { items: typeof techStack }) {
         }}
       >
         {[...items, ...items, ...items, ...items].map((item, i) => (
-          <div 
-            key={`${item.name}-${i}`} 
+          <div
+            key={`${item.name}-${i}`}
             className="flex items-center gap-3 px-6 py-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm hover:border-violet-500/30 transition-colors"
           >
             <item.icon className={`w-5 h-5 ${item.color}`} />
@@ -191,10 +191,10 @@ export default function HomePage() {
         }} />
       </div>
 
-      {/* WhatsApp Banner */}
-      <div className="fixed top-0 left-0 right-0 z-[60] bg-gradient-to-r from-green-600 to-emerald-600 text-white py-2 px-4 text-center text-sm">
-        <span className="font-semibold">🎉 New:</span> WhatsApp Alerts + Tally Import + Hindi Support — 
-        <Link href="/auth" className="underline font-medium ml-1 hover:text-green-100">Try it free now →</Link>
+      {/* Beta Banner */}
+      <div className="fixed top-0 left-0 right-0 z-[60] bg-gradient-to-r from-amber-500 to-orange-500 text-white py-2 px-4 text-center text-sm">
+        <span className="font-bold">🚧 BETA VERSION:</span> We're currently in beta —
+        <Link href="/auth" className="underline font-medium ml-1 hover:text-white">Try it free & give feedback →</Link>
       </div>
 
       <nav className="fixed top-8 left-0 right-0 z-50 backdrop-blur-xl bg-slate-950/70 border-b border-white/5">
@@ -205,8 +205,9 @@ export default function HomePage() {
                 <Package className="w-6 h-6 text-white" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">DKS StockAlert</span>
+              <span className="ml-2 px-2 py-0.5 text-xs font-bold bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full">BETA</span>
             </Link>
-            
+
             <div className="hidden md:flex items-center gap-8">
               <a href="#features" className="text-white/60 hover:text-white transition-colors cursor-pointer font-medium">Features</a>
               <a href="#comparison" className="text-white/60 hover:text-white transition-colors cursor-pointer font-medium">Why Us</a>
@@ -228,7 +229,7 @@ export default function HomePage() {
       </nav>
 
       <section ref={ref} className="pt-40 pb-24 px-4 relative overflow-hidden">
-        <motion.div 
+        <motion.div
           className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.15, 1],
@@ -243,7 +244,7 @@ export default function HomePage() {
             times: [0, 0.5, 1],
           }}
         />
-        <motion.div 
+        <motion.div
           className="absolute top-1/3 right-1/4 w-96 h-96 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.2, 1],
@@ -259,7 +260,7 @@ export default function HomePage() {
             delay: 2,
           }}
         />
-        <motion.div 
+        <motion.div
           className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-gradient-to-r from-pink-500/15 to-purple-500/15 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.1, 1],
@@ -275,25 +276,25 @@ export default function HomePage() {
             delay: 4,
           }}
         />
-        
-        <motion.div 
+
+        <motion.div
           className="max-w-7xl mx-auto relative"
           style={{ opacity, scale, y }}
         >
-          <motion.div 
+          <motion.div
             className="text-center max-w-4xl mx-auto"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
           >
-            <motion.div 
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-500/10 to-emerald-500/10 backdrop-blur-xl border border-green-500/20 text-green-300 rounded-full text-sm font-semibold mb-8"
+            <motion.div
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500/10 to-orange-500/10 backdrop-blur-xl border border-amber-500/20 text-amber-300 rounded-full text-sm font-semibold mb-8"
               variants={itemVariants}
             >
-              <Zap className="w-4 h-4 text-green-400" />
-              100% Free Forever • No Credit Card Required
+              <span className="px-2 py-0.5 bg-amber-500 text-white text-xs font-bold rounded">BETA</span>
+              Currently in beta — Help us improve with your feedback
             </motion.div>
-            
+
             <motion.h1
               className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight tracking-tight"
               variants={itemVariants}
@@ -322,12 +323,12 @@ export default function HomePage() {
               className="text-xl text-white/60 mb-10 max-w-2xl mx-auto leading-relaxed"
               variants={itemVariants}
             >
-              The only inventory software with <span className="text-green-400 font-semibold">WhatsApp alerts</span>, 
-              <span className="text-blue-400 font-semibold"> 1-click Tally import</span>, and 
-              <span className="text-orange-400 font-semibold"> full Hindi support</span>. 
+              The only inventory software with <span className="text-amber-400 font-semibold">WhatsApp alerts (Coming Soon)</span>,
+              <span className="text-blue-400 font-semibold"> 1-click Tally import</span>, and
+              <span className="text-green-400 font-semibold"> in-app notifications</span>.
               Stop using Excel, start scaling your business.
             </motion.p>
-            
+
             <motion.div
               className="flex flex-col sm:flex-row items-center justify-center gap-4"
               variants={itemVariants}
@@ -340,13 +341,13 @@ export default function HomePage() {
                 See Features
               </a>
             </motion.div>
-            
-            <motion.div 
+
+            <motion.div
               className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-white/50"
               variants={itemVariants}
             >
               <div className="flex items-center gap-2">
-                <motion.span 
+                <motion.span
                   className="w-2 h-2 bg-green-400 rounded-full shadow-[0_0_10px_rgba(74,222,128,0.5)]"
                   animate={{
                     scale: [1, 1.2, 1],
@@ -377,18 +378,18 @@ export default function HomePage() {
           </motion.div>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="max-w-7xl mx-auto relative mt-24"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ 
-            delay: 0.4, 
+          transition={{
+            delay: 0.4,
             duration: 1,
             ease: [0.4, 0, 0.2, 1],
           }}
         >
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent z-10 pointer-events-none" />
-          <motion.div 
+          <motion.div
             className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-2xl rounded-3xl border border-white/10 overflow-hidden mx-4 lg:mx-0 lg:max-w-5xl lg:mx-auto transform hover:scale-[1.01] hover:border-white/20 transition-all duration-500 shadow-2xl"
             style={{
               perspective: '1000px',
@@ -404,108 +405,107 @@ export default function HomePage() {
               times: [0, 0.5, 1],
             }}
           >
-              <div className="bg-white/5 px-4 py-3 flex items-center gap-2 border-b border-white/5">
-                <div className="flex gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500/70" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
-                  <div className="w-3 h-3 rounded-full bg-green-500/70" />
-                </div>
-                <div className="flex-1 text-center text-xs text-white/40 font-mono">DKS StockAlert Dashboard</div>
+            <div className="bg-white/5 px-4 py-3 flex items-center gap-2 border-b border-white/5">
+              <div className="flex gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-500/70" />
+                <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
+                <div className="w-3 h-3 rounded-full bg-green-500/70" />
               </div>
-              <div className="p-6 bg-gradient-to-br from-slate-900/50 to-slate-800/50">
-                <div className="grid grid-cols-4 gap-4 mb-6">
-                  {stats.map((stat, i) => {
-                    const IconComponent = stat.Icon
-                    const gradientClass = 'w-10 h-10 rounded-lg bg-gradient-to-br ' + stat.color + ' flex items-center justify-center mb-3 shadow-lg'
-                    return (
-                      <motion.div 
-                        key={i} 
-                        className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:border-white/20 transition-all"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ 
-                          delay: 0.5 + i * 0.12,
-                          duration: 0.8,
-                          ease: [0.4, 0, 0.2, 1],
-                        }}
-                      >
-                        <div className={gradientClass}>
-                          <IconComponent className="w-5 h-5 text-white" />
-                        </div>
-                        <div className="flex items-baseline gap-2">
-                          <p className="text-2xl font-bold text-white">{stat.value}</p>
-                        </div>
-                        <p className="text-sm text-white/60">{stat.label}</p>
-                        <span className="text-xs text-green-400 font-medium mt-1 block">{stat.change}</span>
-                      </motion.div>
-                    )
-                  })}
-                </div>
-                <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-white flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4 text-yellow-400" />
-                      Low Stock Alerts
-                    </h3>
-                    <span className="text-sm text-violet-400 font-medium cursor-pointer hover:text-violet-300">View All</span>
-                  </div>
-                  {alerts.map((item, i) => (
-                    <motion.div 
-                      key={i} 
-                      className="flex items-center justify-between py-3 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors rounded-lg px-2 -mx-2"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ 
-                        delay: 0.7 + i * 0.1,
-                        duration: 0.7,
+              <div className="flex-1 text-center text-xs text-white/40 font-mono">DKS StockAlert Dashboard</div>
+            </div>
+            <div className="p-6 bg-gradient-to-br from-slate-900/50 to-slate-800/50">
+              <div className="grid grid-cols-4 gap-4 mb-6">
+                {stats.map((stat, i) => {
+                  const IconComponent = stat.Icon
+                  const gradientClass = 'w-10 h-10 rounded-lg bg-gradient-to-br ' + stat.color + ' flex items-center justify-center mb-3 shadow-lg'
+                  return (
+                    <motion.div
+                      key={i}
+                      className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:border-white/20 transition-all"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        delay: 0.5 + i * 0.12,
+                        duration: 0.8,
                         ease: [0.4, 0, 0.2, 1],
                       }}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center border border-white/10">
-                          <Package className="w-5 h-5 text-white/60" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-white">{item.name}</p>
-                          <p className="text-sm text-white/60">{item.stock} units left (reorder at {item.reorder})</p>
-                        </div>
+                      <div className={gradientClass}>
+                        <IconComponent className="w-5 h-5 text-white" />
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        item.status === 'critical' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                      }`}>
-                        {item.status === 'critical' ? 'Critical' : 'Low Stock'}
-                      </span>
+                      <div className="flex items-baseline gap-2">
+                        <p className="text-2xl font-bold text-white">{stat.value}</p>
+                      </div>
+                      <p className="text-sm text-white/60">{stat.label}</p>
+                      <span className="text-xs text-green-400 font-medium mt-1 block">{stat.change}</span>
                     </motion.div>
-                  ))}
-                </div>
+                  )
+                })}
               </div>
-            </motion.div>
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-white flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-yellow-400" />
+                    Low Stock Alerts
+                  </h3>
+                  <span className="text-sm text-violet-400 font-medium cursor-pointer hover:text-violet-300">View All</span>
+                </div>
+                {alerts.map((item, i) => (
+                  <motion.div
+                    key={i}
+                    className="flex items-center justify-between py-3 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors rounded-lg px-2 -mx-2"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{
+                      delay: 0.7 + i * 0.1,
+                      duration: 0.7,
+                      ease: [0.4, 0, 0.2, 1],
+                    }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center border border-white/10">
+                        <Package className="w-5 h-5 text-white/60" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-white">{item.name}</p>
+                        <p className="text-sm text-white/60">{item.stock} units left (reorder at {item.reorder})</p>
+                      </div>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${item.status === 'critical' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                      }`}>
+                      {item.status === 'critical' ? 'Critical' : 'Low Stock'}
+                    </span>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
           </motion.div>
+        </motion.div>
       </section>
 
       {/* NEW: Competitive Advantages Banner */}
       <section className="py-16 px-4 bg-gradient-to-b from-slate-900/50 to-slate-950">
         <div className="max-w-7xl mx-auto">
-          <motion.div 
+          <motion.div
             className="grid md:grid-cols-3 gap-8"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <div className="text-center p-6 bg-white/5 rounded-2xl border border-white/10 hover:border-green-500/30 transition-all">
-              <div className="w-16 h-16 bg-green-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <MessageSquare className="w-8 h-8 text-green-400" />
+            <div className="text-center p-6 bg-white/5 rounded-2xl border border-white/10 hover:border-gray-500/30 transition-all opacity-80">
+              <div className="w-16 h-16 bg-gray-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <MessageSquare className="w-8 h-8 text-gray-400" />
               </div>
               <h3 className="text-xl font-bold text-white mb-2">WhatsApp Alerts</h3>
-              <p className="text-white/60 mb-3">Instant alerts on your phone. First 1,000 messages FREE/month, then optional paid tier.</p>
-              <div className="text-xs text-slate-400 mb-3">Email alerts always FREE • No hidden costs</div>
-              <div className="mt-2 inline-flex items-center gap-1 text-green-400 text-sm font-medium">
-                <Star className="w-4 h-4" />
-                <span>EXCLUSIVE + FREE TIER</span>
+              <p className="text-white/60 mb-3">Coming Soon: Get instant low stock and out-of-stock alerts directly on your phone via WhatsApp.</p>
+              <div className="text-xs text-slate-400 mb-3">Stay tuned for updates</div>
+              <div className="mt-2 inline-flex items-center gap-1 text-gray-400 text-sm font-medium">
+                < Clock className="w-4 h-4" />
+                <span>COMING SOON</span>
               </div>
             </div>
-            
+
             <div className="text-center p-6 bg-white/5 rounded-2xl border border-white/10 hover:border-blue-500/30 transition-all">
               <div className="w-16 h-16 bg-blue-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <Download className="w-8 h-8 text-blue-400" />
@@ -517,16 +517,16 @@ export default function HomePage() {
                 <span>GAME CHANGER</span>
               </div>
             </div>
-            
-            <div className="text-center p-6 bg-white/5 rounded-2xl border border-white/10 hover:border-orange-500/30 transition-all">
-              <div className="w-16 h-16 bg-orange-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Languages className="w-8 h-8 text-orange-400" />
+
+            <div className="text-center p-6 bg-white/5 rounded-2xl border border-white/10 hover:border-green-500/30 transition-all">
+              <div className="w-16 h-16 bg-green-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Bell className="w-8 h-8 text-green-400" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">हिंदी में उपलब्ध</h3>
-              <p className="text-white/60">Complete Hindi interface. Manage your business in the language you're most comfortable with.</p>
-              <div className="mt-4 inline-flex items-center gap-1 text-orange-400 text-sm font-medium">
-                <Users className="w-4 h-4" />
-                <span>40% OF INDIA</span>
+              <h3 className="text-xl font-bold text-white mb-2">In-App Alerts</h3>
+              <p className="text-white/60">Get instant notifications for low stock, out of stock, and purchase order updates directly in the dashboard.</p>
+              <div className="mt-4 inline-flex items-center gap-1 text-green-400 text-sm font-medium">
+                <Zap className="w-4 h-4" />
+                <span>FREE FOREVER</span>
               </div>
             </div>
           </motion.div>
@@ -542,7 +542,7 @@ export default function HomePage() {
 
       <section id="features" className="py-24 px-4 relative">
         <div className="max-w-7xl mx-auto">
-          <motion.div 
+          <motion.div
             className="text-center mb-16"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -569,15 +569,15 @@ export default function HomePage() {
                   initial={{ opacity: 0, y: 40 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-50px" }}
-                  transition={{ 
+                  transition={{
                     delay: i * 0.08,
                     duration: 0.8,
                     ease: [0.4, 0, 0.2, 1],
                   }}
                   whileHover={{ scale: 1.02, y: -5 }}
                 >
-                  <div 
-                    className={`absolute inset-0 bg-gradient-to-br ${feature.glow} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} 
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-br ${feature.glow} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
                   />
                   <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-white/5 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 opacity-50 blur-2xl" />
                   <div className="relative p-8">
@@ -602,7 +602,7 @@ export default function HomePage() {
       {/* NEW: Competitor Comparison Section */}
       <section id="comparison" className="py-24 px-4 relative bg-slate-900/30">
         <div className="max-w-6xl mx-auto">
-          <motion.div 
+          <motion.div
             className="text-center mb-16"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -614,11 +614,11 @@ export default function HomePage() {
               <span className="bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">See Why We're Better</span>
             </h2>
             <p className="text-xl text-white/60 max-w-2xl mx-auto leading-relaxed">
-              Compare us with the competition. We're the only truly free option with WhatsApp alerts, Tally import, and Hindi support.
+              Compare us with the competition. We're the only truly free option with Tally import, multi-location support, and in-app notifications.
             </p>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             className="overflow-x-auto"
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -644,7 +644,7 @@ export default function HomePage() {
                   <td className="py-4 px-6 text-white font-medium">Price</td>
                   <td className="py-4 px-6 text-center">
                     <span className="text-green-400 font-bold text-xl">₹0</span>
-                    <span className="text-white/60 text-sm block">Free Forever</span>
+                    <span className="text-white/60 text-sm block">Limited Time</span>
                   </td>
                   <td className="py-4 px-6 text-center text-white/60">₹749/mo</td>
                   <td className="py-4 px-6 text-center text-white/60">₹18,000</td>
@@ -653,7 +653,10 @@ export default function HomePage() {
                 <tr>
                   <td className="py-4 px-6 text-white font-medium">WhatsApp Alerts</td>
                   <td className="py-4 px-6 text-center">
-                    <Check className="w-6 h-6 text-green-400 mx-auto" />
+                    <div className="flex items-center justify-center gap-1">
+                      <Clock className="w-4 h-4 text-amber-400" />
+                      <span className="text-amber-400 text-sm font-medium">Coming Soon</span>
+                    </div>
                   </td>
                   <td className="py-4 px-6 text-center">
                     <span className="text-red-400">✗</span>
@@ -673,17 +676,6 @@ export default function HomePage() {
                   <td className="py-4 px-6 text-center text-white/60">Manual</td>
                   <td className="py-4 px-6 text-center text-white/60">—</td>
                   <td className="py-4 px-6 text-center text-white/60">—</td>
-                </tr>
-                <tr>
-                  <td className="py-4 px-6 text-white font-medium">Hindi Support</td>
-                  <td className="py-4 px-6 text-center">
-                    <span className="text-green-400 font-medium">Full</span>
-                  </td>
-                  <td className="py-4 px-6 text-center text-white/60">Partial</td>
-                  <td className="py-4 px-6 text-center text-white/60">Partial</td>
-                  <td className="py-4 px-6 text-center">
-                    <span className="text-red-400">✗</span>
-                  </td>
                 </tr>
                 <tr>
                   <td className="py-4 px-6 text-white font-medium">Free Trial</td>
@@ -717,7 +709,7 @@ export default function HomePage() {
 
       <section id="how-it-works" className="py-24 px-4 relative bg-slate-900/30">
         <div className="max-w-7xl mx-auto">
-          <motion.div 
+          <motion.div
             className="text-center mb-16"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -735,7 +727,7 @@ export default function HomePage() {
 
           <div className="relative">
             <div className="hidden md:block absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
-            
+
             <div className="grid md:grid-cols-3 gap-8">
               {howItWorksSteps.map((item, i) => {
                 const IconComponent = item.icon
@@ -746,19 +738,19 @@ export default function HomePage() {
                     initial={{ opacity: 0, y: 40 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-50px" }}
-                    transition={{ 
+                    transition={{
                       delay: i * 0.12,
                       duration: 0.8,
                       ease: [0.4, 0, 0.2, 1],
                     }}
                     onMouseEnter={() => setActiveStep(i)}
                   >
-                    <motion.div 
+                    <motion.div
                       className={`bg-white/5 backdrop-blur-xl rounded-3xl p-8 border ${activeStep === i ? 'border-violet-500/50 bg-violet-500/10' : 'border-white/10 hover:border-white/20'} transition-all duration-300 relative overflow-hidden`}
                       whileHover={{ scale: 1.02, y: -5 }}
                     >
                       {activeStep === i && (
-                        <motion.div 
+                        <motion.div
                           className="absolute inset-0 bg-gradient-to-br from-violet-500/10 to-fuchsia-500/10"
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
@@ -788,18 +780,18 @@ export default function HomePage() {
 
       <section id="pricing" className="py-24 px-4 relative">
         <div className="max-w-5xl mx-auto">
-          <motion.div 
+          <motion.div
             className="text-center mb-16"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6 }}
           >
-            <span className="text-violet-400 font-semibold text-sm uppercase tracking-wider mb-3 block">Pricing</span>
+            <span className="text-violet-400 font-semibold text-sm uppercase tracking-wider mb-3 block">Special Offer</span>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">Free Forever. Seriously.</span>
+              <span className="bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">Free Now. Forever.</span>
             </h2>
-            <p className="text-xl text-white/60">No hidden fees, no credit card required, no time limits.</p>
+            <p className="text-xl text-white/60">Lock in free access before this offer ends.</p>
           </motion.div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
@@ -808,13 +800,13 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
-              transition={{ 
+              transition={{
                 duration: 0.8,
                 ease: [0.4, 0, 0.2, 1],
               }}
               whileHover={{ scale: 1.02, y: -5 }}
             >
-              <motion.div 
+              <motion.div
                 className="absolute top-4 right-4 px-4 py-1.5 bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white text-sm font-semibold rounded-full shadow-lg shadow-violet-500/50"
                 animate={{
                   scale: [1, 1.03, 1],
@@ -833,7 +825,7 @@ export default function HomePage() {
               >
                 Popular
               </motion.div>
-              
+
               <div className="mb-6">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center mb-6 shadow-lg shadow-violet-500/20">
                   <Sparkles className="w-7 h-7 text-white" />
@@ -844,7 +836,7 @@ export default function HomePage() {
                   <span className="text-5xl font-bold text-white">₹0</span>
                 </div>
               </div>
-              
+
               <ul className="space-y-4 mb-8">
                 <li className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-violet-500/20 flex items-center justify-center flex-shrink-0">
@@ -874,7 +866,7 @@ export default function HomePage() {
                   <div className="w-5 h-5 rounded-full bg-violet-500/20 flex items-center justify-center flex-shrink-0">
                     <CheckCircle className="w-3.5 h-3.5 text-violet-400" />
                   </div>
-                  <span className="text-white/80 font-semibold text-green-400">✨ WhatsApp alerts (1,000 msgs FREE)</span>
+                  <span className="text-white/80 font-semibold text-gray-400">🔔 Email alerts (UNLIMITED FREE)</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-violet-500/20 flex items-center justify-center flex-shrink-0">
@@ -892,20 +884,14 @@ export default function HomePage() {
                   <div className="w-5 h-5 rounded-full bg-violet-500/20 flex items-center justify-center flex-shrink-0">
                     <CheckCircle className="w-3.5 h-3.5 text-violet-400" />
                   </div>
-                  <span className="text-white/80 font-semibold text-orange-400">🗣️ Hindi support</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full bg-violet-500/20 flex items-center justify-center flex-shrink-0">
-                    <CheckCircle className="w-3.5 h-3.5 text-violet-400" />
-                  </div>
                   <span className="text-white/80">Email support</span>
                 </li>
               </ul>
-              
+
               <Link href="/auth" className="block w-full py-4 px-6 text-center font-semibold rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white hover:from-violet-600 hover:to-fuchsia-700 transition-all shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40">
-                Start Free Forever
+                Lock In Free Access
               </Link>
-              <p className="text-center text-white/50 text-sm mt-3">No credit card required</p>
+              <p className="text-center text-white/50 text-sm mt-3">Offer expires soon - don't miss out</p>
             </motion.div>
 
             <motion.div
@@ -913,7 +899,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
-              transition={{ 
+              transition={{
                 delay: 0.1,
                 duration: 0.8,
                 ease: [0.4, 0, 0.2, 1],
@@ -930,7 +916,7 @@ export default function HomePage() {
                   <span className="text-5xl font-bold text-white">Custom</span>
                 </div>
               </div>
-              
+
               <ul className="space-y-4 mb-8">
                 <li className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
@@ -969,15 +955,15 @@ export default function HomePage() {
                   <span className="text-white/80">Dedicated account manager</span>
                 </li>
               </ul>
-              
+
               <Link href="/contact" className="block w-full py-4 px-6 text-center font-semibold rounded-xl bg-white/10 text-white hover:bg-white/15 border border-white/10 transition-all">
                 Contact Sales
               </Link>
               <p className="text-center text-white/50 text-sm mt-3">Tailored for your business</p>
             </motion.div>
           </div>
-          
-          <motion.div 
+
+          <motion.div
             className="mt-12 text-center"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -1006,12 +992,12 @@ export default function HomePage() {
 
       <section className="py-24 px-4 relative bg-slate-900/30">
         <div className="max-w-4xl mx-auto text-center">
-          <motion.div 
+          <motion.div
             className="bg-gradient-to-br from-violet-600/90 to-fuchsia-600/90 backdrop-blur-xl rounded-3xl p-12 relative overflow-hidden border border-white/10 shadow-2xl"
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
-            transition={{ 
+            transition={{
               duration: 0.9,
               ease: [0.4, 0, 0.2, 1],
             }}
@@ -1024,17 +1010,17 @@ export default function HomePage() {
                 Join thousands of Indian businesses managing their inventory smarter with DKS StockAlert.
               </p>
               <Link href="/auth" className="inline-flex items-center gap-2 bg-white text-violet-600 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/90 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-0.5 cursor-pointer">
-                Start Free Forever
+                Get Free Access Now
                 <ChevronRight className="w-5 h-5" />
               </Link>
               <div className="flex flex-wrap items-center justify-center gap-6 mt-8 text-white/60 text-sm">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-green-400" />
-                  <span>Free to use</span>
+                  <span>Free access</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-green-400" />
-                  <span>No credit card</span>
+                  <span>Offer ending soon</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-green-400" />
@@ -1089,12 +1075,15 @@ export default function HomePage() {
               </ul>
             </div>
           </div>
-          
+
           <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex flex-col md:flex-row items-center gap-4 text-sm text-white/50">
               <p>© {new Date().getFullYear()} DKS StockAlert. All rights reserved.</p>
               <div className="hidden md:block w-1 h-1 bg-white/30 rounded-full" />
               <div className="flex items-center gap-4">
+                <span className="flex items-center gap-1">
+                  <span className="px-1.5 py-0.5 bg-amber-500 text-white text-xs font-bold rounded">BETA</span>
+                </span>
                 <span className="flex items-center gap-1">
                   <Shield className="w-3 h-3 text-green-400" />
                   ISO 27001
@@ -1111,10 +1100,10 @@ export default function HomePage() {
             </div>
             <div className="flex items-center gap-4">
               <a href="#" className="hover:text-white transition-colors p-2 hover:bg-white/5 rounded-lg cursor-pointer">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" /></svg>
               </a>
               <a href="#" className="hover:text-white transition-colors p-2 hover:bg-white/5 rounded-lg cursor-pointer">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" /></svg>
               </a>
             </div>
           </div>

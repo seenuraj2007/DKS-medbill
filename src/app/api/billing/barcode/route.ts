@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     })
 
     // Calculate total quantity
-    const current_quantity = stockLevels.reduce((sum, sl) => sum + sl.quantity, 0)
+    const current_quantity = stockLevels.reduce((sum: number, sl: any) => sum + sl.quantity, 0)
 
     const productResponse = {
       id: product.id,
@@ -48,8 +48,8 @@ export async function POST(req: NextRequest) {
       barcode: product.barcode,
       category: product.category,
       current_quantity,
-      selling_price: product.sellingPrice,
-      unit_cost: product.unitCost,
+      selling_price: product.sellingPrice ? Number(product.sellingPrice) : 0,
+      unit_cost: product.unitCost ? Number(product.unitCost) : 0,
       unit: product.unit,
       image_url: product.imageUrl,
       reorder_point: stockLevels[0]?.reorderPoint || 0,

@@ -220,8 +220,8 @@ export default function LocationDetailsPage({ params }: { params: Promise<{ id: 
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {products.map((product) => (
-                    <tr key={product.product_id} className="hover:bg-gray-50 transition-colors">
+                  {products.map((product, index) => (
+                    <tr key={product.product_id || index} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4">
                         <span className="font-medium text-gray-900">{product.product_name}</span>
                       </td>

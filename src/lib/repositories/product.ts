@@ -1,5 +1,5 @@
 import { BaseRepository } from './base';
-import { Product } from '@prisma/client';
+import { Product } from '../../../prisma/generated/client';
 
 export interface CreateProductInput {
   sku: string;

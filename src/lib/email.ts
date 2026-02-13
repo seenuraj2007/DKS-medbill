@@ -1,6 +1,11 @@
+// Email service - can be disabled by setting DISABLE_EMAIL=true in .env
+// When disabled, emails are logged to console but not sent
+
+const EMAIL_ENABLED = process.env.DISABLE_EMAIL !== 'true'
+
 import nodemailer from 'nodemailer'
 
-const transporter = nodemailer.createTransport({
+const transporter = EMAIL_ENABLED ? nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.mailtrap.io',
   port: parseInt(process.env.SMTP_PORT || '587'),
   secure: false,
@@ -8,7 +13,7 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER || '',
     pass: process.env.SMTP_PASS || '',
   },
-})
+}) : null
 
 export interface EmailOptions {
   to: string
@@ -17,8 +22,25 @@ export interface EmailOptions {
   text?: string
 }
 
+export function isEmailEnabled(): boolean {
+  return EMAIL_ENABLED
+}
+
 export async function sendEmail(options: EmailOptions): Promise<boolean> {
+  if (!EMAIL_ENABLED) {
+    console.log('[EMAIL DISABLED] Would have sent:', {
+      to: options.to,
+      subject: options.subject,
+    })
+    return true // Return true so app continues working
+  }
+
   try {
+    if (!transporter) {
+      console.log('[EMAIL] No transporter available')
+      return false
+    }
+    
     await transporter.sendMail({
       from: process.env.SMTP_FROM || '"DKS StockAlert" <noreply@dksstockalert.com>',
       to: options.to,

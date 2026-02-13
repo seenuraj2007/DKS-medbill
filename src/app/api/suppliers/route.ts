@@ -21,8 +21,8 @@ export async function GET(req: NextRequest) {
     })
 
     const suppliers = products
-      .filter(p => p.supplierName)
-      .map(p => ({
+      .filter((p: any) => p.supplierName)
+      .map((p: any) => ({
         id: p.supplierName?.toLowerCase().replace(/\s+/g, '-'),
         name: p.supplierName,
         email: p.supplierEmail,

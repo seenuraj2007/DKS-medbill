@@ -1,143 +1,175 @@
 # DKS StockAlert
 
-Modern inventory management and restock alert system for small to medium businesses.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-blue)](https://www.postgresql.org/)
 
-## Features
+Open-source inventory management system for small and medium businesses with WhatsApp alerts, Tally integration, and GST invoicing.
 
-- **Product Management**: Add, edit, and delete products with SKU, barcode, category, unit cost, selling price, and supplier information
-- **Multi-Location**: Manage inventory across multiple warehouses, stores, or locations
-- **Supplier Management**: Track suppliers with contact details and product associations
-- **Purchase Orders**: Create and track purchase orders with receipt tracking
-- **Stock Transfers**: Move inventory between locations with full history
-- **Smart Alerts**: Automatic notifications for low stock and out-of-stock items
-- **Stock History**: Complete audit trail of all inventory changes
-- **Team Collaboration**: Role-based access control (owner, admin, editor, viewer)
-- **PWA Support**: Install as a mobile app on iOS & Android
-- **POS Billing**: Point-of-sale billing system
+Built for Indian SMBs but works globally.
 
-## Tech Stack
+## 🚀 Features
 
-- **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS
-- **Backend**: Next.js API Routes
-- **Database**: Supabase (PostgreSQL)
-- **Authentication**: Supabase Auth
-- **Deployment**: Vercel / Docker
+- 📦 **Multi-location Inventory** - Track stock across multiple warehouses/stores
+- 📱 **WhatsApp Alerts** - Get instant low stock alerts (1000 free/month)
+- 📊 **Tally ERP Import** - Import data directly from Tally (XML/CSV)
+- 🧾 **GST Invoicing** - Generate GST-compliant invoices
+- 👥 **Team Collaboration** - Multi-user with role-based access
+- 🔄 **Stock Transfers** - Move stock between locations
+- 📈 **Analytics Dashboard** - Track sales, inventory value, and trends
+- 🏪 **POS/Billing** - Point of sale system with barcode support
+- 📋 **Purchase Orders** - Manage supplier orders
+- 🔔 **Smart Alerts** - Low stock, out of stock notifications
+- 🌐 **Multi-language** - English support (extensible)
+- 📱 **Mobile Responsive** - Works on desktop, tablet, and mobile
 
-## Getting Started
+## 🛠️ Tech Stack
+
+- **Frontend:** Next.js 16, React 18, TypeScript, Tailwind CSS
+- **Backend:** Next.js API Routes, Prisma ORM
+- **Database:** PostgreSQL (Neon, Supabase, or self-hosted)
+- **Auth:** JWT-based authentication
+- **Integrations:** WhatsApp Business API, Shopify, WooCommerce
+
+## 📦 Installation
 
 ### Prerequisites
 
-- Node.js 20+
-- npm or pnpm
-- Supabase account
+- Node.js 20.12.0 or higher
+- PostgreSQL database
+- npm or yarn
 
-### Environment Setup
+### Quick Start
 
-1. Copy environment template:
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/dks-stockalert.git
+   cd dks-stockalert
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   ```bash
+   cp .env.sample .env.local
+   ```
+   
+   Edit `.env.local` with your database credentials:
+   ```
+   DATABASE_URL="postgresql://user:password@localhost:5432/stockalert"
+   ```
+
+4. **Set up the database**
+   ```bash
+   npx prisma migrate dev
+   npx prisma generate
+   ```
+
+5. **Run the development server**
+   ```bash
+   npm run dev
+   ```
+
+   Open [http://localhost:3000](http://localhost:3000)
+
+### Database Setup
+
+You can use any PostgreSQL database:
+
+**Option 1: Local PostgreSQL**
 ```bash
-cp .env.example .env.local
+# Install PostgreSQL locally
+# Create database
+createdb stockalert
 ```
 
-2. Fill in your Supabase credentials in `.env.local`
+**Option 2: Neon (Free Tier)**
+- Sign up at [neon.tech](https://neon.tech)
+- Create a new project
+- Copy the connection string
 
-### Installation
+**Option 3: Supabase (Free Tier)**
+- Sign up at [supabase.com](https://supabase.com)
+- Create a new project
+- Use the connection string from settings
+
+## 🏗️ Deployment
+
+### Deploy to Vercel (Recommended)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/dks-stockalert)
+
+1. Click the button above
+2. Connect your GitHub account
+3. Add environment variables from `.env.sample`
+4. Deploy!
+
+### Manual Deployment
+
+See [DEPLOYMENT_GUIDE.md](./docs/DEPLOYMENT_GUIDE.md) for detailed instructions.
+
+### Docker Deployment
 
 ```bash
+# Build and run with Docker Compose
+docker-compose up -d
+
+# Or build manually
+docker build -t dks-stockalert .
+docker run -p 3000:3000 --env-file .env.local dks-stockalert
+```
+
+## 📖 Documentation
+
+- [Contributing Guide](./CONTRIBUTING.md) - How to contribute
+- [Security Policy](./SECURITY.md) - Security guidelines
+- [Changelog](./CHANGELOG.md) - Version history
+- [Deployment Guide](./docs/DEPLOYMENT_GUIDE.md) - Production deployment
+
+## 🤝 Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
+
+### Quick Start for Contributors
+
+```bash
+# Fork the repo, then:
+git clone https://github.com/YOUR_USERNAME/dks-stockalert.git
+cd dks-stockalert
 npm install
-```
-
-### Development
-
-```bash
+cp .env.sample .env.local
+# Edit .env.local with your DB credentials
+npx prisma migrate dev
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+## 📝 License
 
-### Production Build
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
 
-```bash
-npm run build
-npm start
-```
+## 🙏 Acknowledgments
 
-## Deployment
+- Built for Indian SMBs
+- Inspired by Tally ERP workflows
+- WhatsApp Business API integration
+- Open source community
 
-### Vercel (Recommended)
+## 📞 Support
 
-1. Push to GitHub
-2. Import project in Vercel
-3. Add environment variables
-4. Deploy
+- **Issues:** [GitHub Issues](https://github.com/yourusername/dks-stockalert/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/yourusername/dks-stockalert/discussions)
+- **Email:** hello@dksstockalert.com
 
-### Docker
+## 🔐 Security
 
-```bash
-docker build -t dksstockalert .
-docker run -p 3000:3000 dksstockalert
-```
+Please report security vulnerabilities to [security@dksstockalert.com](mailto:security@dksstockalert.com).
 
-## Testing
+See [SECURITY.md](./SECURITY.md) for details.
 
-```bash
-# Run tests
-npm test
+---
 
-# Run with coverage
-npm run test:coverage
-```
-
-## API Documentation
-
-API documentation is available at `/api-docs` when running in development mode.
-
-## Project Structure
-
-```
-src/
-├── app/
-│   ├── api/              # API routes
-│   │   ├── auth/         # Authentication
-│   │   ├── products/     # Product management
-│   │   ├── locations/    # Location management
-│   │   ├── suppliers/    # Supplier management
-│   │   ├── alerts/       # Alert management
-│   │   └── ...
-│   ├── dashboard/        # Dashboard page
-│   ├── products/         # Product pages
-│   ├── locations/        # Location pages
-│   └── ...
-├── components/           # Reusable components
-├── lib/
-│   ├── auth.ts          # Authentication helpers
-│   ├── supabase.ts      # Supabase client
-│   ├── validators.ts    # Zod validation schemas
-│   ├── logger.ts        # Logging utilities
-│   └── permissions.ts   # Role-based permissions
-└── types/               # TypeScript definitions
-```
-
-## Environment Variables
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase anon key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Yes | Supabase service role key |
-| `CSRF_SECRET` | Yes | Secret for CSRF protection |
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and linting
-5. Submit a pull request
-
-## License
-
-MIT License - see LICENSE file for details
-
-## Support
-
-For issues and feature requests, please use GitHub Issues: https://github.com/seenuraj2007/stockalert/issues
+**Made with ❤️ for the open source community**

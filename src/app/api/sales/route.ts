@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
     let total = 0
 
     // Process all items in a transaction to ensure atomicity
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       for (const item of items) {
         // Support both snake_case (from billing page) and camelCase property names
         const productId = item.productId || item.product_id
@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
           }
         })
         
-        const currentStock = stockLevels.reduce((sum, sl) => sum + sl.quantity, 0)
+        const currentStock = stockLevels.reduce((sum: number, sl: any) => sum + sl.quantity, 0)
         
         if (currentStock < quantity) {
           throw new Error(`Insufficient stock for ${product.name}. Available: ${currentStock}, Requested: ${quantity}`)
@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
 
         // Update stock levels
         if (stockLevels.length > 0) {
-          const primaryLocation = stockLevels.find(sl => sl.quantity > 0) || stockLevels[0]
+          const primaryLocation = stockLevels.find((sl: any) => sl.quantity > 0) || stockLevels[0]
           if (primaryLocation) {
             await tx.stockLevel.update({
               where: { id: primaryLocation.id },

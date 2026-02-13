@@ -54,29 +54,23 @@ WHATSAPP_BUSINESS_ACCOUNT_ID="your-business-account-id"
 7. Click **Save Settings**
 8. Click **Send Test Message** to verify
 
-## Notification Options (Choose FREE or Paid)
+## Notification Options
 
-### Email Notifications - FREE for 99.9% of Businesses ✅
+### In-App Notifications - ALWAYS FREE ✅
 
-**Free Tiers Available:**
-- **Gmail**: FREE forever (up to 500 emails/day)
-- **Resend.com**: 100,000 emails/month FREE
-- **Brevo**: 9,000 emails/month FREE
+**Features:**
+- Real-time alerts in the dashboard
+- No setup required
+- Works immediately
+- Free forever
 
-**When You Pay:**
-- Over 100,000 emails/month with Resend: ~₹750/month
-- Most small businesses use <1,000/month: **₹0**
+**Alert Types:**
+- Low stock alerts
+- Out of stock alerts
+- Purchase order updates
+- Stock transfer notifications
 
-**Setup:** See `docs/EMAIL_SETUP.md`
-
-| Business Size | Monthly Alerts | Cost |
-|--------------|---------------|------|
-| 50 products | ~5 | ₹0 FREE |
-| 200 products | ~50 | ₹0 FREE |
-| 1,000 products | ~500 | ₹0 FREE |
-| 5,000 products | ~2,500 | ₹0 FREE |
-| 50,000 products | ~25,000 | ₹0 FREE |
-| 100,000 products | ~42,000 | ₹0 FREE |
+**Setup:** No configuration needed - works out of the box!
 | 500,000 products | ~167,000 | ~₹750/month |
 
 #### Export from Tally

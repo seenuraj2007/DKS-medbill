@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useCallback, memo } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Package, Bell, Menu, X, LogOut } from 'lucide-react'
@@ -10,26 +10,32 @@ interface SidebarProps {
   children: React.ReactNode
 }
 
+const MemoizedSidebarMenu = memo(SidebarMenu)
+
 export default function SidebarLayout({ children }: SidebarProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
-  const [locale, setLocale] = useState('en')
+  
+  const locale = pathname.split('/')[1] === 'en' || pathname.split('/')[1] === 'hi' 
+    ? pathname.split('/')[1] 
+    : 'en'
 
-  useEffect(() => {
-    const pathParts = pathname.split('/')
-    if (pathParts[1] === 'en' || pathParts[1] === 'hi') {
-      setLocale(pathParts[1])
-    }
-  }, [pathname])
-
-  const getLocalizedHref = (href: string) => {
+  const getLocalizedHref = useCallback((href: string) => {
     return `/${locale}${href}`
-  }
+  }, [locale])
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
     window.location.href = '/'
-  }
+  }, [])
+
+  const toggleSidebar = useCallback(() => {
+    setSidebarOpen(prev => !prev)
+  }, [])
+
+  const closeSidebar = useCallback(() => {
+    setSidebarOpen(false)
+  }, [])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -37,8 +43,9 @@ export default function SidebarLayout({ children }: SidebarProps) {
         <div className="flex items-center justify-between h-full px-4">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setSidebarOpen(true)}
+              onClick={toggleSidebar}
               className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+              aria-label="Toggle menu"
             >
               <Menu className="w-6 h-6" />
             </button>
@@ -53,12 +60,18 @@ export default function SidebarLayout({ children }: SidebarProps) {
           <div className="flex items-center gap-2">
             <Link
               href={getLocalizedHref('/products/new')}
+              prefetch={true}
               className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-xl font-medium hover:from-indigo-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl cursor-pointer text-sm"
             >
               <Package className="w-4 h-4" />
               <span className="hidden sm:inline">Add Product</span>
             </Link>
-            <Link href={getLocalizedHref('/alerts')} className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-colors cursor-pointer relative">
+            <Link 
+              href={getLocalizedHref('/alerts')} 
+              prefetch={true}
+              className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-colors cursor-pointer relative"
+              aria-label="Alerts"
+            >
               <Bell className="w-5 h-5" />
             </Link>
           </div>
@@ -68,7 +81,8 @@ export default function SidebarLayout({ children }: SidebarProps) {
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-30"
-          onClick={() => setSidebarOpen(false)}
+          onClick={closeSidebar}
+          aria-hidden="true"
         />
       )}
 
@@ -80,15 +94,20 @@ export default function SidebarLayout({ children }: SidebarProps) {
         <div className="flex flex-col h-full pt-3">
           <div className="px-4 pb-3 flex justify-end">
             <button
-              onClick={() => setSidebarOpen(false)}
+              onClick={closeSidebar}
               className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg cursor-pointer"
+              aria-label="Close menu"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           <div className="px-4 pb-4 border-b border-gray-200">
-            <Link href={getLocalizedHref('/dashboard')} className="flex items-center gap-2" onClick={() => setSidebarOpen(false)}>
+            <Link 
+              href={getLocalizedHref('/dashboard')} 
+              className="flex items-center gap-2" 
+              onClick={closeSidebar}
+            >
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
                 <Package className="w-6 h-6 text-white" />
               </div>
@@ -97,7 +116,7 @@ export default function SidebarLayout({ children }: SidebarProps) {
           </div>
 
           <nav className="flex-1 overflow-y-auto p-4 space-y-2 pb-24">
-            <SidebarMenu />
+            <MemoizedSidebarMenu />
           </nav>
 
           <div className="p-4 border-t border-gray-200">

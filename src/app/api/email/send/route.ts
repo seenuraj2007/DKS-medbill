@@ -6,7 +6,8 @@ import {
   generateLowStockAlertEmail,
   generateOutOfStockAlertEmail,
   generatePurchaseOrderUpdateEmail,
-  generateDailySummaryEmail
+  generateDailySummaryEmail,
+  isEmailEnabled
 } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
@@ -75,6 +76,21 @@ export async function POST(request: NextRequest) {
         )
     }
 
+    // Check if email is enabled
+    if (!isEmailEnabled()) {
+      console.log('[EMAIL DISABLED] Would have sent email:', {
+        type,
+        to,
+        subject: emailContent.subject,
+      })
+      
+      return NextResponse.json({
+        success: true,
+        message: 'Email service is currently disabled. Email logged to console only.',
+        disabled: true,
+      })
+    }
+
     // Send email
     const success = await sendEmail({
       to,
@@ -109,11 +125,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Check if email service is configured
+    // Check if email service is configured and enabled
     const isConfigured = !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS)
+    const emailEnabled = isEmailEnabled()
 
     return NextResponse.json({
       configured: isConfigured,
+      enabled: emailEnabled,
       host: process.env.SMTP_HOST || 'smtp.mailtrap.io',
       from: process.env.SMTP_FROM || 'noreply@dksstockalert.com',
     })

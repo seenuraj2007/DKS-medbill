@@ -143,12 +143,7 @@ docker-compose up -d
    - Never commit secrets to git
    - Use service role key only server-side
 
-3. **Set Up Email Notifications**
-   - Configure SMTP settings
-   - Test password reset flow
-   - Verify trial reminder emails
-
-4. **Configure Custom Domain** (Optional)
+3. **Configure Custom Domain** (Optional)
    - Add domain in Vercel Dashboard
    - Update DNS records
    - Update `NEXT_PUBLIC_APP_URL`
@@ -159,9 +154,8 @@ docker-compose up -d
 
 ### Immediate (Before Launch)
 
-1. ⏳ **Apply RLS policies** to Supabase database
-2. ⏳ **Set up SMTP** for email notifications
-3. ⏳ **Configure environment variables** in Vercel
+1. ⏳ **Apply RLS policies** to database
+2. ⏳ **Configure environment variables** in Vercel
 4. ⏳ **Run smoke tests** on staging environment
 
 ### Day 1 of Launch

@@ -12,7 +12,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Redirect paths without locale prefix to /en (but not root)
-  if (pathname !== '/' && !pathname.startsWith('/en/') && !pathname.startsWith('/hi/') && pathname !== '/en' && pathname !== '/hi') {
+  if (pathname !== '/' && !pathname.startsWith('/en/') && pathname !== '/en') {
     const url = request.nextUrl.clone();
     url.pathname = `/en${pathname}`;
     return NextResponse.redirect(url);

@@ -256,7 +256,7 @@ export default function PurchaseOrderDetailsPage({ params }: { params: Promise<{
                 </div>
                 <div className="flex items-center justify-between p-4 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-indigo-100">
                   <span className="font-semibold text-gray-900">Total Cost</span>
-                  <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 text-transparent bg-clip-text">${order.total_cost.toFixed(2)}</span>
+                  <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 text-transparent bg-clip-text">${Number(order.total_cost || 0).toFixed(2)}</span>
                 </div>
                 {allReceived && (
                   <div className="flex items-center gap-3 p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-100">
@@ -315,8 +315,8 @@ export default function PurchaseOrderDetailsPage({ params }: { params: Promise<{
                         </div>
                       </td>
                       <td className="px-6 py-4 text-gray-900 font-semibold">{item.quantity}</td>
-                      <td className="px-6 py-4 text-gray-600">${item.unit_cost.toFixed(2)}</td>
-                      <td className="px-6 py-4 text-gray-900 font-semibold">${item.total_cost.toFixed(2)}</td>
+                      <td className="px-6 py-4 text-gray-600">${Number(item.unit_cost || 0).toFixed(2)}</td>
+                      <td className="px-6 py-4 text-gray-900 font-semibold">${Number(item.total_cost || 0).toFixed(2)}</td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           <input

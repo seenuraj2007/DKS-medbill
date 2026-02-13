@@ -7,7 +7,7 @@ import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import ImageUpload from '@/components/ImageUpload'
 import { SubscriptionGate } from '@/components/SubscriptionGate'
-import { useUpgradeToast } from '@/components/UpgradeNotification'
+import { useUpgradeToast, ToastProvider } from '@/components/UpgradeNotification'
 
 const BarcodeScanner = dynamic(() => import('@/components/BarcodeScanner'), {
   ssr: false,
@@ -35,7 +35,15 @@ const InputField = ({ label, icon: Icon, type = 'text', name, value, onChange, p
 )
 
 export default function ProductFormPage({ params }: { params?: Promise<{ id?: string }> }) {
-  const resolvedParams = params ? use(params) : undefined
+  return (
+    <ToastProvider>
+      <ProductFormContent params={params} />
+    </ToastProvider>
+  )
+}
+
+function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
+  const resolvedParams = use(params || Promise.resolve({ id: undefined }))
   const router = useRouter()
   const { showLimitReached } = useUpgradeToast()
   const isEdit = !!resolvedParams?.id
@@ -106,10 +114,10 @@ export default function ProductFormPage({ params }: { params?: Promise<{ id?: st
     try {
       const payload = {
         ...formData,
-        current_quantity: formData.current_quantity ? parseInt(formData.current_quantity) : 0,
-        reorder_point: formData.reorder_point ? parseInt(formData.reorder_point) : 0,
-        unit_cost: formData.unit_cost ? parseFloat(formData.unit_cost) : 0,
-        selling_price: formData.selling_price ? parseFloat(formData.selling_price) : 0
+        current_quantity: formData.current_quantity ? parseInt(formData.current_quantity) || 0 : 0,
+        reorder_point: formData.reorder_point ? parseInt(formData.reorder_point) || 0 : 0,
+        unit_cost: formData.unit_cost ? parseFloat(formData.unit_cost) || 0 : 0,
+        selling_price: formData.selling_price ? parseFloat(formData.selling_price) || 0 : 0
       }
 
       const url = isEdit ? `/api/products/${resolvedParams?.id}` : '/api/products'
@@ -123,14 +131,14 @@ export default function ProductFormPage({ params }: { params?: Promise<{ id?: st
 
       if (!res.ok) {
         const data = await res.json()
-        
+
         // Check if it's a limit reached error
         if (res.status === 403 && data.limit !== undefined) {
           showLimitReached('products', data.current, data.limit)
           setError(`Product limit reached. Please upgrade your plan to add more products.`)
           return
         }
-        
+
         throw new Error(data.error || 'Failed to save product')
       }
 
@@ -356,34 +364,34 @@ export default function ProductFormPage({ params }: { params?: Promise<{ id?: st
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <InputField
-                  label="Supplier Name"
-                  icon={Package}
-                  name="supplier_name"
-                  value={formData.supplier_name}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, supplier_name: e.target.value })}
-                  placeholder="Acme Supplies"
-                />
+                  <InputField
+                    label="Supplier Name"
+                    icon={Package}
+                    name="supplier_name"
+                    value={formData.supplier_name}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, supplier_name: e.target.value })}
+                    placeholder="Acme Supplies"
+                  />
 
-                <InputField
-                  label="Supplier Email"
-                  icon={Mail}
-                  type="email"
-                  name="supplier_email"
-                  value={formData.supplier_email}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, supplier_email: e.target.value })}
-                  placeholder="supplier@example.com"
-                />
+                  <InputField
+                    label="Supplier Email"
+                    icon={Mail}
+                    type="email"
+                    name="supplier_email"
+                    value={formData.supplier_email}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, supplier_email: e.target.value })}
+                    placeholder="supplier@example.com"
+                  />
 
-                <InputField
-                  label="Supplier Phone"
-                  icon={Phone}
-                  type="tel"
-                  name="supplier_phone"
-                  value={formData.supplier_phone}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, supplier_phone: e.target.value })}
-                  placeholder="+1 234 567 8900"
-                />
+                  <InputField
+                    label="Supplier Phone"
+                    icon={Phone}
+                    type="tel"
+                    name="supplier_phone"
+                    value={formData.supplier_phone}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, supplier_phone: e.target.value })}
+                    placeholder="+1 234 567 8900"
+                  />
                 </div>
               </div>
 

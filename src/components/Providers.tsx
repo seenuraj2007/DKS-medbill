@@ -1,8 +1,11 @@
 'use client'
 
-import { ToastProvider } from '@/components/UpgradeNotification'
+import { ReactNode } from 'react'
+import { ToastProvider, useUpgradeToast } from '@/components/UpgradeNotification'
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export { useUpgradeToast }
+
+export function Providers({ children }: { children: ReactNode }) {
   return (
     <ToastProvider>
       {children}

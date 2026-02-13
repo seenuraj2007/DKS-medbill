@@ -44,3 +44,32 @@ next-env.d.ts
 data/*.db
 data/*.db-shm
 data/*.db-wal
+*.sqlite
+*.sqlite3
+
+# Uploads
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Prisma generated
+prisma/generated/
+
+# Backup files
+.supabase-backup/
+*.backup
+*.bak
+
+# Environment (explicit)
+.env.local
+.env.production
+.env.development.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db

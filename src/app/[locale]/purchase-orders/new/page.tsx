@@ -25,7 +25,7 @@ interface OrderItem {
 }
 
 export default function PurchaseOrderFormPage({ params }: { params?: Promise<{ id?: string }> }) {
-  const resolvedParams = params ? use(params) : undefined
+  const resolvedParams = use(params || Promise.resolve({ id: undefined }))
   const router = useRouter()
   const isEdit = !!resolvedParams?.id
   const [loading, setLoading] = useState(false)

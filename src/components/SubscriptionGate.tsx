@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import PlanLimitBanner from '@/components/PlanLimitBanner'
-import { useUpgradeToast } from '@/components/UpgradeNotification'
+import { useUpgradeToast } from '@/components/Providers'
 
 interface Usage {
   teamMembers: number

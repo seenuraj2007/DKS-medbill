@@ -65,13 +65,6 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 APP_URL=http://localhost:3000
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-# Email Configuration (for password reset, notifications)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
-SMTP_PASSWORD=your-app-password
-SMTP_FROM=noreply@yourdomain.com
-
 # CSRF Protection
 CSRF_SECRET=your-secret-key-min-32-chars
 
@@ -121,17 +114,10 @@ These will be configured in Step 4.
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
    SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 
-   # App Configuration
-   NEXT_PUBLIC_APP_URL=https://your-app-name.vercel.app
+    # App Configuration
+    NEXT_PUBLIC_APP_URL=https://your-app-name.vercel.app
 
-   # Email Configuration
-   SMTP_HOST=smtp.gmail.com
-   SMTP_PORT=587
-   SMTP_USER=your-email@gmail.com
-   SMTP_PASSWORD=your-app-password
-   SMTP_FROM=noreply@yourdomain.com
-
-   # CSRF Protection
+    # CSRF Protection
    CSRF_SECRET=your-secret-key-min-32-chars
 
    # Cron Secret
@@ -169,15 +155,8 @@ These will be configured in Step 4.
 
 4. **Set environment variables**
    ```bash
-   vercel env add NEXT_PUBLIC_SUPABASE_URL
-   vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY
-   vercel env add SUPABASE_SERVICE_ROLE_KEY
+   vercel env add DATABASE_URL
    vercel env add NEXT_PUBLIC_APP_URL
-   vercel env add SMTP_HOST
-   vercel env add SMTP_PORT
-   vercel env add SMTP_USER
-   vercel env add SMTP_PASSWORD
-   vercel env add SMTP_FROM
    vercel env add CSRF_SECRET
    vercel env add CRON_SECRET
    vercel env add NODE_ENV
@@ -260,7 +239,6 @@ Vercel will automatically detect and configure the cron job.
 
 2. **Test sign-up flow**
    - Create a new test account
-   - Verify email works (check your inbox)
    - Verify login works
 
 3. **Test product creation**
@@ -306,34 +284,6 @@ Expected response:
 
 ---
 
-## Step 7: Configure Email Notifications
-
-### 7.1 Set up SMTP (Gmail example)
-
-1. Go to your Google Account settings
-2. Enable 2-factor authentication
-3. Generate an App Password:
-   - Go to Security → App Passwords
-   - Create a new app password for "Mail"
-   - Copy the password
-
-4. Update environment variables:
-   ```bash
-   SMTP_HOST=smtp.gmail.com
-   SMTP_PORT=587
-   SMTP_USER=your-email@gmail.com
-   SMTP_PASSWORD=your-16-char-app-password
-   SMTP_FROM=your-email@gmail.com
-   ```
-
-### 7.2 Test email sending
-
-1. Trigger a password reset
-2. Check your inbox for the reset email
-3. Verify the email format and links work
-
----
-
 ## Troubleshooting
 
 ### Issue: Build fails with "Module not found"
@@ -370,14 +320,6 @@ engine-strict=true
 2. Ensure `CRON_SECRET` is set
 3. Check Vercel cron logs
 4. Verify cron endpoint returns 200 status
-
-### Issue: Email not sending
-
-**Solution:**
-1. Verify SMTP credentials
-2. Check if SMTP port is not blocked (use 587 for TLS)
-3. Verify email is not in spam folder
-4. Check if SMTP provider requires additional settings
 
 ---
 

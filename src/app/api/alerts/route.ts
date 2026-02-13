@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import type { Alert } from '@prisma/client'
+// Alert type defined locally
 
 export async function GET(req: NextRequest) {
   try {
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
       take: 50
     })
 
-    const formattedAlerts = alerts.map((alert: Alert) => ({
+    const formattedAlerts = alerts.map((alert: any) => ({
       id: alert.id,
       type: alert.type,
       message: alert.message,

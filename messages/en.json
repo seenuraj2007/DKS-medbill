@@ -191,7 +191,7 @@
     "outOfStock": "Out of Stock Alerts",
     "settings": "Alert Settings",
     "enableNotifications": "Enable Notifications",
-    "emailAlerts": "Email Alerts",
+    "inAppAlerts": "In-App Alerts",
     "pushNotifications": "Push Notifications",
     "whatsappAlerts": "WhatsApp Alerts",
     "alertFrequency": "Alert Frequency",
@@ -265,7 +265,6 @@
     "dailySummary": "Daily Summary",
     "language": "Message Language",
     "english": "English",
-    "hindi": "Hindi",
     "testMessage": "Send Test Message",
     "testSent": "Test message sent!",
     "setupRequired": "WhatsApp Business API setup required. Please contact admin."

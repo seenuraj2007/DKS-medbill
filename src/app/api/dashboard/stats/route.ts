@@ -83,43 +83,62 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    // Fetch all required data in parallel for better performance
-    const [products, alertsCount, teamMembersCount, locationsCount, stockLevelsResult] = await Promise.all([
-      prisma.product.findMany({
-        where: { tenantId },
-        select: { id: true },
-        take: 1
+    // Use Promise.all for parallel queries with optimized selections
+    const [
+      totalProducts,
+      alertsCount,
+      teamMembersCount,
+      locationsCount,
+      stockStats
+    ] = await Promise.all([
+      // Optimized count query
+      prisma.product.count({
+        where: { tenantId, isActive: true, deletedAt: null }
       }),
+      
+      // Unread alerts count
       prisma.alert.count({
         where: { tenantId, isRead: false }
       }),
+      
+      // Team members count
       prisma.member.count({
         where: { tenantId }
       }),
+      
+      // Locations count
       prisma.location.count({
         where: { tenantId, isActive: true }
       }),
+      
+      // Optimized stock levels query - fetch only needed fields
       prisma.stockLevel.findMany({
-        where: { product: { tenantId } },
+        where: { 
+          tenantId,
+          product: { isActive: true, deletedAt: null }
+        },
         select: {
           quantity: true,
           reorderPoint: true,
           product: {
-            select: { id: true, name: true, sku: true }
+            select: { 
+              id: true, 
+              name: true, 
+              sku: true 
+            }
           }
         },
-        take: 1000
+        orderBy: { quantity: 'asc' },
+        take: 100
       })
     ])
 
-    const totalProducts = products.length
-
-    // Calculate stock stats using aggregate-like filtering
+    // Calculate stock stats
     let lowStockProductsCount = 0
     let outOfStockProductsCount = 0
     const lowStockItems = []
 
-    for (const sl of stockLevelsResult) {
+    for (const sl of stockStats) {
       if (sl.quantity === 0) {
         outOfStockProductsCount++
       } else if (sl.quantity <= sl.reorderPoint) {
@@ -137,21 +156,18 @@ export async function GET(req: NextRequest) {
     }
 
     // Get subscription info
-    let subscription = null
     const orgSubscription = await getOrganizationSubscription(tenantId)
-    if (orgSubscription) {
-      subscription = {
-        status: orgSubscription.status,
-        trialEndDate: orgSubscription.trial_end_date,
-        plan: orgSubscription.plan ? {
-          name: orgSubscription.plan.name,
-          displayName: orgSubscription.plan.display_name,
-          maxTeamMembers: orgSubscription.plan.max_team_members,
-          maxProducts: orgSubscription.plan.max_products,
-          maxLocations: orgSubscription.plan.max_locations,
-        } : undefined
-      }
-    }
+    const subscription = orgSubscription ? {
+      status: orgSubscription.status,
+      trialEndDate: orgSubscription.trial_end_date,
+      plan: orgSubscription.plan ? {
+        name: orgSubscription.plan.name,
+        displayName: orgSubscription.plan.display_name,
+        maxTeamMembers: orgSubscription.plan.max_team_members,
+        maxProducts: orgSubscription.plan.max_products,
+        maxLocations: orgSubscription.plan.max_locations,
+      } : undefined
+    } : null
 
     return NextResponse.json({
       totalProducts: totalProducts || 0,
@@ -167,7 +183,7 @@ export async function GET(req: NextRequest) {
       }
     }, {
       headers: {
-        'Cache-Control': 'private, max-age=30',
+        'Cache-Control': 'private, max-age=15, stale-while-revalidate=30',
       }
     })
   } catch (error) {

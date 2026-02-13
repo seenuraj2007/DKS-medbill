@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: 'asc' }
     })
 
-    const team = members.map(m => ({
+    const team = members.map((m: any) => ({
       id: m.user.id,
       email: m.user.email,
       full_name: m.user.name,

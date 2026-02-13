@@ -179,7 +179,7 @@ export default function PurchaseOrdersPage() {
                           {getStatusBadge(order.status)}
                         </td>
                         <td className="px-3 py-3 sm:px-6 sm:py-4 text-right">
-                          <span className="font-bold text-gray-900 text-sm sm:text-base">${order.total_cost.toFixed(2)}</span>
+                          <span className="font-bold text-gray-900 text-sm sm:text-base">${Number(order.total_cost || 0).toFixed(2)}</span>
                         </td>
                         <td className="px-2 py-3 sm:px-6 sm:py-4">
                           <div className="flex items-center justify-end gap-1 sm:gap-2">

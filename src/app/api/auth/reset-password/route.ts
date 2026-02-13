@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import crypto from 'crypto'
+import { prisma } from '@/lib/prisma'
+import bcrypt from 'bcryptjs'
 
 const resetPasswordSchema = z.object({
   token: z.string().min(1, 'Token is required'),
@@ -12,12 +13,54 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { token, password } = resetPasswordSchema.parse(body)
 
-    // TODO: Validate token and update password
-    // For now, just return success
-    console.log('Password reset with token:', token.substring(0, 10) + '...')
+    // Find valid token
+    const resetToken = await prisma.passwordResetToken.findUnique({
+      where: { token },
+      include: { user: true }
+    })
+
+    if (!resetToken) {
+      return NextResponse.json(
+        { error: 'Invalid or expired reset token' },
+        { status: 400 }
+      )
+    }
+
+    // Check if token is expired
+    if (new Date() > resetToken.expiresAt) {
+      return NextResponse.json(
+        { error: 'Reset token has expired. Please request a new one.' },
+        { status: 400 }
+      )
+    }
+
+    // Check if token has already been used
+    if (resetToken.usedAt) {
+      return NextResponse.json(
+        { error: 'This reset link has already been used.' },
+        { status: 400 }
+      )
+    }
+
+    // Hash new password
+    const passwordHash = await bcrypt.hash(password, 10)
+
+    // Update user password
+    await prisma.user.update({
+      where: { id: resetToken.userId },
+      data: { passwordHash }
+    })
+
+    // Mark token as used
+    await prisma.passwordResetToken.update({
+      where: { id: resetToken.id },
+      data: { usedAt: new Date() }
+    })
+
+    console.log('Password reset successful for user:', resetToken.user.email)
 
     return NextResponse.json(
-      { message: 'Password reset successful' },
+      { message: 'Password reset successful. You can now log in with your new password.' },
       { status: 200 }
     )
   } catch (error) {
@@ -29,7 +72,7 @@ export async function POST(req: NextRequest) {
       )
     }
     return NextResponse.json(
-      { error: 'An unexpected error occurred' },
+      { error: 'An unexpected error occurred. Please try again later.' },
       { status: 500 }
     )
   }

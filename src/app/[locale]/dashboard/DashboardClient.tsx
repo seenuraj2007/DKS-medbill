@@ -45,9 +45,8 @@ const StatCard = memo(({ title, value, icon: Icon, color, trend }: StatCardProps
         <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
       </div>
       {trend !== undefined && (
-        <span className={`text-xs font-semibold flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 rounded-full ${
-          trend > 0 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'
-        }`}>
+        <span className={`text-xs font-semibold flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 rounded-full ${trend > 0 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'
+          }`}>
           {trend > 0 ? <ArrowUpRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> : <ArrowDownRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />}
           {Math.abs(trend)}
         </span>
@@ -76,12 +75,10 @@ const LowStockItem = memo(({ item, onClick }: LowStockItemProps) => (
     onClick={onClick}
   >
     <div className="flex items-center gap-3 min-w-0 flex-1">
-      <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm ${
-        item.current_quantity === 0 ? 'bg-red-100' : 'bg-amber-100'
-      }`}>
-        <Package className={`w-4 h-4 ${
-          item.current_quantity === 0 ? 'text-red-600' : 'text-amber-600'
-        }`} />
+      <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm ${item.current_quantity === 0 ? 'bg-red-100' : 'bg-amber-100'
+        }`}>
+        <Package className={`w-4 h-4 ${item.current_quantity === 0 ? 'text-red-600' : 'text-amber-600'
+          }`} />
       </div>
       <div className="min-w-0 flex-1">
         <h3 className="font-semibold text-gray-900 text-sm truncate">{item.name}</h3>
@@ -165,7 +162,7 @@ export default function DashboardClient({ initialStats }: { initialStats: Dashbo
 
   useEffect(() => {
     if (!initialStats) {
-     
+
       fetchDashboard()
     }
     fetchAnalytics()
@@ -254,7 +251,7 @@ export default function DashboardClient({ initialStats }: { initialStats: Dashbo
               <div className="w-6 h-6 sm:w-8 sm:h-8 bg-green-100 rounded-lg flex items-center justify-center">
                 <Zap className="w-3 h-3 sm:w-4 sm:h-4" />
               </div>
-              <span className="font-medium">Free Forever Plan - All features unlocked!</span>
+              <span className="font-medium">Free Plan - Lock in now before offer ends!</span>
             </div>
             <Link href="/subscription" className="text-xs sm:text-sm font-medium text-green-700 hover:underline flex items-center gap-0.5 sm:gap-1 cursor-pointer">
               Learn more <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />

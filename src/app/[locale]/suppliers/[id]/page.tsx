@@ -294,7 +294,7 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ id: s
                             {product.current_quantity}
                           </td>
                           <td className="px-6 py-4 text-right text-gray-900 text-sm font-medium">
-                            ${product.unit_cost?.toFixed(2) || '0.00'}
+                            ${Number(product.unit_cost || 0).toFixed(2)}
                           </td>
                         </tr>
                       ))}

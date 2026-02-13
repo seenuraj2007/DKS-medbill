@@ -2,7 +2,7 @@
 
 import { useEffect, useState, memo, lazy, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
-import { Package, TrendingDown, AlertTriangle, Bell, LogOut, Plus, Search, ArrowUpRight, ArrowDownRight, MapPin, Truck, FileText, ArrowUpDown, Menu, X, Users, Zap, Settings, User, Calculator, ChevronRight, TrendingUp } from 'lucide-react'
+import { Package, TrendingDown, AlertTriangle, Bell, LogOut, Plus, Search, ArrowUpRight, ArrowDownRight, MapPin, Truck, FileText, ArrowUpDown, Menu, X, Users, Zap, Settings, User, Calculator, ChevronRight, TrendingUp, Receipt } from 'lucide-react'
 import Link from 'next/link'
 import { SubscriptionGate } from '@/components/SubscriptionGate'
 
@@ -45,9 +45,8 @@ const StatCard = memo(({ title, value, icon: Icon, color, trend }: StatCardProps
         <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
       </div>
       {trend !== undefined && (
-        <span className={`text-xs font-semibold flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 rounded-full ${
-          trend > 0 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'
-        }`}>
+        <span className={`text-xs font-semibold flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 rounded-full ${trend > 0 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'
+          }`}>
           {trend > 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
           <span className="hidden sm:inline">{Math.abs(trend)}</span>
         </span>
@@ -76,12 +75,10 @@ const LowStockItem = memo(({ item, onClick }: LowStockItemProps) => (
     onClick={onClick}
   >
     <div className="flex items-center gap-3 min-w-0 flex-1">
-      <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm ${
-        item.current_quantity === 0 ? 'bg-red-100' : 'bg-amber-100'
-      }`}>
-        <Package className={`w-4 h-4 ${
-          item.current_quantity === 0 ? 'text-red-600' : 'text-amber-600'
-        }`} />
+      <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm ${item.current_quantity === 0 ? 'bg-red-100' : 'bg-amber-100'
+        }`}>
+        <Package className={`w-4 h-4 ${item.current_quantity === 0 ? 'text-red-600' : 'text-amber-600'
+          }`} />
       </div>
       <div className="min-w-0 flex-1">
         <h3 className="font-semibold text-gray-900 text-sm truncate">{item.name}</h3>
@@ -217,7 +214,7 @@ export default function DashboardPage() {
                 <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
                   <Zap className="w-4 h-4" />
                 </div>
-                <span className="font-medium">Free Forever Plan - All features unlocked!</span>
+                <span className="font-medium">Free Plan - Lock in now before offer ends!</span>
               </div>
               <Link href="/subscription" className="text-sm font-medium text-green-700 hover:underline flex items-center gap-1 cursor-pointer">
                 Learn more <ChevronRight className="w-4 h-4" />
@@ -317,6 +314,16 @@ export default function DashboardPage() {
                     Billing / POS
                   </Link>
                   <Link
+                    href="/invoices"
+                    prefetch={true}
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-all cursor-pointer hover:shadow-md"
+                  >
+                    <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center">
+                      <Receipt className="w-5 h-5 text-gray-600" />
+                    </div>
+                    Invoices
+                  </Link>
+                  <Link
                     href="/alerts"
                     prefetch={true}
                     className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-all cursor-pointer hover:shadow-md"
@@ -358,7 +365,7 @@ export default function DashboardPage() {
                     Profile
                   </Link>
                   <Link
-                    href="/settings/organization"
+                    href="/settings"
                     prefetch={true}
                     className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-all cursor-pointer hover:shadow-md"
                   >

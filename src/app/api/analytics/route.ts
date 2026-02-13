@@ -48,65 +48,65 @@ export async function GET(req: NextRequest) {
 
     // Calculate analytics
     const totalProducts = products.length
-    const totalValue = products.reduce((sum, p) => {
+    const totalValue = products.reduce((sum: number, p: any) => {
       const cost = parseFloat(p.unitCost.toString())
-      const stockLevel = stockLevels.find(sl => sl.productId === p.id)
+      const stockLevel = stockLevels.find((sl: any) => sl.productId === p.id)
       const quantity = stockLevel?.quantity || 0
       return sum + (cost * quantity)
     }, 0)
 
-    const categories = [...new Set(products.map(p => p.category).filter(Boolean))].length
-    const withImages = products.filter(p => p.imageUrl).length
+    const categories = [...new Set(products.map((p: any) => p.category).filter(Boolean))].length
+    const withImages = products.filter((p: any) => p.imageUrl).length
 
     // Stock analytics
-    const lowStock = stockLevels.filter(sl => sl.quantity <= sl.reorderPoint && sl.quantity > 0).length
-    const outOfStock = stockLevels.filter(sl => sl.quantity === 0).length
+    const lowStock = stockLevels.filter((sl: any) => sl.quantity <= sl.reorderPoint && sl.quantity > 0).length
+    const outOfStock = stockLevels.filter((sl: any) => sl.quantity === 0).length
 
-    const stockValue = stockLevels.reduce((sum, sl) => {
+    const stockValue = stockLevels.reduce((sum: number, sl: any) => {
       const cost = parseFloat(sl.product.unitCost.toString())
       return sum + (sl.quantity * cost)
     }, 0)
 
-    const potentialRevenue = stockLevels.reduce((sum, sl) => {
+    const potentialRevenue = stockLevels.reduce((sum: number, sl: any) => {
       const price = parseFloat(sl.product.sellingPrice.toString())
       return sum + (sl.quantity * price)
     }, 0)
 
     // Alerts analytics
-    const byType = alerts.reduce((acc, alert) => {
+    const byType = alerts.reduce((acc: Record<string, number>, alert: any) => {
       acc[alert.type] = (acc[alert.type] || 0) + 1
       return acc
-    }, {} as Record<string, number>)
+    }, {})
 
-    const unreadAlerts = alerts.filter(a => !a.isRead).length
+    const unreadAlerts = alerts.filter((a: any) => !a.isRead).length
 
     // Revenue by day (from inventory events)
-    const byDay = revenueEvents.reduce((acc, event) => {
+    const byDay = revenueEvents.reduce((acc: Record<string, number>, event: any) => {
       const date = event.createdAt.toISOString().split('T')[0]
       acc[date] = (acc[date] || 0) + (event.quantityDelta > 0 ? -event.quantityDelta : event.quantityDelta)
       return acc
-    }, {} as Record<string, number>)
+    }, {})
 
     const revenueByDay = Object.entries(byDay).map(([date, amount]) => ({
       date,
-      revenue: Math.round(Math.abs(amount) * 100) / 100
+      revenue: Math.round(Math.abs(amount as number) * 100) / 100
     }))
 
     // Top products by stock value
     const topProducts = stockLevels
-      .map(sl => ({
+      .map((sl: any) => ({
         id: sl.product.id,
         name: sl.product.name,
         quantity: sl.quantity,
         value: sl.quantity * parseFloat(sl.product.unitCost.toString())
       }))
-      .sort((a, b) => b.value - a.value)
+      .sort((a: any, b: any) => b.value - a.value)
       .slice(0, 10)
 
     // Category breakdown
-    const categoryMap = products.reduce((acc, product) => {
+    const categoryMap = products.reduce((acc: Record<string, { count: number; value: number; revenue: number }>, product: any) => {
       const category = product.category || 'Uncategorized'
-      const stockLevel = stockLevels.find(sl => sl.productId === product.id)
+      const stockLevel = stockLevels.find((sl: any) => sl.productId === product.id)
       const quantity = stockLevel?.quantity || 0
       const cost = parseFloat(product.unitCost.toString())
       const price = parseFloat(product.sellingPrice.toString())
@@ -118,17 +118,17 @@ export async function GET(req: NextRequest) {
       acc[category].value += quantity * cost
       acc[category].revenue += quantity * price
       return acc
-    }, {} as Record<string, { count: number; value: number; revenue: number }>)
+    }, {})
 
     const categoryBreakdown = Object.entries(categoryMap).map(([category, stats]) => ({
       category,
-      ...stats,
-      value: Math.round(stats.value * 100) / 100,
-      revenue: Math.round(stats.revenue * 100) / 100
+      count: (stats as any).count,
+      value: Math.round((stats as any).value * 100) / 100,
+      revenue: Math.round((stats as any).revenue * 100) / 100
     }))
 
     // Supplier performance (from purchase orders)
-    const supplierMap = purchaseOrders.reduce((acc, po) => {
+    const supplierMap = purchaseOrders.reduce((acc: Record<string, { orders: number; total: number; items: number }>, po: any) => {
       const supplier = po.supplierName || 'Unknown'
       if (!acc[supplier]) {
         acc[supplier] = { orders: 0, total: 0, items: 0 }
@@ -136,19 +136,20 @@ export async function GET(req: NextRequest) {
       acc[supplier].orders++
       acc[supplier].total += parseFloat(po.totalAmount.toString())
       return acc
-    }, {} as Record<string, { orders: number; total: number; items: number }>)
+    }, {})
 
     const supplierPerformance = Object.entries(supplierMap).map(([supplierName, stats]) => ({
       supplierId: supplierName,
       supplierName,
-      ...stats,
-      total: Math.round(stats.total * 100) / 100
+      orders: (stats as any).orders,
+      items: (stats as any).items,
+      total: Math.round((stats as any).total * 100) / 100
     }))
 
     // Sales from inventory events
     const salesEvents = revenueEvents
     const totalSales = salesEvents.length
-    const salesTotal = salesEvents.reduce((sum, e) => {
+    const salesTotal = salesEvents.reduce((sum: number, e: any) => {
       const meta = e.metadata as Record<string, any> | null
       return sum + Math.abs(parseFloat(meta?.amount?.toString() || '0'))
     }, 0)
@@ -167,7 +168,7 @@ export async function GET(req: NextRequest) {
         withImages
       },
       stock: {
-        total: stockLevels.reduce((sum, sl) => sum + sl.quantity, 0),
+        total: stockLevels.reduce((sum: number, sl: any) => sum + sl.quantity, 0),
         lowStock,
         outOfStock,
         value: Math.round(stockValue * 100) / 100,

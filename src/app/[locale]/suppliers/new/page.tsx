@@ -27,7 +27,7 @@ const InputField = ({ label, icon: Icon, type = 'text', name, value, onChange, p
 )
 
 export default function SupplierFormPage({ params }: { params?: Promise<{ id?: string }> }) {
-  const resolvedParams = params ? use(params) : undefined
+  const resolvedParams = use(params || Promise.resolve({ id: undefined }))
   const router = useRouter()
   const isEdit = !!resolvedParams?.id
   const [loading, setLoading] = useState(false)

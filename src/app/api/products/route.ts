@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
       }
     })
 
-    const stockByProductId = stockLevels.reduce((acc, sl) => {
+    const stockByProductId = stockLevels.reduce((acc: any, sl: any) => {
       if (!acc[sl.productId]) {
         acc[sl.productId] = { quantity: 0, reorderPoint: sl.reorderPoint }
       }
@@ -71,8 +71,8 @@ export async function GET(req: NextRequest) {
         supplier_name: product.supplierName,
         supplier_email: product.supplierEmail,
         supplier_phone: product.supplierPhone,
-        unit_cost: product.unitCost,
-        selling_price: product.sellingPrice,
+        unit_cost: product.unitCost ? Number(product.unitCost) : 0,
+        selling_price: product.sellingPrice ? Number(product.sellingPrice) : 0,
         unit: product.unit,
         image_url: product.imageUrl,
         is_active: product.isActive,
@@ -100,11 +100,6 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const accessToken = req.cookies.get('sb-access-token')?.value
-    if (!accessToken) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     const user = await getUserFromRequest(req)
 
     if (!user || !user.tenantId) {
@@ -211,8 +206,8 @@ export async function POST(req: NextRequest) {
       supplier_name: product.supplierName,
       supplier_email: product.supplierEmail,
       supplier_phone: product.supplierPhone,
-      unit_cost: product.unitCost,
-      selling_price: product.sellingPrice,
+      unit_cost: product.unitCost ? Number(product.unitCost) : 0,
+      selling_price: product.sellingPrice ? Number(product.sellingPrice) : 0,
       unit: product.unit,
       image_url: product.imageUrl,
       is_active: product.isActive,

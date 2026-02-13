@@ -1,32 +1,21 @@
 import { PrismaNeon } from '@prisma/adapter-neon';
-import { neon, neonConfig, PoolConfig } from '@neondatabase/serverless';
-import { PrismaClient } from '@prisma/client';
-import ws from 'ws';
+import { PrismaClient } from '../../prisma/generated/client';
 
-// CRITICAL for Node.js < v22: WebSocket polyfill
-neonConfig.webSocketConstructor = ws;
+// Get DATABASE_URL from environment
+const connectionString = process.env.DATABASE_URL;
 
-const neonUrl = process.env.DATABASE_URL;
-if (!neonUrl) {
+if (!connectionString) {
   throw new Error('DATABASE_URL not set in environment variables');
 }
 
-// Create PoolConfig for PrismaNeon
-const poolConfig: PoolConfig = {
-  connectionString: neonUrl,
-  max: 10,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000,
-};
-
-// Create PrismaNeon adapter with pool config
-const adapter = new PrismaNeon(poolConfig);
+// Create PrismaNeon adapter with just the connection string
+const adapter = new PrismaNeon({ connectionString });
 
 export const prisma = new PrismaClient({
   adapter,
-  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-}) as PrismaClient & {
-  $disconnect: () => Promise<void>;
-};
+  log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+});
+
+export type { PrismaClient } from '../../prisma/generated/client';
 
 export default prisma;

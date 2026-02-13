@@ -181,7 +181,7 @@ export class LocationRepository extends BaseRepository {
         },
       });
 
-      const totalValue = stockLevels.reduce((sum, sl) => {
+      const totalValue = stockLevels.reduce((sum: number, sl: any) => {
         return sum + sl.quantity * sl.product.unitCost.toNumber();
       }, 0);
 

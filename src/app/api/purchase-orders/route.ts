@@ -1,42 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { prisma } from '@/lib/prisma'
 import { getUserFromRequest, requireAuth } from '@/lib/auth'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-function createServiceClient() {
-  if (!supabaseServiceKey) {
-    throw new Error('SUPABASE_SERVICE_ROLE_KEY is not defined')
-  }
-  return createClient(supabaseUrl, supabaseServiceKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  })
-}
 
 export async function GET(req: NextRequest) {
   try {
     const user = await getUserFromRequest(req)
-    if (!user) {
+    if (!user || !user.tenantId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const supabase = createServiceClient()
-    const { data, error } = await supabase
-      .from('purchase_orders')
-      .select('*')
-      .eq('tenant_id', user.tenantId)
-      .order('created_at', { ascending: false })
+    const purchaseOrders = await prisma.purchaseOrder.findMany({
+      where: {
+        tenantId: user.tenantId
+      },
+      include: {
+        items: {
+          include: {
+            product: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    })
 
-    if (error) {
-      console.error('Purchase orders fetch error:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
-    }
-
-    return NextResponse.json({ purchaseOrders: data || [] })
+    return NextResponse.json({ purchaseOrders: purchaseOrders || [] })
   } catch (error) {
     console.error('Purchase orders API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -46,7 +35,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const user = await requireAuth(req)
-    if (!user) {
+    if (!user || !user.tenantId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -60,34 +49,43 @@ export async function POST(req: NextRequest) {
     // Generate order number
     const orderNumber = `PO-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
 
-    const supabase = createServiceClient()
-
     // Calculate total amount
     const totalAmount = items.reduce((sum: number, item: any) => sum + (item.quantity * item.unitCost), 0)
 
-    const { data, error } = await supabase
-      .from('purchase_orders')
-      .insert({
-        tenant_id: user.tenantId,
-        order_number: orderNumber,
-        supplier_name: supplierName,
-        supplier_email: supplierEmail,
-        supplier_phone: supplierPhone,
-        total_amount: totalAmount,
+    // Create purchase order with items
+    const purchaseOrder = await prisma.purchaseOrder.create({
+      data: {
+        tenantId: user.tenantId,
+        orderNumber: orderNumber,
+        supplierName: supplierName,
+        supplierEmail: supplierEmail,
+        supplierPhone: supplierPhone,
+        totalAmount: totalAmount,
         notes: notes,
-        ordered_by: user.userId,
-        ordered_at: new Date().toISOString(),
-        status: 'pending'
-      })
-      .select()
-      .single()
+        orderedBy: user.userId,
+        orderedAt: new Date(),
+        status: 'ORDERED',
+        items: {
+          create: items.map((item: any) => ({
+            tenantId: user.tenantId,
+            productId: item.productId,
+            quantity: item.quantity,
+            unitCost: item.unitCost,
+            totalCost: item.quantity * item.unitCost,
+            receivedQty: 0
+          }))
+        }
+      },
+      include: {
+        items: {
+          include: {
+            product: true
+          }
+        }
+      }
+    })
 
-    if (error) {
-      console.error('Purchase order creation error:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
-    }
-
-    return NextResponse.json({ purchaseOrder: data }, { status: 201 })
+    return NextResponse.json({ purchaseOrder: purchaseOrder }, { status: 201 })
   } catch (error) {
     console.error('Purchase order POST error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

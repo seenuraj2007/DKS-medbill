@@ -132,7 +132,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     }
   }
 
-  const getChangeTypeBadge = (type: string) => {
+  const getChangeTypeBadge = (type: string | undefined) => {
+    if (!type) return null
+    
     const badges = {
       add: 'bg-green-100 text-green-700',
       remove: 'bg-red-100 text-red-700',
@@ -144,8 +146,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
       restock: RotateCcw
     }
     const Icon = icons[type as keyof typeof icons]
+    const badgeClass = badges[type as keyof typeof badges]
+    
+    if (!Icon || !badgeClass) return null
+    
     return (
-      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${badges[type as keyof typeof badges]}`}>
+      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${badgeClass}`}>
         <Icon className="w-3 h-3" />
         {type.charAt(0).toUpperCase() + type.slice(1)}
       </span>
@@ -489,7 +495,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 {product.selling_price && (
                   <div className="flex justify-between py-2">
                     <span className="text-gray-500">Selling Price</span>
-                    <span className="font-semibold text-green-600">${product.selling_price.toFixed(2)}</span>
+                    <span className="font-semibold text-green-600">${Number(product.selling_price || 0).toFixed(2)}</span>
                   </div>
                 )}
               </div>

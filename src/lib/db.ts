@@ -114,7 +114,7 @@ export async function getProductTotalQuantity(productId: string): Promise<number
     where: { productId }
   })
 
-  return stockLevels.reduce((sum, item) => sum + item.quantity, 0)
+  return stockLevels.reduce((sum: number, item: any) => sum + item.quantity, 0)
 }
 
 export async function getProductQuantityAtLocation(
