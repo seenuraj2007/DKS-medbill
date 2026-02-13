@@ -36,17 +36,18 @@ export default function ProductsPage() {
     try {
       const res = await fetch('/api/products', {
         credentials: 'include',
-        next: { revalidate: 60 }
+        next: { revalidate: 0 }
       })
       if (res.status === 401) {
-        router.push('/auth?returnTo=/products')
+        router.push('/en/auth?returnTo=/products')
         return
       }
       const data = await res.json()
+      console.log('Products response:', data)
       if (res.ok) {
         setProducts(data.products || [])
       } else {
-        console.error('API Error:', data.error)
+        console.error('API Error:', data)
         setProducts([])
       }
     } catch (error) {
