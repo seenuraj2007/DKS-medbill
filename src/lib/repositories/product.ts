@@ -147,10 +147,14 @@ export class ProductRepository extends BaseRepository {
 
   async create(input: CreateProductInput) {
     return this.executeWithPrisma(async (prisma) => {
+      // Generate SKU if not provided (required field in schema)
+      const sku = input.sku || `SKU-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      
       const product = await prisma.product.create({
         data: {
           ...this.whereTenant,
           ...input,
+          sku,
           unitCost: input.unitCost || 0,
           sellingPrice: input.sellingPrice || 0,
           unit: input.unit || 'unit',
