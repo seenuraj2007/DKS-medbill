@@ -153,7 +153,7 @@ export default function SubscriptionPage() {
             <p className="text-gray-600 mb-8 text-lg">
               Create your organization to start using DKS StockAlert and access all features.
             </p>
-            <Link 
+            <Link
               href="/products/new"
               className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 text-white px-8 py-4 rounded-xl font-semibold hover:from-indigo-600 hover:via-purple-600 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl cursor-pointer"
             >
@@ -222,7 +222,7 @@ export default function SubscriptionPage() {
               <div>
                 <h3 className="font-semibold text-amber-800">Free Plan Limitations</h3>
                 <p className="text-amber-700 mt-1">
-                  You&apos;re on the free plan with limited features. Upgrade to Pro for unlimited access.
+                  You&apos;re on the free plan with limited features. Upgrade to Pro for full access.
                 </p>
               </div>
             </div>
@@ -328,20 +328,18 @@ export default function SubscriptionPage() {
               {plans.map((plan) => (
                 <div
                   key={plan.id}
-                  className={`bg-white/80 backdrop-blur-xl rounded-2xl border-2 p-6 transition-all duration-300 hover:shadow-xl ${
-                    isCurrentPlan(plan.id)
+                  className={`bg-white/80 backdrop-blur-xl rounded-2xl border-2 p-6 transition-all duration-300 hover:shadow-xl ${isCurrentPlan(plan.id)
                       ? 'border-indigo-500 shadow-lg ring-2 ring-indigo-500/10'
                       : 'border-gray-100 hover:border-gray-200'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                          plan.name === 'pro' ? 'bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg' :
-                          plan.name === 'starter' ? 'bg-gradient-to-br from-blue-500 to-indigo-600' :
-                          'bg-gradient-to-br from-gray-400 to-gray-500'
-                        }`}>
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${plan.name === 'pro' ? 'bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg' :
+                            plan.name === 'starter' ? 'bg-gradient-to-br from-blue-500 to-indigo-600' :
+                              'bg-gradient-to-br from-gray-400 to-gray-500'
+                          }`}>
                           <Crown className="w-5 h-5 text-white" />
                         </div>
                         <h3 className="text-xl font-bold text-gray-900">{plan.display_name}</h3>
@@ -381,11 +379,10 @@ export default function SubscriptionPage() {
                       <button
                         onClick={() => handleUpgrade(plan.id)}
                         disabled={isCurrentPlan(plan.id) || upgrading}
-                        className={`mt-4 px-6 py-2.5 rounded-xl font-medium transition-all flex items-center gap-2 shadow-lg ${
-                          isCurrentPlan(plan.id)
+                        className={`mt-4 px-6 py-2.5 rounded-xl font-medium transition-all flex items-center gap-2 shadow-lg ${isCurrentPlan(plan.id)
                             ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                             : 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 hover:shadow-xl hover:-translate-y-0.5 cursor-pointer'
-                        }`}
+                          }`}
                       >
                         {upgrading ? (
                           <Loader2 className="w-4 h-4 animate-spin" />

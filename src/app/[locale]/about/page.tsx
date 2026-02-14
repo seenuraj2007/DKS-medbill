@@ -1,9 +1,17 @@
 import Link from 'next/link'
 import { Package, ArrowLeft, Building2, Users, Target, Heart, Globe, Award } from 'lucide-react'
 
-export const metadata = {
-  title: 'About Us - DKS StockAlert',
-  description: 'Learn about DKS StockAlert and our mission.',
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'About DKS StockAlert - Free Open Source Inventory Management Company',
+  description: 'Learn about DKS StockAlert, India\'s leading free open source inventory management software company. Our mission is to help small businesses manage stock efficiently with GST compliance, multi-location support, and WhatsApp alerts.',
+  keywords: ['about DKS StockAlert', 'inventory management company India', 'open source inventory software', 'free stock management', 'GST inventory software company'],
+  openGraph: {
+    title: 'About DKS StockAlert - Free Open Source Inventory Management',
+    description: 'Learn about our mission to make inventory management accessible for Indian businesses with free open source software.',
+    type: 'website',
+  },
 }
 
 export default function AboutPage() {
@@ -94,18 +102,18 @@ export default function AboutPage() {
                   <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl flex items-center justify-center">
                     <Globe className="w-5 h-5 text-green-600" />
                   </div>
-                  <h2 className="text-2xl font-semibold text-gray-900">Made in India</h2>
+                  <h2 className="text-2xl font-semibold text-gray-900">Global Infrastructure</h2>
                 </div>
                 <p className="text-gray-600 mb-4">
-                  StockAlert is proudly built in India, with 100% of our team based here. We understand the unique challenges faced by Indian businesses and have designed our platform specifically for them.
+                  StockAlert is built with a global infrastructure approach, ensuring reliability and performance for users worldwide.
                 </p>
                 <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100/50">
                   <div className="flex items-start gap-4">
                     <Award className="w-6 h-6 text-green-600 mt-1 flex-shrink-0" />
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-2">Data Stored in India</h3>
+                      <h3 className="font-semibold text-gray-900 mb-2">Enterprise-Grade Security</h3>
                       <p className="text-gray-600 text-sm">
-                        All your data is stored within India, complying with data localization requirements. We are ISO 27001 certified, ensuring the highest standards of information security.
+                        We are ISO 27001 certified, ensuring the highest standards of information security for your data.
                       </p>
                     </div>
                   </div>

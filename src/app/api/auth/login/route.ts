@@ -12,21 +12,21 @@ export async function POST(req: NextRequest) {
 
     // Check rate limit
     const rateLimit = checkLoginRateLimit(validatedData.email)
-    
+
     if (!rateLimit.allowed) {
       return NextResponse.json(
-        { 
+        {
           error: 'Too many login attempts. Please try again later.',
           retryAfter: rateLimit.retryAfter
         },
-        { 
+        {
           status: 429,
           headers: { 'Retry-After': rateLimit.retryAfter.toString() }
         }
       )
     }
 
-    // Use our custom signIn function with Neon auth
+    // Use our custom signIn function with bcrypt password verification
     const result = await signIn(validatedData.email, validatedData.password)
 
     if (!result) {
@@ -64,7 +64,8 @@ export async function POST(req: NextRequest) {
       role: member?.role || 'MEMBER',
       status: 'active',
       created_at: user.created_at,
-      tenant_id: tenant.id
+      tenant_id: tenant.id,
+      emailVerified: user.emailVerified
     }
 
     // Set session token cookie
@@ -79,8 +80,6 @@ export async function POST(req: NextRequest) {
 
     const response = NextResponse.json({ user: responseUser }, { status: 200 })
 
-    // Add domain in production for proper cookie sharing across subdomains
-    // Remove domain setting to avoid cookie issues
     response.cookies.set('auth_token', token, cookieOptions)
 
     // Add rate limit headers

@@ -163,7 +163,7 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
                       </div>
                       <div className="flex items-center gap-2 text-sm text-gray-700">
                         <MessageSquare className="w-4 h-4 text-green-600" />
-                        Bilingual messages (English + Hindi)
+                        Instant messaging
                       </div>
                       <div className="flex items-center gap-2 text-sm text-gray-700">
                         <Bell className="w-4 h-4 text-indigo-500" />
@@ -230,7 +230,7 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
             <div>
               <h3 className="text-lg font-semibold text-gray-900">Why DKS StockAlert?</h3>
               <p className="text-gray-500 mt-1 mb-4">
-                We are the only inventory software in India with these killer features:
+                We have these killer features:
               </p>
               <div className="grid gap-3">
                 <div className="flex items-center gap-3">
@@ -249,11 +249,11 @@ export default async function SettingsPage(props: { params: Promise<{ locale: st
                   <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
                     <Globe className="w-4 h-4 text-orange-600" />
                   </div>
-                  <span className="text-gray-700"><span className="text-orange-600 font-semibold">Complete Hindi Support</span> - Manage your business in हिंदी</span>
+                  <span className="text-gray-700"><span className="text-orange-600 font-semibold">Multi-language Support</span> - Reach a broader audience</span>
                 </div>
               </div>
               <p className="text-gray-500 mt-4 text-sm">
-                Your data is securely stored in India with enterprise-grade encryption.
+                Your data is securely stored with enterprise-grade encryption.
               </p>
             </div>
           </div>

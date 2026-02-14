@@ -1,9 +1,17 @@
 import Link from 'next/link'
 import { Package, ArrowLeft, FileText, Calendar, User, Clock } from 'lucide-react'
 
-export const metadata = {
-  title: 'Blog - DKS StockAlert',
-  description: 'Latest news and updates from DKS StockAlert.',
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Inventory Management Blog - Tips, Guides & Industry News | DKS StockAlert',
+  description: 'Read the latest inventory management tips, GST compliance guides, small business advice, and industry news on the DKS StockAlert blog. Learn how to optimize your stock management.',
+  keywords: ['inventory management blog', 'stock management tips', 'GST compliance guide', 'small business inventory', 'warehouse management tips', 'inventory software tutorials'],
+  openGraph: {
+    title: 'DKS StockAlert Blog - Inventory Management Insights',
+    description: 'Expert tips and guides on inventory management, GST compliance, and small business operations.',
+    type: 'website',
+  },
 }
 
 const blogPosts = [

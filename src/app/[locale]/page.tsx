@@ -201,7 +201,7 @@ export default function HomePage() {
 
       {/* Beta Banner */}
       <div className="fixed top-0 left-0 right-0 z-[60] bg-gradient-to-r from-green-600 to-emerald-600 text-white py-2 px-4 text-center text-sm">
-        <span className="font-bold">🚀 OPEN SOURCE:</span> This project is open source — 
+        <span className="font-bold">🚀 OPEN SOURCE:</span> This project is open source —
         <a href="https://github.com/seenuraj2007/stockalert" target="_blank" rel="noopener noreferrer" className="underline font-medium ml-1 hover:text-white">Star on GitHub →</a>
       </div>
 
@@ -311,20 +311,7 @@ export default function HomePage() {
               <span className="bg-gradient-to-r from-white via-white to-white/70 bg-clip-text text-transparent">Inventory Management</span>
               <br />
               <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent relative inline-block">
-                Built for India.
-                <motion.div
-                  className="absolute -inset-2 bg-gradient-to-r from-violet-500/20 via-fuchsia-500/20 to-cyan-500/20 blur-2xl -z-10"
-                  animate={{
-                    opacity: [0.2, 0.4, 0.2],
-                    scale: [1, 1.05, 1],
-                  }}
-                  transition={{
-                    duration: 6,
-                    repeat: Infinity,
-                    ease: [0.4, 0, 0.2, 1],
-                    times: [0, 0.5, 1],
-                  }}
-                />
+                Built for Modern Businesses.
               </span>
             </motion.h1>
 
@@ -332,7 +319,7 @@ export default function HomePage() {
               className="text-xl text-white/60 mb-10 max-w-2xl mx-auto leading-relaxed"
               variants={itemVariants}
             >
-              The only <span className="text-green-400 font-semibold">open source</span> inventory software with 
+              The only <span className="text-green-400 font-semibold">open source</span> inventory software with
               <span className="text-amber-400 font-semibold"> WhatsApp alerts (Coming Soon)</span>,
               <span className="text-blue-400 font-semibold"> 1-click Tally import</span>, and
               <span className="text-green-400 font-semibold"> in-app notifications</span>.
@@ -371,10 +358,6 @@ export default function HomePage() {
                   }}
                 />
                 No credit card required
-              </div>
-              <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-violet-400" />
-                Data stored in India
               </div>
               <div className="flex items-center gap-2">
                 <Receipt className="w-4 h-4 text-violet-400" />
@@ -511,7 +494,7 @@ export default function HomePage() {
               <p className="text-white/60 mb-3">Coming Soon: Get instant low stock and out-of-stock alerts directly on your phone via WhatsApp.</p>
               <div className="text-xs text-slate-400 mb-3">Stay tuned for updates</div>
               <div className="mt-2 inline-flex items-center gap-1 text-gray-400 text-sm font-medium">
-                < Clock className="w-4 h-4" />
+                <Clock className="w-4 h-4" />
                 <span>COMING SOON</span>
               </div>
             </div>
@@ -564,7 +547,7 @@ export default function HomePage() {
               <span className="bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">Everything You Need to Manage Inventory</span>
             </h2>
             <p className="text-xl text-white/60 max-w-2xl mx-auto leading-relaxed">
-              Stop juggling Excel sheets. Get real-time visibility into your stock across all locations with powerful features designed for Indian businesses.
+              Stop juggling Excel sheets. Get real-time visibility into your stock across all locations with powerful features designed for your business.
             </p>
           </motion.div>
 
@@ -690,7 +673,7 @@ export default function HomePage() {
                 <tr>
                   <td className="py-4 px-6 text-white font-medium">Free Trial</td>
                   <td className="py-4 px-6 text-center">
-                    <span className="text-green-400 font-medium">Forever</span>
+                    <span className="text-green-400 font-medium">Free</span>
                   </td>
                   <td className="py-4 px-6 text-center text-white/60">14 days</td>
                   <td className="py-4 px-6 text-center text-white/60">—</td>
@@ -876,18 +859,6 @@ export default function HomePage() {
                   <div className="w-5 h-5 rounded-full bg-violet-500/20 flex items-center justify-center flex-shrink-0">
                     <CheckCircle className="w-3.5 h-3.5 text-violet-400" />
                   </div>
-                  <span className="text-white/80 font-semibold text-gray-400">🔔 Email alerts (UNLIMITED FREE)</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full bg-violet-500/20 flex items-center justify-center flex-shrink-0">
-                    <CheckCircle className="w-3.5 h-3.5 text-violet-400" />
-                  </div>
-                  <span className="text-white/80">✅ Email notifications (UNLIMITED FREE)</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full bg-violet-500/20 flex items-center justify-center flex-shrink-0">
-                    <CheckCircle className="w-3.5 h-3.5 text-violet-400" />
-                  </div>
                   <span className="text-white/80 font-semibold text-blue-400">📊 Tally import</span>
                 </li>
                 <li className="flex items-center gap-3">
@@ -965,11 +936,6 @@ export default function HomePage() {
                   <span className="text-white/80">Dedicated account manager</span>
                 </li>
               </ul>
-
-              <Link href="/contact" className="block w-full py-4 px-6 text-center font-semibold rounded-xl bg-white/10 text-white hover:bg-white/15 border border-white/10 transition-all">
-                Contact Sales
-              </Link>
-              <p className="text-center text-white/50 text-sm mt-3">Tailored for your business</p>
             </motion.div>
           </div>
 
@@ -988,7 +954,7 @@ export default function HomePage() {
               <div className="w-px h-4 bg-white/20" />
               <div className="flex items-center gap-2 text-white/60 text-sm">
                 <Database className="w-5 h-5 text-violet-400" />
-                <span>Data stored in India</span>
+                <span>Secure cloud storage</span>
               </div>
               <div className="w-px h-4 bg-white/20" />
               <div className="flex items-center gap-2 text-white/60 text-sm">
@@ -1017,17 +983,13 @@ export default function HomePage() {
             <div className="relative">
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Ready to Stop Using Excel?</h2>
               <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
-                Join thousands of Indian businesses managing their inventory smarter with DKS StockAlert.
+                Join thousands of businesses managing their inventory smarter with DKS StockAlert.
               </p>
               <Link href="/auth" className="inline-flex items-center gap-2 bg-white text-violet-600 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/90 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-0.5 cursor-pointer">
                 Get Free Access Now
                 <ChevronRight className="w-5 h-5" />
               </Link>
               <div className="flex flex-wrap items-center justify-center gap-6 mt-8 text-white/60 text-sm">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-400" />
-                  <span>Open source forever</span>
-                </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-green-400" />
                   <span>No vendor lock-in</span>
@@ -1053,7 +1015,7 @@ export default function HomePage() {
                 <span className="text-xl font-bold text-white">DKS StockAlert</span>
               </Link>
               <p className="text-sm leading-relaxed mb-4 max-w-sm">
-                Open source inventory management software built for Indian businesses. Track stock, generate GST invoices, and manage multiple locations with ease.
+                Open source inventory management software built for businesses. Track stock, generate invoices, and manage multiple locations with ease.
               </p>
               <div className="flex flex-wrap gap-2 mb-4">
                 <a href="https://github.com/seenuraj2007/stockalert" target="_blank" rel="noopener noreferrer" className="px-3 py-1 bg-green-500/20 text-green-400 text-xs rounded-full hover:bg-green-500/30 transition-colors flex items-center gap-1">
@@ -1061,11 +1023,10 @@ export default function HomePage() {
                   Star on GitHub
                 </a>
                 <span className="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full">Tally Import</span>
-                <span className="px-3 py-1 bg-orange-500/20 text-orange-400 text-xs rounded-full">Hindi Support</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-white/50">
-                <MapPin className="w-4 h-4" />
-                <span>Made with <Heart className="w-3 h-3 text-red-400 inline" /> in India</span>
+                <Heart className="w-4 h-4 text-red-400" />
+                <span>Made with care</span>
               </div>
             </div>
 
@@ -1084,7 +1045,6 @@ export default function HomePage() {
               <ul className="space-y-3 text-sm">
                 <li><a href="https://github.com/seenuraj2007/stockalert" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors cursor-pointer flex items-center gap-2"><Github className="w-4 h-4" /> GitHub</a></li>
                 <li><Link href="/about" className="hover:text-white transition-colors cursor-pointer">About</Link></li>
-                <li><Link href="/contact" className="hover:text-white transition-colors cursor-pointer">Contact</Link></li>
               </ul>
             </div>
           </div>
@@ -1100,10 +1060,6 @@ export default function HomePage() {
                 <span className="flex items-center gap-1">
                   <Shield className="w-3 h-3 text-green-400" />
                   ISO 27001
-                </span>
-                <span className="flex items-center gap-1">
-                  <Database className="w-3 h-3 text-violet-400" />
-                  Indian Servers
                 </span>
                 <span className="flex items-center gap-1">
                   <Receipt className="w-3 h-3 text-blue-400" />

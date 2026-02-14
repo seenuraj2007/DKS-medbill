@@ -1,9 +1,17 @@
 import Link from 'next/link'
 import { Package, ArrowLeft, Puzzle, ShoppingCart, Zap, Globe, Database, CreditCard, MessageSquare, BarChart3 } from 'lucide-react'
 
-export const metadata = {
-  title: 'Integrations - DKS StockAlert',
-  description: 'Integrate DKS StockAlert with your favorite tools.',
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Integrations - Connect DKS StockAlert with Your Tools | Tally, WhatsApp, Shopify',
+  description: 'Integrate DKS StockAlert with Tally, WhatsApp Business, Shopify, WooCommerce, Cashfree, and more. Connect your existing tools for seamless inventory management and automated workflows.',
+  keywords: ['inventory software integrations', 'Tally integration', 'WhatsApp inventory alerts', 'Shopify inventory sync', 'WooCommerce stock management', 'Cashfree billing integration', 'inventory API'],
+  openGraph: {
+    title: 'DKS StockAlert Integrations - Connect Your Business Tools',
+    description: 'Seamlessly integrate with Tally, WhatsApp, Shopify, and 20+ other business tools. Automate your inventory workflows.',
+    type: 'website',
+  },
 }
 
 const integrations = [
@@ -102,11 +110,10 @@ export default function IntegrationsPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <h3 className="text-xl font-bold text-white">{integration.name}</h3>
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                      integration.status === 'Available'
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${integration.status === 'Available'
                         ? 'bg-white/20 text-white'
                         : 'bg-white/30 text-white/80'
-                    }`}>
+                      }`}>
                       {integration.status}
                     </span>
                   </div>
@@ -122,11 +129,10 @@ export default function IntegrationsPage() {
                     ))}
                   </ul>
                   <button
-                    className={`mt-4 w-full py-2.5 rounded-xl font-semibold transition-all ${
-                      integration.status === 'Available'
+                    className={`mt-4 w-full py-2.5 rounded-xl font-semibold transition-all ${integration.status === 'Available'
                         ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 shadow-md hover:shadow-lg'
                         : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    }`}
+                      }`}
                     disabled={integration.status !== 'Available'}
                   >
                     {integration.status === 'Available' ? 'Connect' : 'Coming Soon'}
@@ -142,10 +148,10 @@ export default function IntegrationsPage() {
               We can help you build custom integrations with your existing systems. Contact our team to discuss your requirements.
             </p>
             <Link
-              href="/contact"
+              href="/auth"
               className="inline-block bg-white text-indigo-600 px-8 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors shadow-lg"
             >
-              Contact Sales
+              Get Started
             </Link>
           </div>
         </div>

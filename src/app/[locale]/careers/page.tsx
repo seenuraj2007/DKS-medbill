@@ -1,16 +1,24 @@
 import Link from 'next/link'
 import { Package, ArrowLeft, Briefcase, MapPin, Globe, Users, Target } from 'lucide-react'
 
-export const metadata = {
-  title: 'Careers - StockAlert',
-  description: 'Join the StockAlert team and help build the future of inventory management.',
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Careers at DKS StockAlert - Join Our Team | Remote Jobs India',
+  description: 'Join DKS StockAlert and work on open source inventory management software. We are hiring developers, designers, and product managers. Remote-first culture. Competitive salaries.',
+  keywords: ['DKS StockAlert careers', 'inventory software jobs', 'remote developer jobs India', 'open source jobs', 'React developer jobs', 'Next.js jobs', 'tech jobs Bangalore'],
+  openGraph: {
+    title: 'Careers at DKS StockAlert - Build the Future of Inventory Management',
+    description: 'Join our team building open source inventory management software. Remote-first, great culture, competitive pay.',
+    type: 'website',
+  },
 }
 
 const openings = [
   {
     title: 'Full Stack Developer',
     department: 'Engineering',
-    location: 'Bangalore, India (Remote)',
+    location: 'Bangalore (Remote)',
     type: 'Full-time',
     description: 'Build and maintain our web application using Next.js, React, and Supabase. You will work on features that directly impact our customers.',
     responsibilities: [
@@ -32,7 +40,7 @@ const openings = [
   {
     title: 'Product Designer',
     department: 'Design',
-    location: 'Mumbai, India (Hybrid)',
+    location: 'Mumbai (Hybrid)',
     type: 'Full-time',
     description: 'Create intuitive and beautiful user experiences for our inventory management platform. You will shape the product from concept to implementation.',
     responsibilities: [
@@ -179,10 +187,10 @@ export default function CareersPage() {
                   We&apos;re always looking for talented people. Send us your resume and tell us how you can contribute.
                 </p>
                 <Link
-                  href="/contact"
+                  href="/auth"
                   className="inline-block bg-white text-indigo-600 px-6 py-2.5 rounded-xl font-semibold hover:bg-gray-100 transition-colors shadow-md"
                 >
-                  Contact Us
+                  Apply Now
                 </Link>
               </div>
             </div>

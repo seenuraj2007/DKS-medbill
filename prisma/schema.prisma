@@ -8,19 +8,41 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
-  name          String?
-  passwordHash  String?  @map("password_hash")
-  metadata      Json?
-  emailVerified Boolean  @default(false) @map("email_verified")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  id                        String   @id @default(uuid())
+  email                     String   @unique
+  name                      String?
+  passwordHash              String?  @map("password_hash")
+  metadata                  Json?
+  emailVerified             Boolean  @default(false) @map("email_verified")
+  emailVerificationToken    String?  @map("email_verification_token")
+  emailVerificationExpires  DateTime? @map("email_verification_expires")
+  createdAt                 DateTime @default(now()) @map("created_at")
+  updatedAt                 DateTime @updatedAt @map("updated_at")
 
   members Member[]
   passwordResetTokens PasswordResetToken[]
+  oauthAccounts OAuthAccount[]
 
+  @@index([emailVerificationToken])
   @@map("users")
+}
+
+model OAuthAccount {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  provider     String   // google, github, etc.
+  providerAccountId String @map("provider_account_id")
+  accessToken  String?  @map("access_token")
+  refreshToken String?  @map("refresh_token")
+  expiresAt    DateTime? @map("expires_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("oauth_accounts")
 }
 
 model PasswordResetToken {

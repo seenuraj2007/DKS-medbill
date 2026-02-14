@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { prisma } from '@/lib/prisma'
-import bcrypt from 'bcryptjs'
+import { resetPassword } from '@/lib/auth'
 
 const resetPasswordSchema = z.object({
   token: z.string().min(1, 'Token is required'),
-  password: z.string().min(6, 'Password must be at least 6 characters')
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(100, 'Password too long')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
 })
 
 export async function POST(req: NextRequest) {
@@ -13,51 +17,14 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { token, password } = resetPasswordSchema.parse(body)
 
-    // Find valid token
-    const resetToken = await prisma.passwordResetToken.findUnique({
-      where: { token },
-      include: { user: true }
-    })
+    const success = await resetPassword(token, password)
 
-    if (!resetToken) {
+    if (!success) {
       return NextResponse.json(
         { error: 'Invalid or expired reset token' },
         { status: 400 }
       )
     }
-
-    // Check if token is expired
-    if (new Date() > resetToken.expiresAt) {
-      return NextResponse.json(
-        { error: 'Reset token has expired. Please request a new one.' },
-        { status: 400 }
-      )
-    }
-
-    // Check if token has already been used
-    if (resetToken.usedAt) {
-      return NextResponse.json(
-        { error: 'This reset link has already been used.' },
-        { status: 400 }
-      )
-    }
-
-    // Hash new password
-    const passwordHash = await bcrypt.hash(password, 10)
-
-    // Update user password
-    await prisma.user.update({
-      where: { id: resetToken.userId },
-      data: { passwordHash }
-    })
-
-    // Mark token as used
-    await prisma.passwordResetToken.update({
-      where: { id: resetToken.id },
-      data: { usedAt: new Date() }
-    })
-
-    console.log('Password reset successful for user:', resetToken.user.email)
 
     return NextResponse.json(
       { message: 'Password reset successful. You can now log in with your new password.' },
@@ -67,7 +34,12 @@ export async function POST(req: NextRequest) {
     console.error('Reset password error:', error)
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation failed', details: error.issues },
+        {
+          error: 'Validation failed', details: error.issues.map(e => ({
+            field: e.path.join('.'),
+            message: e.message
+          }))
+        },
         { status: 400 }
       )
     }

@@ -16,7 +16,7 @@ const techStack = [
 function Marquee({ items }: { items: typeof techStack }) {
   return (
     <div className="relative overflow-hidden">
-      <motion.div 
+      <motion.div
         className="flex gap-12"
         animate={{
           x: [0, -2000],
@@ -31,8 +31,8 @@ function Marquee({ items }: { items: typeof techStack }) {
         }}
       >
         {[...items, ...items, ...items, ...items].map((item, i) => (
-          <div 
-            key={`${item.name}-${i}`} 
+          <div
+            key={`${item.name}-${i}`}
             className="flex items-center gap-3 px-6 py-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm"
           >
             <item.icon className={`w-5 h-5 ${item.color}`} />
@@ -201,7 +201,7 @@ export default function PricingPage() {
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">DKS StockAlert</span>
             </Link>
-            
+
             <div className="hidden md:flex items-center gap-8">
               <Link href="/" className="text-white/60 hover:text-white transition-colors cursor-pointer font-medium">Home</Link>
               <span className="text-violet-400 font-medium px-3 py-2">Pricing</span>
@@ -221,7 +221,7 @@ export default function PricingPage() {
       </nav>
 
       <main className="pt-32 pb-20 px-4 relative">
-        <motion.div 
+        <motion.div
           className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 rounded-full blur-3xl pointer-events-none"
           animate={{
             scale: [1, 1.15, 1],
@@ -236,7 +236,7 @@ export default function PricingPage() {
             times: [0, 0.5, 1],
           }}
         />
-        <motion.div 
+        <motion.div
           className="absolute top-1/3 right-1/4 w-96 h-96 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-full blur-3xl pointer-events-none"
           animate={{
             scale: [1, 1.2, 1],
@@ -254,26 +254,26 @@ export default function PricingPage() {
         />
 
         <div className="max-w-7xl mx-auto relative">
-          <motion.div 
+          <motion.div
             className="text-center mb-16"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
           >
-            <motion.div 
+            <motion.div
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/5 backdrop-blur-xl border border-white/10 text-violet-300 rounded-full text-sm font-semibold mb-8"
               variants={itemVariants}
             >
               <Zap className="w-4 h-4 text-violet-400" />
               30-day free trial - No credit card required
             </motion.div>
-            <motion.h1 
+            <motion.h1
               className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6"
               variants={itemVariants}
             >
               <span className="bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">Simple, Transparent Pricing</span>
             </motion.h1>
-            <motion.p 
+            <motion.p
               className="text-xl text-white/60 max-w-2xl mx-auto leading-relaxed"
               variants={itemVariants}
             >
@@ -281,7 +281,7 @@ export default function PricingPage() {
             </motion.p>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20"
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -295,7 +295,7 @@ export default function PricingPage() {
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
-                transition={{ 
+                transition={{
                   delay: i * 0.08,
                   duration: 0.8,
                   ease: [0.4, 0, 0.2, 1],
@@ -303,7 +303,7 @@ export default function PricingPage() {
                 whileHover={{ scale: 1.02, y: -8 }}
               >
                 {plan.popular && (
-                  <motion.div 
+                  <motion.div
                     className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white text-sm font-semibold rounded-full shadow-lg shadow-violet-500/50"
                     animate={{
                       scale: [1, 1.03, 1],
@@ -323,62 +323,62 @@ export default function PricingPage() {
                     Most Popular
                   </motion.div>
                 )}
-                  <div className="mb-6">
-                    <div className={`w-14 h-14 rounded-2xl ${plan.popular ? 'bg-gradient-to-br from-violet-500 to-fuchsia-600 shadow-lg shadow-violet-500/20' : 'bg-gradient-to-br from-white/10 to-white/5'} flex items-center justify-center mb-6`}>
-                      <plan.icon className="w-7 h-7 text-white" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-white mb-2">{plan.display_name}</h3>
-                    <p className="text-white/60 mb-4">{plan.description}</p>
-                    <div className="mb-6">
-                      <span className="text-4xl font-bold text-white">{plan.price_display}</span>
-                      <span className="text-white/60">/month</span>
-                    </div>
+                <div className="mb-6">
+                  <div className={`w-14 h-14 rounded-2xl ${plan.popular ? 'bg-gradient-to-br from-violet-500 to-fuchsia-600 shadow-lg shadow-violet-500/20' : 'bg-gradient-to-br from-white/10 to-white/5'} flex items-center justify-center mb-6`}>
+                    <plan.icon className="w-7 h-7 text-white" />
                   </div>
-                  <ul className="space-y-3 mb-8">
-                    {plan.features.map((feature, j) => (
-                      <li key={j} className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full ${plan.popular ? 'bg-violet-500/20' : 'bg-green-500/20'} flex items-center justify-center flex-shrink-0`}>
-                          <CheckCircle className={`w-3.5 h-3.5 ${plan.popular ? 'text-violet-400' : 'text-green-400'}`} />
-                        </div>
-                        <span className="text-white/60 text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <Link
-                    href="/auth"
-                    className={`block w-full py-3.5 px-6 text-center font-semibold rounded-xl transition-all duration-300 ${plan.popular 
-                      ? 'bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white hover:from-violet-600 hover:to-fuchsia-700 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40' 
-                      : 'bg-white/10 text-white hover:bg-white/15 border border-white/10'}`}
-                  >
-                    {plan.cta}
-                  </Link>
-                  {plan.price === 0 && (
-                    <p className="text-center text-white/50 text-sm mt-4">No credit card required</p>
-                  )}
-                  {plan.price > 0 && (
-                    <p className="text-center text-white/50 text-sm mt-4 flex items-center justify-center gap-2">
-                      <Shield className="w-4 h-4 text-violet-400" />
-                      30-day free trial, no credit card • UPI accepted
-                    </p>
-                  )}
+                  <h3 className="text-2xl font-bold text-white mb-2">{plan.display_name}</h3>
+                  <p className="text-white/60 mb-4">{plan.description}</p>
+                  <div className="mb-6">
+                    <span className="text-4xl font-bold text-white">{plan.price_display}</span>
+                    <span className="text-white/60">/month</span>
+                  </div>
+                </div>
+                <ul className="space-y-3 mb-8">
+                  {plan.features.map((feature, j) => (
+                    <li key={j} className="flex items-center gap-3">
+                      <div className={`w-5 h-5 rounded-full ${plan.popular ? 'bg-violet-500/20' : 'bg-green-500/20'} flex items-center justify-center flex-shrink-0`}>
+                        <CheckCircle className={`w-3.5 h-3.5 ${plan.popular ? 'text-violet-400' : 'text-green-400'}`} />
+                      </div>
+                      <span className="text-white/60 text-sm">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href="/auth"
+                  className={`block w-full py-3.5 px-6 text-center font-semibold rounded-xl transition-all duration-300 ${plan.popular
+                    ? 'bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white hover:from-violet-600 hover:to-fuchsia-700 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40'
+                    : 'bg-white/10 text-white hover:bg-white/15 border border-white/10'}`}
+                >
+                  {plan.cta}
+                </Link>
+                {plan.price === 0 && (
+                  <p className="text-center text-white/50 text-sm mt-4">No credit card required</p>
+                )}
+                {plan.price > 0 && (
+                  <p className="text-center text-white/50 text-sm mt-4 flex items-center justify-center gap-2">
+                    <Shield className="w-4 h-4 text-violet-400" />
+                    30-day free trial, no credit card • UPI accepted
+                  </p>
+                )}
               </motion.div>
-             ))}
-           </motion.div>
-           <motion.div
-             className="mt-8 text-center"
-             initial={{ opacity: 0, y: 20 }}
-             whileInView={{ opacity: 1, y: 0 }}
-             viewport={{ once: true }}
-             transition={{ duration: 0.6 }}
-           >
-             <p className="text-white/50 text-sm mb-2">Accepts UPI, GPay, PhonePe, Net Banking & Credit Cards</p>
-             <div className="flex items-center justify-center gap-2">
-               <Shield className="w-4 h-4 text-green-400" />
-               <span className="text-white/60 text-sm">Powered by Cashfree • Secure Payments</span>
-             </div>
-           </motion.div>
+            ))}
+          </motion.div>
+          <motion.div
+            className="mt-8 text-center"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <p className="text-white/50 text-sm mb-2">Accepts UPI, GPay, PhonePe, Net Banking & Credit Cards</p>
+            <div className="flex items-center justify-center gap-2">
+              <Shield className="w-4 h-4 text-green-400" />
+              <span className="text-white/60 text-sm">Powered by Cashfree • Secure Payments</span>
+            </div>
+          </motion.div>
 
-           <motion.div
+          <motion.div
             className="bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 overflow-hidden mb-20 mt-10"
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -389,7 +389,7 @@ export default function PricingPage() {
               <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent text-center">Feature Comparison</h2>
               <p className="text-white/60 text-center mt-2">See exactly what&apos;s included in each plan</p>
             </div>
-            
+
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
@@ -456,7 +456,7 @@ export default function PricingPage() {
             </div>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             className="mb-20"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -464,16 +464,16 @@ export default function PricingPage() {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent text-center mb-12">Frequently Asked Questions</h2>
-            
+
             <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
               {faqs.map((faq, i) => (
-                <motion.div 
-                  key={i} 
+                <motion.div
+                  key={i}
                   className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-violet-500/30 transition-all duration-300 group"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-50px" }}
-                  transition={{ 
+                  transition={{
                     delay: i * 0.05,
                     duration: 0.6,
                   }}
@@ -493,12 +493,12 @@ export default function PricingPage() {
             </div>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             className="bg-gradient-to-br from-violet-600/90 to-fuchsia-600/90 backdrop-blur-xl rounded-3xl p-8 md:p-12 shadow-2xl text-center relative overflow-hidden border border-white/10"
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
-            transition={{ 
+            transition={{
               duration: 0.9,
               ease: [0.4, 0, 0.2, 1],
             }}
@@ -522,7 +522,7 @@ export default function PricingPage() {
                 </Link>
               </div>
               <p className="text-white/60 text-sm mt-6 flex items-center justify-center gap-2">
-                <motion.span 
+                <motion.span
                   className="w-2 h-2 bg-green-400 rounded-full shadow-[0_0_10px_rgba(74,222,128,0.5)]"
                   animate={{
                     scale: [1, 1.2, 1],
@@ -573,12 +573,12 @@ export default function PricingPage() {
               </ul>
             </div>
           </div>
-          
+
           <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between">
             <div className="flex flex-col items-center md:items-start gap-1">
               <p className="text-sm">© {new Date().getFullYear()} DKS StockAlert. All rights reserved.</p>
               <p className="text-xs text-white/40 flex items-center gap-1">
-                Made with ❤️ in India • <span className="text-violet-400">ISO 27001 Certified</span> • Data stored in India
+                Built with care • <span className="text-violet-400">ISO 27001 Certified</span> • Enterprise-grade security
               </p>
             </div>
             <div className="flex items-center gap-4 mt-4 md:mt-0">
@@ -587,10 +587,10 @@ export default function PricingPage() {
                 <span>Powered by Cashfree</span>
               </div>
               <a href="#" className="hover:text-white transition-colors p-2 hover:bg-white/5 rounded-lg cursor-pointer">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" /></svg>
               </a>
               <a href="#" className="hover:text-white transition-colors p-2 hover:bg-white/5 rounded-lg cursor-pointer">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" /></svg>
               </a>
             </div>
           </div>
