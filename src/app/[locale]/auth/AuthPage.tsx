@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Package, AlertCircle, Mail, Lock, User, ArrowRight, ChevronRight } from 'lucide-react'
 
@@ -26,8 +27,18 @@ export default function AuthPage() {
   const [googleLoading, setGoogleLoading] = useState(false)
 
   useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch('/api/auth/me', { credentials: 'include' })
+        if (res.ok) {
+          router.push(returnTo)
+        }
+      } catch {
+        // Silently handle error
+      }
+    }
     checkAuth()
-  }, [])
+  }, [router, returnTo])
 
   const validatePassword = (pwd: string): string => {
     if (pwd.length < 8) {
@@ -46,16 +57,6 @@ export default function AuthPage() {
       return 'Password must contain at least one number'
     }
     return ''
-  }
-
-  const checkAuth = async () => {
-    try {
-      const res = await fetch('/api/auth/me', { credentials: 'include' })
-      if (res.ok) {
-        router.push(returnTo)
-      }
-    } catch (err) {
-    }
   }
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -140,12 +141,7 @@ export default function AuthPage() {
 
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true)
-    try {
-      window.location.href = '/api/auth/oauth/google'
-    } catch (err) {
-      setError('Failed to initiate Google sign in')
-      setGoogleLoading(false)
-    }
+    window.location.href = '/api/auth/oauth/google'
   }
 
   return (
@@ -317,12 +313,12 @@ export default function AuthPage() {
 
           <div className="mt-6 text-center space-y-4">
             {isLogin && (
-              <a
+              <Link
                 href="/auth/forgot-password"
                 className="block text-indigo-600 hover:text-indigo-800 font-medium text-sm transition-colors cursor-pointer hover:underline"
               >
                 Forgot your password?
-              </a>
+              </Link>
             )}
             <button
               onClick={() => {

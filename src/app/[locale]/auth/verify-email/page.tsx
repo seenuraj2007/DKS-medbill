@@ -8,45 +8,48 @@ function VerifyEmailContent() {
     const searchParams = useSearchParams()
     const router = useRouter()
     const token = searchParams?.get('token')
-    const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
-    const [message, setMessage] = useState('')
+    const [status, setStatus] = useState<'loading' | 'success' | 'error'>(() => {
+        // Set initial error state if no token
+        return token ? 'loading' : 'error'
+    })
+    const [message, setMessage] = useState(() => {
+        return token ? '' : 'No verification token provided'
+    })
 
     useEffect(() => {
         if (!token) {
-            setStatus('error')
-            setMessage('No verification token provided')
             return
         }
 
-        verifyEmail()
-    }, [token])
+        const verifyEmail = async () => {
+            try {
+                const res = await fetch('/api/auth/verify-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token })
+                })
 
-    const verifyEmail = async () => {
-        try {
-            const res = await fetch('/api/auth/verify-email', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token })
-            })
+                const data = await res.json()
 
-            const data = await res.json()
-
-            if (res.ok) {
-                setStatus('success')
-                setMessage('Your email has been verified successfully!')
-                // Redirect to dashboard after 3 seconds
-                setTimeout(() => {
-                    router.push('/dashboard')
-                }, 3000)
-            } else {
+                if (res.ok) {
+                    setStatus('success')
+                    setMessage('Your email has been verified successfully!')
+                    // Redirect to dashboard after 3 seconds
+                    setTimeout(() => {
+                        router.push('/dashboard')
+                    }, 3000)
+                } else {
+                    setStatus('error')
+                    setMessage(data.error || 'Verification failed')
+                }
+            } catch {
                 setStatus('error')
-                setMessage(data.error || 'Verification failed')
+                setMessage('An unexpected error occurred')
             }
-        } catch (err) {
-            setStatus('error')
-            setMessage('An unexpected error occurred')
         }
-    }
+
+        verifyEmail()
+    }, [token, router])
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Mail, ArrowLeft, Lock, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
+import { Mail, ArrowLeft, Lock, CheckCircle, AlertCircle } from 'lucide-react'
 
 export default function ForgotPasswordPage() {
   const router = useRouter()
