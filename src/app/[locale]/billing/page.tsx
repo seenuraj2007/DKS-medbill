@@ -147,6 +147,7 @@ export default function POSPage() {
   const [splitPayments, setSplitPayments] = useState<PaymentSplit[]>([])
   const [paymentMethod, setPaymentMethod] = useState('cash')
   const [cashReceived, setCashReceived] = useState(0)
+  const [showMobileCart, setShowMobileCart] = useState(false)
   const [showCompleteModal, setShowCompleteModal] = useState(false)
   const [organization, setOrganization] = useState<OrganizationSettings & { upiId?: string }>({})
   const [isInterState, setIsInterState] = useState(false)
@@ -746,19 +747,28 @@ export default function POSPage() {
           {cart.length > 0 && (
             <button
               onClick={clearCart}
-              className="flex items-center gap-2 px-3 py-2 hover:bg-red-50 rounded-lg transition-colors"
+              className="hidden sm:flex items-center gap-2 px-3 py-2 hover:bg-red-50 rounded-lg transition-colors"
               title="Clear Cart"
             >
               <Trash2 className="w-5 h-5 text-red-600" />
-              <span className="hidden sm:inline text-sm text-red-600">Clear</span>
+              <span className="text-sm text-red-600">Clear</span>
             </button>
           )}
+          
+          {/* Mobile Cart Button */}
+          <button
+            onClick={() => setShowMobileCart(true)}
+            className="lg:hidden flex items-center gap-2 px-3 py-2 bg-indigo-100 text-indigo-700 rounded-lg transition-colors"
+          >
+            <ShoppingCart className="w-5 h-5" />
+            <span className="font-semibold">{cart.length}</span>
+          </button>
         </div>
       </header>
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Products Section */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className={`flex-1 flex flex-col overflow-hidden ${showMobileCart ? 'hidden lg:flex' : 'flex'}`}>
           {/* Search & Filters */}
           <div className="p-4 bg-white border-b border-gray-200">
             <div className="flex gap-3 mb-3">
@@ -976,7 +986,18 @@ export default function POSPage() {
         </div>
 
         {/* Cart Section */}
-        <div className="w-full md:w-96 bg-white border-l border-gray-200 flex flex-col">
+        <div className={`w-full lg:w-96 bg-white border-l border-gray-200 flex flex-col ${showMobileCart ? 'fixed inset-0 z-50 lg:static lg:z-auto' : 'hidden lg:flex'}`}>
+          {/* Mobile Cart Header */}
+          <div className="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
+            <h2 className="text-lg font-bold text-gray-900">Shopping Cart ({cart.length} items)</h2>
+            <button
+              onClick={() => setShowMobileCart(false)}
+              className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+            >
+              <X className="w-6 h-6 text-gray-600" />
+            </button>
+          </div>
+          
           {/* Customer Selection */}
           <div className="p-4 border-b border-gray-200">
             <button
