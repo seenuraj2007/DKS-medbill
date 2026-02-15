@@ -5,9 +5,10 @@ import { getUserFromRequest } from '@/lib/auth'
 // GET /api/serial-numbers/[id] - Get a single serial number
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const user = await getUserFromRequest(req)
     if (!user || !user.tenantId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -15,7 +16,7 @@ export async function GET(
 
     const serialNumber = await (prisma as any).serialNumber.findFirst({
       where: {
-        id: params.id,
+        id: id,
         tenantId: user.tenantId,
       },
       include: {
@@ -68,9 +69,10 @@ export async function GET(
 // PUT /api/serial-numbers/[id] - Update a serial number
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const user = await getUserFromRequest(req)
     if (!user || !user.tenantId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -99,7 +101,7 @@ export async function PUT(
     // Verify serial number exists
     const existing = await (prisma as any).serialNumber.findFirst({
       where: {
-        id: params.id,
+        id: id,
         tenantId: user.tenantId,
       },
     })
@@ -118,7 +120,7 @@ export async function PUT(
           tenantId: user.tenantId,
           productId: existing.productId,
           serialNumber,
-          id: { not: params.id },
+          id: { not: id },
         },
       })
 
@@ -140,7 +142,7 @@ export async function PUT(
 
     // Update serial number
     const updated = await (prisma as any).serialNumber.update({
-      where: { id: params.id },
+      where: { id: id },
       data: {
         serialNumber: serialNumber || undefined,
         alternateSerial: alternateSerial !== undefined ? alternateSerial : undefined,
@@ -176,9 +178,10 @@ export async function PUT(
 // DELETE /api/serial-numbers/[id] - Delete a serial number
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const user = await getUserFromRequest(req)
     if (!user || !user.tenantId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -195,7 +198,7 @@ export async function DELETE(
     // Verify serial number exists
     const existing = await (prisma as any).serialNumber.findFirst({
       where: {
-        id: params.id,
+        id: id,
         tenantId: user.tenantId,
       },
     })
@@ -217,7 +220,7 @@ export async function DELETE(
 
     // Delete serial number
     await (prisma as any).serialNumber.delete({
-      where: { id: params.id },
+      where: { id: id },
     })
 
     return NextResponse.json({
