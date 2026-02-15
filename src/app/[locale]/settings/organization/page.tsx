@@ -30,6 +30,7 @@ export default function OrganizationSettingsPage() {
   const [owner, setOwner] = useState<Owner | null>(null)
   const [memberCount, setMemberCount] = useState(0)
   const [name, setName] = useState('')
+  const [upiId, setUpiId] = useState('')
   const [noOrg, setNoOrg] = useState(false)
 
   useEffect(() => {
@@ -66,6 +67,7 @@ export default function OrganizationSettingsPage() {
       setOwner(data.owner)
       setMemberCount(data.memberCount)
       setName(data.organization.name)
+      setUpiId(data.organization.upiId || '')
     } catch (err) {
       setError('Failed to load organization')
     } finally {
@@ -83,7 +85,10 @@ export default function OrganizationSettingsPage() {
       const res = await fetch('/api/settings/organization', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name })
+        body: JSON.stringify({ 
+          name,
+          upiId: upiId.trim() || null
+        })
       })
 
       const data = await res.json()
@@ -93,7 +98,7 @@ export default function OrganizationSettingsPage() {
       }
 
       setOrg(data.organization)
-      setSuccess('Organization name updated successfully')
+      setSuccess('Organization settings updated successfully')
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -241,10 +246,27 @@ export default function OrganizationSettingsPage() {
               </p>
             </div>
 
+            <div className="pt-4 border-t border-gray-100">
+              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                <span className="w-1 h-4 bg-purple-500 rounded-full"></span>
+                UPI ID (Optional)
+              </label>
+              <input
+                type="text"
+                value={upiId}
+                onChange={(e) => setUpiId(e.target.value)}
+                className="w-full px-4 py-3.5 border border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 outline-none transition-all bg-gray-50/50 hover:bg-white hover:shadow-md focus:bg-white text-gray-900 cursor-text"
+                placeholder="merchant@upi"
+              />
+              <p className="mt-2 text-sm text-gray-500">
+                Enter your UPI ID to accept UPI payments at POS (e.g., shopname@okhdfcbank)
+              </p>
+            </div>
+
             <div className="flex justify-end">
               <button
                 type="submit"
-                disabled={saving || name === org?.name}
+                disabled={saving || (name === org?.name && upiId === (org as any)?.upiId)}
                 className="px-6 py-3.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 text-white rounded-xl font-semibold hover:from-indigo-600 hover:via-purple-600 hover:to-indigo-700 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-200 hover:shadow-indigo-300 hover:-translate-y-0.5 cursor-pointer"
               >
                 {saving ? (

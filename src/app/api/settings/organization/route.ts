@@ -45,6 +45,7 @@ export async function GET(req: NextRequest) {
         gstNumber: settings.gstNumber || null,
         phone: settings.phone || null,
         email: settings.email || null,
+        upiId: settings.upiId || null,
         created_at: tenant.createdAt,
         updated_at: tenant.updatedAt
       },
@@ -69,7 +70,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { name } = body
+    const { name, upiId, address, city, state, pincode, gstNumber, phone, email } = body
 
     if (!name || name.trim().length === 0) {
       return NextResponse.json({ error: 'Organization name is required' }, { status: 400 })
@@ -77,6 +78,10 @@ export async function PATCH(req: NextRequest) {
 
     if (name.trim().length < 2) {
       return NextResponse.json({ error: 'Organization name must be at least 2 characters' }, { status: 400 })
+    }
+
+    if (upiId && !upiId.includes('@')) {
+      return NextResponse.json({ error: 'Invalid UPI ID format. Use format like name@upi' }, { status: 400 })
     }
 
     const currentOrg = await prisma.tenant.findUnique({
@@ -87,9 +92,25 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: 'Organization not found' }, { status: 404 })
     }
 
+    const currentSettings = (currentOrg.settings as any) || {}
+    const updatedSettings = {
+      ...currentSettings,
+      ...(address !== undefined && { address }),
+      ...(city !== undefined && { city }),
+      ...(state !== undefined && { state }),
+      ...(pincode !== undefined && { pincode }),
+      ...(gstNumber !== undefined && { gstNumber }),
+      ...(phone !== undefined && { phone }),
+      ...(email !== undefined && { email }),
+      ...(upiId !== undefined && { upiId })
+    }
+
     const updatedOrg = await prisma.tenant.update({
       where: { id: user.tenantId },
-      data: { name: name.trim() }
+      data: { 
+        name: name.trim(),
+        settings: updatedSettings
+      }
     })
 
     return NextResponse.json({ 

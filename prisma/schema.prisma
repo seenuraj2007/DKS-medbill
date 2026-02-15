@@ -81,6 +81,10 @@ model Tenant {
   productSettings ProductSettings?
   invoices       Invoice[]
   customers     Customer[]
+  batches        Batch[]
+  serialNumbers  SerialNumber[]
+  stockTakes     StockTake[]
+  auditLogs      AuditLog[]
 
   @@map("tenants")
 }
@@ -138,6 +142,7 @@ model Location {
   stockLevels   StockLevel[]
   transfersFrom StockTransfer[] @relation("from_location")
   transfersTo   StockTransfer[] @relation("to_location")
+  stockTakes    StockTake[]
 
   @@unique([tenantId, name])
   @@index([tenantId])
@@ -183,6 +188,9 @@ model Product {
   inventoryEvents  InventoryEvent[]
   orderItems       PurchaseOrderItem[]
   invoiceItems     InvoiceItem[]
+  batches          Batch[]
+  serialNumbers    SerialNumber[]
+  stockTakeItems   StockTakeItem[]
 
   @@unique([tenantId, sku])
   @@index([tenantId])
@@ -206,6 +214,8 @@ model StockLevel {
   tenant         Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   product        Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   location       Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  batches        Batch[]
+  serialNumbers  SerialNumber[]
 
   @@unique([tenantId, productId, locationId])
   @@index([tenantId])
@@ -535,4 +545,244 @@ enum InvoiceStatus {
   PAID
   OVERDUE
   CANCELLED
+}
+
+// =============================================================================
+// HIGH PRIORITY FEATURES - Batch/Lot Tracking, Serial Numbers, Stock Take
+// =============================================================================
+
+// Batch/Lot Tracking - for pharmaceuticals, food, and regulated industries
+model Batch {
+  id               String   @id @default(uuid())
+  tenantId         String   @map("tenant_id")
+  productId        String   @map("product_id")
+  stockLevelId     String?  @map("stock_level_id")
+  batchNumber      String   @map("batch_number")
+  
+  // Dates
+  manufacturingDate DateTime? @map("manufacturing_date")
+  expiryDate       DateTime? @map("expiry_date")
+  
+  // Quantity tracking
+  quantity         Int      @default(0)
+  reservedQuantity Int      @default(0) @map("reserved_quantity")
+  
+  // Cost tracking
+  unitCost         Decimal? @map("unit_cost") @db.Decimal(12, 2)
+  
+  // Status
+  status           BatchStatus @default(ACTIVE)
+  
+  // Additional info
+  supplierId       String?  @map("supplier_id")
+  supplierBatchRef String?  @map("supplier_batch_ref")
+  notes            String?  @db.Text
+  
+  // Audit
+  receivedBy       String?  @map("received_by")
+  receivedAt       DateTime? @map("received_at")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  stockLevel StockLevel? @relation(fields: [stockLevelId], references: [id], onDelete: SetNull)
+  serialNumbers SerialNumber[]
+
+  @@unique([tenantId, productId, batchNumber])
+  @@index([tenantId])
+  @@index([tenantId, productId])
+  @@index([tenantId, expiryDate])
+  @@index([tenantId, status])
+  @@map("batches")
+}
+
+enum BatchStatus {
+  ACTIVE        // Currently in stock
+  EXPIRED       // Past expiry date
+  RECALLED      // Recalled by supplier/manufacturer
+  QUARANTINE    // Under quality check
+  DEPLETED      // All quantity used
+}
+
+// Serial Number Tracking - for electronics, high-value items, warranty tracking
+model SerialNumber {
+  id             String        @id @default(uuid())
+  tenantId       String        @map("tenant_id")
+  productId      String        @map("product_id")
+  batchId        String?       @map("batch_id")
+  stockLevelId   String?       @map("stock_level_id")
+  
+  // Serial info
+  serialNumber   String        @map("serial_number")
+  alternateSerial String?      @map("alternate_serial") // For manufacturer serial vs internal
+  
+  // Status
+  status         SerialStatus  @default(IN_STOCK)
+  
+  // Warranty
+  warrantyMonths Int?          @map("warranty_months")
+  warrantyExpiry DateTime?     @map("warranty_expiry")
+  
+  // Cost
+  unitCost       Decimal?      @map("unit_cost") @db.Decimal(12, 2)
+  
+  // Customer info (when sold)
+  customerId     String?       @map("customer_id")
+  soldAt         DateTime?     @map("sold_at")
+  invoiceId      String?       @map("invoice_id")
+  
+  // Additional info
+  notes          String?       @db.Text
+  metadata       Json?
+  
+  // Audit
+  createdBy      String?       @map("created_by")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  batch      Batch?      @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  stockLevel StockLevel? @relation(fields: [stockLevelId], references: [id], onDelete: SetNull)
+
+  @@unique([tenantId, productId, serialNumber])
+  @@index([tenantId])
+  @@index([tenantId, productId])
+  @@index([tenantId, status])
+  @@index([tenantId, customerId])
+  @@map("serial_numbers")
+}
+
+enum SerialStatus {
+  IN_STOCK       // Available for sale
+  RESERVED       // Reserved for an order
+  SOLD           // Sold to customer
+  DEFECTIVE      // Damaged/defective
+  RETURNED       // Customer returned
+  IN_TRANSIT     // Being transferred
+  QUARANTINE     // Under quality check
+}
+
+// Stock Take / Inventory Counting
+model StockTake {
+  id             String         @id @default(uuid())
+  tenantId       String         @map("tenant_id")
+  locationId     String         @map("location_id")
+  
+  // Reference
+  referenceNumber String        @map("reference_number")
+  
+  // Status
+  status         StockTakeStatus @default(DRAFT)
+  
+  // Scheduling
+  scheduledDate  DateTime?      @map("scheduled_date")
+  startedAt      DateTime?      @map("started_at")
+  completedAt    DateTime?      @map("completed_at")
+  
+  // Summary
+  totalItems     Int            @default(0) @map("total_items")
+  countedItems   Int            @default(0) @map("counted_items")
+  varianceItems  Int            @default(0) @map("variance_items")
+  
+  // Users
+  createdBy      String         @map("created_by")
+  supervisedBy   String?        @map("supervised_by")
+  
+  // Notes
+  notes          String?        @db.Text
+  
+  // Audit
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  tenant   Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  location Location       @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  items    StockTakeItem[]
+
+  @@unique([tenantId, referenceNumber])
+  @@index([tenantId])
+  @@index([tenantId, locationId])
+  @@index([tenantId, status])
+  @@map("stock_takes")
+}
+
+enum StockTakeStatus {
+  DRAFT        // Created, not started
+  IN_PROGRESS  // Counting in progress
+  PENDING_REVIEW // Counting done, needs review
+  COMPLETED    // Finalized and adjustments made
+  CANCELLED    // Cancelled
+}
+
+model StockTakeItem {
+  id             String   @id @default(uuid())
+  stockTakeId    String   @map("stock_take_id")
+  productId      String   @map("product_id")
+  
+  // Quantities
+  systemQuantity Int      @map("system_quantity")  // What system says
+  countedQuantity Int?    @map("counted_quantity") // What was actually counted
+  variance       Int?     @map("variance") // Difference (counted - system) - computed in API
+  
+  // Batch/Serial tracking during count
+  batchId        String?  @map("batch_id")
+  serialNumbers  String?  @map("serial_numbers") // JSON array of serials counted
+  
+  // Counting details
+  countedBy      String?  @map("counted_by")
+  countedAt      DateTime? @map("counted_at")
+  
+  // Notes
+  notes          String?  @db.Text
+  
+  // Audit
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  stockTake StockTake @relation(fields: [stockTakeId], references: [id], onDelete: Cascade)
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([stockTakeId, productId])
+  @@index([stockTakeId])
+  @@index([productId])
+  @@map("stock_take_items")
+}
+
+// Enhanced Audit Trail
+model AuditLog {
+  id          String   @id @default(uuid())
+  tenantId    String   @map("tenant_id")
+  userId      String?  @map("user_id")
+  
+  // Action details
+  action      String   // CREATE, UPDATE, DELETE, LOGIN, etc.
+  entityType  String   @map("entity_type") // Product, Invoice, StockLevel, etc.
+  entityId    String   @map("entity_id")
+  
+  // Changes
+  oldValues   Json?    @map("old_values")
+  newValues   Json?    @map("new_values")
+  changedFields String? @map("changed_fields") // Array of field names that changed
+  
+  // Request context
+  ipAddress   String?  @map("ip_address")
+  userAgent   String?  @map("user_agent")
+  requestUrl  String?  @map("request_url")
+  requestMethod String? @map("request_method")
+  
+  // Additional metadata
+  metadata    Json?
+  
+  // Timestamp
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, entityType, entityId])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, userId])
+  @@index([tenantId, action])
+  @@map("audit_logs")
 }

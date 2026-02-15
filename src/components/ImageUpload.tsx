@@ -41,7 +41,8 @@ export default function ImageUpload({
 
       const res = await fetch('/api/upload/image', {
         method: 'POST',
-        body: formData
+        body: formData,
+        credentials: 'include'
       })
 
       const data = await res.json()

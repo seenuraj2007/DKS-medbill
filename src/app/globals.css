@@ -12,16 +12,10 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* Force light mode - dark mode disabled to prevent visibility issues */
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: #ffffff;
+  color: #111827;
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -88,9 +82,10 @@ img {
   }
 }
 
-/* Input and button text visibility fixes */
+/* Input and button text visibility fixes - FORCE LIGHT MODE */
 input::placeholder,
-textarea::placeholder {
+textarea::placeholder,
+select::placeholder {
   color: #6b7280 !important;
   opacity: 1 !important;
 }
@@ -109,15 +104,28 @@ select:focus {
   outline: none !important;
   border-color: #6366f1 !important;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+  background-color: #ffffff !important;
+  color: #111827 !important;
 }
 
-/* Button text visibility */
+/* Button text visibility - ensure buttons are readable */
 button {
   color: #111827 !important;
 }
 
-button.bg-gradient-to-r {
+button.bg-gradient-to-r,
+button[class*="bg-indigo"],
+button[class*="bg-green"],
+button[class*="bg-blue"],
+button[class*="bg-purple"],
+button[class*="bg-red"] {
   color: #ffffff !important;
+}
+
+button[class*="bg-gray-100"],
+button[class*="bg-gray-200"],
+button[class*="hover:bg-gray"] {
+  color: #374151 !important;
 }
 
 /* Select dropdown text */
@@ -125,3 +133,16 @@ select option {
   color: #111827 !important;
   background-color: #ffffff !important;
 }
+
+/* Prevent white text on white backgrounds */
+.text-white {
+  color: #ffffff !important;
+}
+
+/* Ensure text-gray classes work properly */
+.text-gray-900 { color: #111827 !important; }
+.text-gray-800 { color: #1f2937 !important; }
+.text-gray-700 { color: #374151 !important; }
+.text-gray-600 { color: #4b5563 !important; }
+.text-gray-500 { color: #6b7280 !important; }
+.text-gray-400 { color: #9ca3af !important; }
