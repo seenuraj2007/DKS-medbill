@@ -58,6 +58,11 @@ export async function GET(
       console.error('Failed to track receipt scan:', scanError)
     }
 
+    // Extract payment method from notes (format: "Payment: method" or "notes | Payment: method")
+    const paymentMethod = invoice.notes?.includes('Payment:') 
+      ? invoice.notes.split('Payment:')[1]?.trim() 
+      : null
+
     // Return minimal receipt data (privacy-focused)
     const receiptData = {
       invoiceNumber: invoice.invoiceNumber,
@@ -70,6 +75,7 @@ export async function GET(
       })),
       subtotal: Number(invoice.subtotal),
       totalAmount: Number(invoice.totalAmount),
+      paymentMethod: paymentMethod,
       expiresAt: new Date(invoice.createdAt.getTime() + 365 * 24 * 60 * 60 * 1000).toISOString()
     }
 

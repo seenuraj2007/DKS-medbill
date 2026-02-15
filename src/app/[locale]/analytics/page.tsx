@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import {
-  BarChart3, TrendingUp, DollarSign, Package,
+  BarChart3, TrendingUp, IndianRupee, Package,
   AlertTriangle, ShoppingCart, ArrowUpRight, ArrowDownRight, RefreshCw,
   Download, Calendar, Target, CheckCircle, XCircle
 } from 'lucide-react'
@@ -35,7 +35,7 @@ interface AnalyticsData {
   paymentMethods: Array<{ method: string; amount: number; count: number }>
 }
 
-const formatCurrency = (value: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value || 0)
+const formatCurrency = (value: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value || 0)
 const formatNumber = (value: number) => new Intl.NumberFormat('en-US').format(value || 0)
 
 const StatCard = ({ title, value, change, trend, icon: Icon, color, subtext }: any) => (
@@ -135,7 +135,7 @@ export default function AnalyticsPage() {
   ]
 
   const statCards = [
-    { title: 'Total Revenue', value: formatCurrency(data?.sales.total || 0), change: '+12.5%', trend: 'up', icon: DollarSign, color: 'from-green-500 to-green-600', subtext: 'This period' },
+    { title: 'Total Revenue', value: formatCurrency(data?.sales.total || 0), change: '+12.5%', trend: 'up', icon: IndianRupee, color: 'from-green-500 to-green-600', subtext: 'This period' },
     { title: 'Total Orders', value: formatNumber(data?.sales.count || 0), change: '+8.2%', trend: 'up', icon: ShoppingCart, color: 'from-blue-500 to-blue-600', subtext: `${data?.sales.count || 0} transactions` },
     { title: 'Avg Order Value', value: formatCurrency(data?.sales.average || 0), change: '-2.1%', trend: 'down', icon: TrendingUp, color: 'from-purple-500 to-purple-600', subtext: 'Per transaction' },
     { title: 'Inventory Value', value: formatCurrency(data?.stock.value || 0), change: '+5.3%', trend: 'up', icon: Package, color: 'from-orange-500 to-orange-600', subtext: `${formatNumber(data?.stock.total || 0)} items` },
@@ -143,7 +143,7 @@ export default function AnalyticsPage() {
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: BarChart3 },
-    { id: 'revenue', label: 'Revenue', icon: DollarSign },
+    { id: 'revenue', label: 'Revenue', icon: IndianRupee },
     { id: 'products', label: 'Products', icon: Package },
     { id: 'stock', label: 'Stock', icon: AlertTriangle },
     { id: 'performance', label: 'Performance', icon: Target },
@@ -307,7 +307,7 @@ export default function AnalyticsPage() {
                           <YAxis 
                             tick={{ fontSize: 11 }} 
                             stroke="#9ca3af" 
-                            tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} 
+                            tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`} 
                           />
                           <Tooltip content={<CustomTooltip />} />
                           <Area 
@@ -433,7 +433,7 @@ export default function AnalyticsPage() {
                     <ResponsiveContainer width="100%" height={300}>
                       <BarChart data={data?.categoryBreakdown || []} layout="vertical">
                         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
-                        <XAxis type="number" tick={{ fontSize: 11 }} stroke="#9ca3af" tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} />
+                        <XAxis type="number" tick={{ fontSize: 11 }} stroke="#9ca3af" tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`} />
                         <YAxis type="category" dataKey="category" tick={{ fontSize: 11 }} stroke="#9ca3af" width={100} />
                         <Tooltip content={<CustomTooltip />} />
                         <Bar dataKey="revenue" fill="#6366f1" radius={[0, 4, 4, 0]} />
@@ -490,7 +490,7 @@ export default function AnalyticsPage() {
                         <YAxis 
                           tick={{ fontSize: 11 }} 
                           stroke="#9ca3af"
-                          tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`}
+                          tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`}
                         />
                         <Tooltip content={<CustomTooltip />} />
                         <Bar dataKey="revenue" fill="#6366f1" radius={[4, 4, 0, 0]} opacity={0.8} />
@@ -582,7 +582,7 @@ export default function AnalyticsPage() {
                         <BarChart data={data?.categoryBreakdown || []}>
                           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                           <XAxis dataKey="category" tick={{ fontSize: 11 }} stroke="#9ca3af" />
-                          <YAxis tick={{ fontSize: 11 }} stroke="#9ca3af" tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} />
+                          <YAxis tick={{ fontSize: 11 }} stroke="#9ca3af" tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`} />
                           <Tooltip formatter={(value: number | undefined) => formatCurrency(value || 0)} />
                           <Bar dataKey="value" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
                         </BarChart>
@@ -675,7 +675,7 @@ export default function AnalyticsPage() {
                     <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-5 border border-purple-200">
                       <div className="flex items-center gap-3 mb-3">
                         <div className="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center">
-                          <DollarSign className="w-5 h-5 text-white" />
+                          <IndianRupee className="w-5 h-5 text-white" />
                         </div>
                         <span className="text-sm text-purple-700 font-medium">Total Value</span>
                       </div>
@@ -698,7 +698,7 @@ export default function AnalyticsPage() {
                         <YAxis tick={{ fontSize: 11 }} stroke="#9ca3af" />
                         <Tooltip content={<CustomTooltip />} />
                         <Bar dataKey="count" name="Products" fill="#6366f1" radius={[4, 4, 0, 0]} />
-                        <Bar dataKey="value" name="Value ($)" fill="#22c55e" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="value" name="Value (₹)" fill="#22c55e" radius={[4, 4, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
