@@ -147,18 +147,16 @@ select option {
 .text-gray-500 { color: #6b7280 !important; }
 .text-gray-400 { color: #9ca3af !important; }
 
-/* Ensure SVG icons are always visible */
-svg {
+/* Action button icons visibility - add background to icon-only buttons */
+button[class*="p-2"][class*="text-gray"] {
+  background-color: #f3f4f6 !important;
+}
+
+button[class*="p-2"][class*="text-gray"]:hover {
+  background-color: #e5e7eb !important;
+}
+
+/* Make sure Lucide icons are visible */
+svg[class*="w-4"], svg[class*="w-5"], svg[class*="h-4"], svg[class*="h-5"] {
   color: inherit;
-  fill: currentColor;
-}
-
-/* Fix for lucide-react icons visibility */
-.lucide {
-  color: inherit !important;
-}
-
-/* Ensure icons in buttons and links are visible */
-button svg, a svg, .flex svg, .inline-flex svg {
-  color: inherit !important;
 }

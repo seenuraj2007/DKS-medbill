@@ -263,7 +263,7 @@ export default function ProductsPage() {
                                 e.stopPropagation()
                                 router.push(`/products/${product.id}/edit`)
                               }}
-                              className="p-2 sm:p-2.5 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg sm:rounded-xl transition-all cursor-pointer touch-manipulation"
+                              className="p-2 sm:p-2.5 bg-gray-100 text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg sm:rounded-xl transition-all cursor-pointer touch-manipulation"
                               title="Edit"
                             >
                               <Edit className="w-4 h-4" />
@@ -273,7 +273,7 @@ export default function ProductsPage() {
                                 e.stopPropagation()
                                 handleDelete(product.id)
                               }}
-                              className="p-2 sm:p-2.5 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg sm:rounded-xl transition-all cursor-pointer touch-manipulation"
+                              className="p-2 sm:p-2.5 bg-gray-100 text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg sm:rounded-xl transition-all cursor-pointer touch-manipulation"
                               title="Delete"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -283,7 +283,7 @@ export default function ProductsPage() {
                                 e.stopPropagation()
                                 router.push(`/products/${product.id}`)
                               }}
-                              className="p-2 sm:p-2.5 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg sm:rounded-xl transition-all cursor-pointer touch-manipulation"
+                              className="p-2 sm:p-2.5 bg-gray-100 text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg sm:rounded-xl transition-all cursor-pointer touch-manipulation"
                               title="View Details"
                             >
                               <ArrowUpRight className="w-4 h-4" />
