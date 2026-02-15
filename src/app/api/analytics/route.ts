@@ -97,15 +97,35 @@ export async function GET(req: NextRequest) {
       revenue: Math.round((amount as number) * 100) / 100
     }))
 
-    // Top products by stock value
-    const topProducts = stockLevels
-      .map((sl: any) => ({
-        id: sl.product.id,
-        name: sl.product.name,
-        quantity: sl.quantity,
-        value: sl.quantity * parseFloat(sl.product.unitCost.toString())
-      }))
-      .sort((a: any, b: any) => b.value - a.value)
+    // Top selling products by actual sales from invoices
+    const productSalesMap = new Map<string, { id: string; name: string; quantity: number; revenue: number }>()
+    
+    invoices.forEach((invoice: any) => {
+      invoice.items.forEach((item: any) => {
+        const productId = item.productId
+        const existing = productSalesMap.get(productId)
+        const quantity = item.quantity || 0
+        const revenue = parseFloat(item.totalAmount?.toString() || '0')
+        
+        if (existing) {
+          existing.quantity += quantity
+          existing.revenue += revenue
+        } else {
+          // Get product name from stock levels or products
+          const stockLevel = stockLevels.find((sl: any) => sl.productId === productId)
+          const product = products.find((p: any) => p.id === productId)
+          productSalesMap.set(productId, {
+            id: productId,
+            name: stockLevel?.product?.name || product?.name || 'Unknown Product',
+            quantity,
+            revenue
+          })
+        }
+      })
+    })
+
+    const topProducts = Array.from(productSalesMap.values())
+      .sort((a, b) => b.revenue - a.revenue)
       .slice(0, 10)
 
     // Category breakdown
