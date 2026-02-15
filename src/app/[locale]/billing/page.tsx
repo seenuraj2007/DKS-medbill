@@ -875,30 +875,30 @@ export default function POSPage() {
                     key={product.id}
                     onClick={() => addToCart(product)}
                     className={viewMode === 'grid'
-                      ? `p-3 bg-white rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-md transition-all text-left ${product.current_quantity <= product.reorder_point ? 'ring-2 ring-orange-200' : ''}`
+                      ? `h-full p-3 bg-white rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-md transition-all text-left ${product.current_quantity <= product.reorder_point ? 'ring-2 ring-orange-200' : ''}`
                       : "p-3 bg-white rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-md transition-all flex items-center gap-3"
                     }
                   >
                     {viewMode === 'grid' ? (
-                      <>
-                        {product.image_url ? (
-                          <img src={product.image_url} alt={product.name} className="w-full h-24 object-cover rounded-lg mb-2" />
-                        ) : (
-                          <div className="w-full h-24 bg-gray-100 rounded-lg mb-2 flex items-center justify-center">
+                      <div className="flex flex-col h-full">
+                        <div className="w-full h-24 bg-gray-100 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
+                          {product.image_url ? (
+                            <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+                          ) : (
                             <Package className="w-8 h-8 text-gray-300" />
-                          </div>
-                        )}
-                        <div className="w-full">
+                          )}
+                        </div>
+                        <div className="flex-1 flex flex-col">
                           <p className="font-medium text-gray-900 text-sm truncate">{product.name}</p>
                           <p className="text-xs text-gray-500">{product.sku || 'No SKU'}</p>
-                          <div className="flex items-center justify-between mt-1">
+                          <div className="flex items-center justify-between mt-auto pt-1">
                             <p className="font-bold text-indigo-600">₹{product.selling_price.toFixed(2)}</p>
                             {product.current_quantity <= product.reorder_point && (
                               <span className="text-xs text-orange-600">Low Stock</span>
                             )}
                           </div>
                         </div>
-                      </>
+                      </div>
                     ) : (
                       <>
                         <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -1068,7 +1068,7 @@ export default function POSPage() {
             </div>
             
             {/* Payment Methods */}
-            <div className="grid grid-cols-4 gap-2 mb-3">
+            <div className="grid grid-cols-3 gap-2 mb-3">
               {PAYMENT_METHODS.map(method => (
                 <button
                   key={method.id}
