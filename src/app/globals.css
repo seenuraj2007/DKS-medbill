@@ -264,3 +264,62 @@ svg[class*="w-4"], svg[class*="w-5"], svg[class*="h-4"], svg[class*="h-5"] {
     font-size: 16px !important;
   }
 }
+
+/* Product selection glow/ripple effect */
+.product-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.product-card::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, rgba(99, 102, 241, 0.1) 50%, transparent 70%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0;
+  transition: width 0.3s ease-out, height 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.product-card:active::after,
+.product-card.selected::after {
+  width: 150%;
+  height: 150%;
+  opacity: 1;
+  animation: glowPulse 0.4s ease-out;
+}
+
+@keyframes glowPulse {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    width: 150%;
+    height: 150%;
+    opacity: 0;
+  }
+}
+
+/* Alternative: Ring glow effect */
+.product-card {
+  transition: box-shadow 0.2s ease, transform 0.1s ease;
+}
+
+.product-card:active {
+  transform: scale(0.98);
+}
+
+.product-card.selected {
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.5), 0 0 20px rgba(99, 102, 241, 0.3);
+  border-color: #6366f1 !important;
+}

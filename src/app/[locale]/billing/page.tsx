@@ -148,6 +148,7 @@ export default function POSPage() {
   const [paymentMethod, setPaymentMethod] = useState('cash')
   const [cashReceived, setCashReceived] = useState(0)
   const [showMobileCart, setShowMobileCart] = useState(false)
+  const [clickedProduct, setClickedProduct] = useState<string | null>(null)
   const [showCompleteModal, setShowCompleteModal] = useState(false)
   const [organization, setOrganization] = useState<OrganizationSettings & { upiId?: string }>({})
   const [isInterState, setIsInterState] = useState(false)
@@ -432,6 +433,10 @@ export default function POSPage() {
 
   // Cart actions
   const addToCart = async (product: Product) => {
+    // Trigger glow effect
+    setClickedProduct(product.id)
+    setTimeout(() => setClickedProduct(null), 400) // Clear after animation
+    
     // Add to cart immediately for better UX
     const existingItem = cart.find(item => item.product.id === product.id)
     
@@ -937,8 +942,8 @@ export default function POSPage() {
                     onClick={() => addToCart(product)}
                     disabled={product.current_quantity === 0}
                     className={viewMode === 'grid'
-                      ? `relative h-full min-h-[140px] p-3 sm:p-4 bg-white rounded-xl border-2 ${product.current_quantity === 0 ? 'border-gray-200 opacity-50 cursor-not-allowed' : product.current_quantity <= product.reorder_point ? 'border-orange-300 ring-2 ring-orange-100' : 'border-gray-200'} hover:border-indigo-400 hover:shadow-lg active:scale-95 active:bg-indigo-50 transition-all text-left touch-manipulation select-none`
-                      : `relative w-full p-3 sm:p-4 bg-white rounded-xl border-2 ${product.current_quantity === 0 ? 'border-gray-200 opacity-50 cursor-not-allowed' : 'border-gray-200'} hover:border-indigo-400 hover:shadow-lg active:scale-95 active:bg-indigo-50 transition-all flex items-center gap-3 touch-manipulation select-none`
+                      ? `product-card relative h-full min-h-[140px] p-3 sm:p-4 bg-white rounded-xl border-2 ${product.current_quantity === 0 ? 'border-gray-200 opacity-50 cursor-not-allowed' : product.current_quantity <= product.reorder_point ? 'border-orange-300 ring-2 ring-orange-100' : 'border-gray-200'} hover:border-indigo-400 hover:shadow-lg active:scale-95 active:bg-indigo-50 transition-all text-left touch-manipulation select-none ${clickedProduct === product.id ? 'selected' : ''}`
+                      : `product-card relative w-full p-3 sm:p-4 bg-white rounded-xl border-2 ${product.current_quantity === 0 ? 'border-gray-200 opacity-50 cursor-not-allowed' : 'border-gray-200'} hover:border-indigo-400 hover:shadow-lg active:scale-95 active:bg-indigo-50 transition-all flex items-center gap-3 touch-manipulation select-none ${clickedProduct === product.id ? 'selected' : ''}`
                     }
                     style={{ WebkitTapHighlightColor: 'transparent' }}
                   >
