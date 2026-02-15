@@ -717,36 +717,35 @@ export default function POSPage() {
         </div>
       )}
 
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-40">
-        <div className="flex items-center gap-4">
+      {/* Header - Mobile Optimized */}
+      <header className="bg-white border-b border-gray-200 px-3 py-2 flex items-center justify-between sticky top-0 z-40">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => router.back()}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
             title="Go back"
           >
             <ArrowLeft className="w-5 h-5 text-gray-600" />
           </button>
-          <div>
-            <h1 className="text-xl font-bold text-gray-900">Point of Sale</h1>
-            <p className="text-xs text-gray-500">Billing & Invoice System</p>
+          <div className="hidden sm:block">
+            <h1 className="text-lg font-bold text-gray-900">Point of Sale</h1>
+            <p className="text-xs text-gray-500">Billing</p>
           </div>
-          <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
-            {cart.length} items
+          <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">
+            {cart.length}
           </span>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           {/* Hold/Recall */}
           <button
             onClick={() => setShowHoldModal(true)}
-            className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 sm:px-3 hover:bg-gray-100 rounded-xl transition-colors"
             title="Hold Sale"
           >
             <FolderOpen className="w-5 h-5 text-gray-600" />
-            <span className="hidden sm:inline text-sm text-gray-700">Hold</span>
             {heldSales.length > 0 && (
-              <span className="bg-indigo-600 text-white text-xs px-1.5 py-0.5 rounded-full">
+              <span className="absolute -top-1 -right-1 bg-indigo-600 text-white text-[10px] px-1.5 py-0.5 rounded-full">
                 {heldSales.length}
               </span>
             )}
@@ -756,26 +755,157 @@ export default function POSPage() {
           {cart.length > 0 && (
             <button
               onClick={clearCart}
-              className="flex items-center gap-2 px-3 py-2 hover:bg-red-50 rounded-lg transition-colors"
+              className="p-2 sm:px-3 hover:bg-red-50 rounded-xl transition-colors"
               title="Clear Cart"
             >
               <Trash2 className="w-5 h-5 text-red-600" />
-              <span className="hidden sm:inline text-sm text-red-600">Clear</span>
             </button>
           )}
-          
-          {/* Mobile Cart Button */}
-          <button
-            onClick={() => setShowMobileCart(true)}
-            className="lg:hidden flex items-center gap-2 px-3 py-2 bg-indigo-100 text-indigo-700 rounded-lg transition-colors"
-          >
-            <ShoppingCart className="w-5 h-5" />
-            <span className="font-semibold">{cart.length}</span>
-          </button>
         </div>
       </header>
 
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+      {/* Mobile Cart Summary Bar */}
+      {cart.length > 0 && (
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40 px-3 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
+              <ShoppingCart className="w-5 h-5 text-indigo-600" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">{cart.length} items</p>
+              <p className="font-bold text-gray-900">₹{total.toFixed(0)}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowMobileCart(true)}
+            className="px-6 py-3 bg-green-600 text-white rounded-xl font-bold shadow-lg shadow-green-200 active:scale-95 transition-transform flex items-center gap-2"
+          >
+            <span>Pay</span>
+            <span>₹{total.toFixed(0)}</span>
+          </button>
+        </div>
+      )}
+
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden pb-20 lg:pb-0">
+        {/* Products Section */}
+        <div className={`flex-1 flex flex-col overflow-hidden ${showMobileCart ? 'hidden lg:flex' : 'flex'}`}>
+          {/* Search & Filters */}
+          <div className="p-3 sm:p-4 bg-white border-b border-gray-200">
+            <div className="flex gap-2 sm:gap-3 mb-3">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search products..."
+                  className="w-full pl-10 pr-10 py-3 sm:py-2.5 bg-gray-100 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 placeholder-gray-500"
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-200 rounded-full"
+                  >
+                    <X className="w-4 h-4 text-gray-400" />
+                  </button>
+                )}
+              </div>
+              
+              {/* Quick Actions */}
+              <button
+                onClick={() => setShowScanner(!showScanner)}
+                className={`p-3 sm:p-2.5 rounded-xl transition-colors ${showScanner ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-600'}`}
+                title="Barcode Scanner"
+              >
+                <Barcode className="w-5 h-5" />
+              </button>
+              
+              <button
+                onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+                className="p-3 sm:p-2.5 bg-gray-100 rounded-xl text-gray-600 hover:bg-gray-200 transition-colors"
+                title="Toggle View"
+              >
+                {viewMode === 'grid' ? <List className="w-5 h-5" /> : <Grid className="w-5 h-5" />}
+              </button>
+
+              <button
+                onClick={fetchProducts}
+                disabled={loading}
+                className="p-3 sm:p-2.5 bg-gray-100 rounded-xl text-gray-600 hover:bg-gray-200 transition-colors disabled:opacity-50"
+                title="Refresh"
+              >
+                <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+              </button>
+            </div>
+            
+            {/* Categories - Horizontal Scroll */}
+            <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
+              <button
+                onClick={() => { setSelectedCategory(null); setShowFavoritesOnly(false); }}
+                className={`px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-colors ${
+                  !selectedCategory && !showFavoritesOnly 
+                    ? 'bg-indigo-600 text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                All
+              </button>
+              <button
+                onClick={() => { setShowFavoritesOnly(!showFavoritesOnly); setSelectedCategory(null); }}
+                className={`px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-colors flex items-center gap-1 ${
+                  showFavoritesOnly
+                    ? 'bg-yellow-500 text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <Star className="w-3.5 h-3.5" /> Fav
+              </button>
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => { setSelectedCategory(cat); setShowFavoritesOnly(false); }}
+                  className={`px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-colors ${
+                    selectedCategory === cat 
+                      ? 'bg-indigo-600 text-white' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Barcode Scanner Input */}
+          {showScanner && (
+            <div className="px-4 py-3 bg-indigo-50 border-b border-indigo-100">
+              <div className="relative">
+                <Barcode className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-600" />
+                <input
+                  ref={barcodeInputRef}
+                  type="text"
+                  value={scannedBarcode}
+                  onChange={(e) => {
+                    setScannedBarcode(e.target.value)
+                    if (e.target.value.length >= 8) {
+                      const product = products.find(p => p.barcode === e.target.value || p.sku === e.target.value)
+                      if (product) {
+                        addToCart(product)
+                        setScannedBarcode('')
+                        setShowScanner(false)
+                      }
+                    }
+                  }}
+                  placeholder="Scan barcode..."
+                  className="w-full pl-10 pr-4 py-3 bg-white border border-indigo-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                  autoFocus
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Products Section */}
         <div className={`flex-1 flex flex-col overflow-hidden ${showMobileCart ? 'hidden lg:flex' : 'flex'}`}>
           {/* Search & Filters */}
@@ -893,8 +1023,8 @@ export default function POSPage() {
             </div>
           )}
 
-          {/* Products Grid */}
-          <div className="flex-1 overflow-y-auto p-4">
+          {/* Products Grid - Mobile Optimized */}
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4">
             {loading ? (
               <div className="flex flex-col items-center justify-center h-64">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
@@ -907,7 +1037,7 @@ export default function POSPage() {
                 <p className="text-sm mb-4">{error}</p>
                 <button
                   onClick={fetchProducts}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2"
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors flex items-center gap-2"
                 >
                   <RefreshCw className="w-4 h-4" />
                   Try Again
@@ -920,20 +1050,20 @@ export default function POSPage() {
                   {searchTerm ? 'No products found' : 'No products available'}
                 </p>
                 <p className="text-sm mb-4">
-                  {searchTerm ? 'Try adjusting your search terms' : 'Add products to your inventory to start billing'}
+                  {searchTerm ? 'Try adjusting your search terms' : 'Add products to your inventory'}
                 </p>
                 {searchTerm && (
                   <button
                     onClick={() => setSearchTerm('')}
-                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors"
                   >
                     Clear Search
                   </button>
                 )}
               </div>
             ) : (
-              <div className={viewMode === 'grid'
-                ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3"
+              <div className={viewMode === 'grid' 
+                ? "grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3" 
                 : "space-y-2"
               }>
                 {filteredProducts.map(product => (
@@ -942,59 +1072,53 @@ export default function POSPage() {
                     onClick={() => addToCart(product)}
                     disabled={product.current_quantity === 0}
                     className={viewMode === 'grid'
-                      ? `product-card relative h-full min-h-[140px] p-3 sm:p-4 bg-white rounded-xl border-2 ${product.current_quantity === 0 ? 'border-gray-200 opacity-50 cursor-not-allowed' : product.current_quantity <= product.reorder_point ? 'border-orange-300 ring-2 ring-orange-100' : 'border-gray-200'} hover:border-indigo-400 hover:shadow-lg active:scale-95 active:bg-indigo-50 transition-all text-left touch-manipulation select-none ${clickedProduct === product.id ? 'selected' : ''}`
+                      ? `product-card relative h-full min-h-[120px] sm:min-h-[140px] p-2 sm:p-3 bg-white rounded-xl border-2 ${product.current_quantity === 0 ? 'border-gray-200 opacity-50 cursor-not-allowed' : product.current_quantity <= product.reorder_point ? 'border-orange-300 ring-2 ring-orange-100' : 'border-gray-200'} hover:border-indigo-400 hover:shadow-lg active:scale-95 active:bg-indigo-50 transition-all text-left touch-manipulation select-none ${clickedProduct === product.id ? 'selected' : ''}`
                       : `product-card relative w-full p-3 sm:p-4 bg-white rounded-xl border-2 ${product.current_quantity === 0 ? 'border-gray-200 opacity-50 cursor-not-allowed' : 'border-gray-200'} hover:border-indigo-400 hover:shadow-lg active:scale-95 active:bg-indigo-50 transition-all flex items-center gap-3 touch-manipulation select-none ${clickedProduct === product.id ? 'selected' : ''}`
                     }
                     style={{ WebkitTapHighlightColor: 'transparent' }}
                   >
                     {viewMode === 'grid' ? (
                       <div className="flex flex-col h-full w-full">
-                        <div className="w-full aspect-square max-h-28 bg-gray-100 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
+                        <div className="w-full aspect-square max-h-20 sm:max-h-24 bg-gray-100 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
                           {product.image_url ? (
                             <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" loading="lazy" />
                           ) : (
-                            <Package className="w-10 h-10 text-gray-400" />
+                            <Package className="w-8 sm:w-10 h-8 sm:h-10 text-gray-400" />
                           )}
                         </div>
                         <div className="flex-1 flex flex-col min-h-0">
-                          <p className="font-semibold text-gray-900 text-sm sm:text-base leading-tight line-clamp-2 mb-1">{product.name}</p>
-                          <p className="text-xs text-gray-500 mb-2">{product.sku || 'No SKU'}</p>
-                          <div className="flex items-center justify-between mt-auto pt-1 gap-1">
-                            <p className="font-bold text-indigo-600 text-base sm:text-lg">₹{product.selling_price.toFixed(0)}</p>
-                            <span className={`text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap ${product.current_quantity === 0 ? 'bg-red-100 text-red-700' : product.current_quantity <= product.reorder_point ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'}`}>
+                          <p className="font-semibold text-gray-900 text-xs sm:text-sm leading-tight line-clamp-2 mb-1">{product.name}</p>
+                          <div className="flex items-center justify-between mt-auto gap-1">
+                            <p className="font-bold text-indigo-600 text-sm sm:text-base">₹{product.selling_price.toFixed(0)}</p>
+                            <span className={`text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap ${product.current_quantity === 0 ? 'bg-red-100 text-red-700' : product.current_quantity <= product.reorder_point ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'}`}>
                               {product.current_quantity}
                             </span>
                           </div>
                         </div>
                         {product.current_quantity === 0 && (
                           <div className="absolute inset-0 bg-gray-100/80 rounded-xl flex items-center justify-center">
-                            <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">OUT OF STOCK</span>
+                            <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded">OUT</span>
                           </div>
                         )}
                       </div>
                     ) : (
                       <>
-                        <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
                           {product.image_url ? (
                             <img src={product.image_url} alt={product.name} className="w-full h-full object-cover rounded-xl" loading="lazy" />
                           ) : (
-                            <Package className="w-8 h-8 text-gray-400" />
+                            <Package className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-gray-900 text-base sm:text-lg truncate">{product.name}</p>
-                          <p className="text-sm text-gray-500">{product.sku || 'No SKU'}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${product.current_quantity === 0 ? 'bg-red-100 text-red-700' : product.current_quantity <= product.reorder_point ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'}`}>
-                              Stock: {product.current_quantity}
-                            </span>
-                          </div>
+                          <p className="font-semibold text-gray-900 text-sm sm:text-base truncate">{product.name}</p>
+                          <p className="text-xs text-gray-500">{product.sku || 'No SKU'}</p>
                         </div>
                         <div className="text-right flex flex-col items-end gap-1">
-                          <p className="font-bold text-indigo-600 text-lg sm:text-xl">₹{product.selling_price.toFixed(0)}</p>
+                          <p className="font-bold text-indigo-600 text-sm sm:text-lg">₹{product.selling_price.toFixed(0)}</p>
                           {product.current_quantity > 0 && (
-                            <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
-                              <Plus className="w-5 h-5 text-indigo-600" />
+                            <div className="w-7 h-7 bg-indigo-100 rounded-full flex items-center justify-center">
+                              <Plus className="w-4 h-4 text-indigo-600" />
                             </div>
                           )}
                         </div>
@@ -1007,21 +1131,21 @@ export default function POSPage() {
           </div>
         </div>
 
-        {/* Cart Section */}
+        {/* Cart Section - Mobile Optimized */}
         <div className={`w-full lg:w-96 bg-white border-l border-gray-200 flex flex-col ${showMobileCart ? 'fixed inset-0 z-50 lg:static lg:z-auto' : 'hidden lg:flex'}`}>
           {/* Mobile Cart Header */}
           <div className="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
-            <h2 className="text-lg font-bold text-gray-900">Shopping Cart ({cart.length} items)</h2>
+            <h2 className="text-lg font-bold text-gray-900">Cart ({cart.length})</h2>
             <button
               onClick={() => setShowMobileCart(false)}
-              className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+              className="p-2 hover:bg-gray-200 rounded-xl transition-colors"
             >
               <X className="w-6 h-6 text-gray-600" />
             </button>
           </div>
           
           {/* Customer Selection */}
-          <div className="p-4 border-b border-gray-200">
+          <div className="p-3 sm:p-4 border-b border-gray-200">
             <button
               onClick={() => setShowCustomerSelect(true)}
               className="w-full flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
@@ -1036,15 +1160,12 @@ export default function POSPage() {
                 {selectedCustomer?.phone && (
                   <p className="text-sm text-gray-500">{selectedCustomer.phone}</p>
                 )}
-                {!selectedCustomer && (
-                  <p className="text-xs text-gray-400">Tap to select customer</p>
-                )}
               </div>
               <ChevronDown className="w-5 h-5 text-gray-400" />
             </button>
           </div>
 
-          {/* Cart Items */}
+          {/* Cart Items - Mobile Optimized */}
           <div className="flex-1 overflow-y-auto p-3 sm:p-4">
             {cart.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-gray-400 py-8">
@@ -1058,12 +1179,12 @@ export default function POSPage() {
                   <div key={item.product.id} className="p-3 sm:p-4 bg-gray-50 rounded-xl touch-manipulation">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1 min-w-0 pr-2">
-                        <p className="font-semibold text-gray-900 text-base leading-tight">{item.product.name}</p>
-                        <p className="text-sm text-gray-500 mt-1">₹{item.unitPrice.toFixed(2)} each</p>
+                        <p className="font-semibold text-gray-900 text-sm sm:text-base leading-tight">{item.product.name}</p>
+                        <p className="text-xs sm:text-sm text-gray-500 mt-1">₹{item.unitPrice.toFixed(2)} each</p>
                       </div>
                       <button
                         onClick={() => removeFromCart(item.product.id)}
-                        className="p-2 hover:bg-red-100 rounded-lg transition-colors touch-manipulation"
+                        className="p-2 hover:bg-red-100 rounded-xl transition-colors touch-manipulation"
                         aria-label="Remove item"
                       >
                         <Trash2 className="w-5 h-5 text-red-500" />
@@ -1071,47 +1192,28 @@ export default function POSPage() {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 sm:gap-3">
                         <button
                           onClick={() => updateQuantity(item.product.id, -1)}
-                          className="w-10 h-10 bg-white rounded-xl border-2 border-gray-200 flex items-center justify-center hover:bg-gray-100 active:bg-gray-200 touch-manipulation"
+                          className="w-11 h-11 sm:w-10 sm:h-10 bg-white rounded-xl border-2 border-gray-200 flex items-center justify-center hover:bg-gray-100 active:bg-gray-200 touch-manipulation"
                           aria-label="Decrease quantity"
                         >
                           <Minus className="w-5 h-5 text-gray-700" />
                         </button>
-                        <span className="w-12 text-center font-bold text-gray-900 text-lg">{item.quantity}</span>
+                        <span className="w-10 sm:w-12 text-center font-bold text-gray-900 text-lg">{item.quantity}</span>
                         <button
                           onClick={() => updateQuantity(item.product.id, 1)}
-                          className="w-10 h-10 bg-white rounded-xl border-2 border-gray-200 flex items-center justify-center hover:bg-gray-100 active:bg-gray-200 touch-manipulation"
+                          className="w-11 h-11 sm:w-10 sm:h-10 bg-white rounded-xl border-2 border-gray-200 flex items-center justify-center hover:bg-gray-100 active:bg-gray-200 touch-manipulation"
                           aria-label="Increase quantity"
                         >
                           <Plus className="w-5 h-5 text-gray-700" />
                         </button>
                       </div>
-                      <p className="font-bold text-gray-900 text-lg">₹{item.totalAmount.toFixed(2)}</p>
+                      <p className="font-bold text-gray-900 text-base sm:text-lg">₹{item.totalAmount.toFixed(2)}</p>
                     </div>
                     
                     {item.discount > 0 && (
-                      <p className="text-xs text-green-600 mt-1">Discount: {item.discount}%</p>
-                    )}
-                    
-                    {item.serialNumbers && item.serialNumbers.length > 0 && (
-                      <div className="mt-2 pt-2 border-t border-gray-200">
-                        <p className="text-xs text-gray-500 mb-1 flex items-center gap-1">
-                          <Tag className="w-3 h-3" />
-                          Serial Numbers ({item.serialNumbers.length}):
-                        </p>
-                        <div className="flex flex-wrap gap-1">
-                          {item.serialNumbers.map((serial, idx) => (
-                            <span
-                              key={idx}
-                              className="text-xs font-mono bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded"
-                            >
-                              {serial}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
+                      <p className="text-xs text-green-600 mt-2">Discount: {item.discount}%</p>
                     )}
                   </div>
                 ))}
@@ -1119,37 +1221,37 @@ export default function POSPage() {
             )}
           </div>
 
-          {/* Totals */}
+          {/* Totals - Mobile Optimized */}
           <div className="p-4 bg-gray-50 border-t border-gray-200 space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Subtotal</span>
-              <span className="font-medium text-gray-900">₹{subtotal.toFixed(2)}</span>
+              <span className="font-bold text-gray-900">₹{subtotal.toFixed(2)}</span>
             </div>
             
             {totalDiscount > 0 && (
               <div className="flex justify-between text-sm text-green-600">
                 <span>Discount ({globalDiscountType === 'percent' ? `${globalDiscount}%` : `₹${globalDiscount}`})</span>
-                <span className="font-medium">-₹{totalDiscount.toFixed(2)}</span>
+                <span className="font-bold">-₹{totalDiscount.toFixed(2)}</span>
               </div>
             )}
             
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">GST</span>
-              <span className="font-medium text-gray-900">₹{totalGST.toFixed(2)}</span>
+              <span className="font-bold text-gray-900">₹{totalGST.toFixed(2)}</span>
             </div>
             
-            <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-200">
+            <div className="flex justify-between text-xl font-bold pt-3 border-t border-gray-200">
               <span className="text-gray-900">Total</span>
-              <span className="text-indigo-600">₹{total.toFixed(2)}</span>
+              <span className="text-indigo-600 text-2xl">₹{total.toFixed(0)}</span>
             </div>
           </div>
 
           {/* Quick Actions */}
           <div className="p-4 border-t border-gray-200">
-            <div className="flex gap-2 mb-3">
+            <div className="flex gap-2 mb-4">
               <button
                 onClick={() => setGlobalDiscountType(globalDiscountType === 'percent' ? 'amount' : 'percent')}
-                className="flex-1 py-2 bg-gray-100 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors"
+                className="flex-1 py-3 bg-gray-100 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-200 transition-colors"
               >
                 {globalDiscountType === 'percent' ? '% Discount' : '₹ Discount'}
               </button>
@@ -1158,38 +1260,37 @@ export default function POSPage() {
                 value={globalDiscount || ''}
                 onChange={(e) => setGlobalDiscount(parseFloat(e.target.value) || 0)}
                 placeholder={globalDiscountType === 'percent' ? '%' : '₹'}
-                className="w-20 px-3 py-2 bg-gray-100 rounded-lg text-center text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                className="w-24 px-4 py-3 bg-gray-100 rounded-xl text-center text-base font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
               />
             </div>
             
-            {/* Payment Methods */}
-            <div className="grid grid-cols-3 gap-2 mb-4">
+            {/* Payment Methods - Larger Touch Targets */}
+            <div className="grid grid-cols-3 gap-3 mb-4">
               {PAYMENT_METHODS.map(method => (
                 <button
                   key={method.id}
                   onClick={() => setPaymentMethod(method.id)}
-                  className={`py-3 sm:py-2 rounded-xl text-sm font-medium transition-all touch-manipulation ${
+                  className={`py-4 rounded-xl font-bold transition-all touch-manipulation ${
                     paymentMethod === method.id
-                      ? `${method.color} text-white shadow-md`
+                      ? `${method.color} text-white shadow-lg`
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  <span className="block text-xl mb-1">{method.icon}</span>
-                  <span className="hidden sm:inline">{method.label}</span>
-                  <span className="sm:hidden text-xs">{method.label}</span>
+                  <span className="block text-2xl mb-1">{method.icon}</span>
+                  <span className="text-sm">{method.label}</span>
                 </button>
               ))}
             </div>
             
             {/* Cash Input */}
             {paymentMethod === 'cash' && (
-              <div className="mb-3">
-                <div className="flex gap-1 mb-2">
+              <div className="mb-4">
+                <div className="grid grid-cols-5 gap-2 mb-3">
                   {quickCashAmounts.map(amount => (
                     <button
                       key={amount}
                       onClick={() => setCashReceived(amount)}
-                      className={`flex-1 py-2 sm:py-1.5 text-sm sm:text-xs font-medium rounded-lg transition-colors touch-manipulation ${
+                      className={`py-3 text-sm font-bold rounded-xl transition-colors touch-manipulation ${
                         cashReceived === amount
                           ? 'bg-indigo-600 text-white'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -1200,7 +1301,7 @@ export default function POSPage() {
                   ))}
                 </div>
                 <div className="relative">
-                  <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="number"
                     value={cashReceived || ''}
