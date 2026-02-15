@@ -1,48 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
-import sharp from 'sharp'
-import { writeFile, mkdir } from 'fs/promises'
-import path from 'path'
+import ImageKit from 'imagekit'
 import { v4 as uuidv4 } from 'uuid'
-import { getUserFromRequest, requireAuth } from '@/lib/auth'
+import { getUserFromRequest } from '@/lib/auth'
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
-const MAX_DIMENSION = 5000
 
-async function validateImageBuffer(buffer: Buffer): Promise<{ valid: boolean; error?: string; metadata?: any }> {
-  try {
-    const metadata = await sharp(buffer).metadata()
-
-    if (!metadata.width || !metadata.height || !metadata.format) {
-      return { valid: false, error: 'Invalid image file' }
-    }
-
-    if (metadata.width > MAX_DIMENSION || metadata.height > MAX_DIMENSION) {
-      return { valid: false, error: `Image dimensions too large. Maximum: ${MAX_DIMENSION}x${MAX_DIMENSION}px` }
-    }
-
-    const mimeTypes: Record<string, string> = {
-      jpeg: 'image/jpeg',
-      png: 'image/png',
-      webp: 'image/webp',
-      gif: 'image/gif'
-    }
-
-    const mimeType = mimeTypes[metadata.format as string]
-    if (!mimeType || !ALLOWED_MIME_TYPES.includes(mimeType)) {
-      return { valid: false, error: `Invalid file type. Detected: ${mimeType || 'unknown'}` }
-    }
-
-    return { valid: true, metadata }
-  } catch (error) {
-    return { valid: false, error: 'Invalid image file' }
-  }
-}
+// Initialize ImageKit
+const imagekit = new ImageKit({
+  publicKey: process.env.IMAGEKIT_PUBLIC_KEY || '',
+  privateKey: process.env.IMAGEKIT_PRIVATE_KEY || '',
+  urlEndpoint: process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT || ''
+})
 
 export async function POST(req: NextRequest) {
   try {
     const user = await getUserFromRequest(req)
-    if (!user) {
+    if (!user || !user.tenantId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -60,36 +34,48 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(new Uint8Array(bytes)) as Buffer
-
-    const validation = await validateImageBuffer(buffer)
-    if (!validation.valid) {
-      return NextResponse.json({ error: validation.error }, { status: 400 })
+    // Validate file type
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      return NextResponse.json(
+        { error: `Invalid file type. Allowed: ${ALLOWED_MIME_TYPES.join(', ')}` },
+        { status: 400 }
+      )
     }
 
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'products')
-    await mkdir(uploadDir, { recursive: true })
+    // Read file as base64
+    const bytes = await file.arrayBuffer()
+    const base64String = Buffer.from(bytes).toString('base64')
+    const mimeType = file.type
 
-    const filename = `${uuidv4()}.webp`
-    const filepath = path.join(uploadDir, filename)
+    // Generate unique filename with UUID
+    const fileId = uuidv4()
+    const orgFolder = user.tenantId.replace(/-/g, '').substring(0, 12)
+    const fileName = `${fileId}.webp`
+    
+    // Upload to ImageKit with organization folder
+    const uploadResponse = await imagekit.upload({
+      file: base64String,
+      fileName: fileName,
+      folder: `stockalert/${orgFolder}`,
+      isPrivateFile: false,
+      useUniqueFileName: false,
+      tags: ['product-image', `org:${user.tenantId}`],
+      customMetadata: {
+        uploadedBy: user.id,
+        organizationId: user.tenantId,
+        originalName: file.name,
+        uploadedAt: new Date().toISOString()
+      }
+    })
 
-    const optimizedBuffer = await sharp(buffer)
-      .resize(1200, 1200, {
-        fit: 'inside',
-        withoutEnlargement: true
-      })
-      .webp({ quality: 80 })
-      .toBuffer()
-
-    await writeFile(filepath, optimizedBuffer)
-
-    const imageUrl = `/uploads/products/${filename}`
+    // Get the optimized URL from ImageKit
+    const imageUrl = uploadResponse.url
 
     return NextResponse.json({
       imageUrl,
-      filename,
-      size: optimizedBuffer.length
+      fileId: uploadResponse.fileId,
+      name: uploadResponse.name,
+      size: uploadResponse.size
     }, { status: 201 })
 
   } catch (error) {

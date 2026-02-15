@@ -1,16 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile, mkdir } from 'fs/promises'
-import { join } from 'path'
+import ImageKit from 'imagekit'
 import { v4 as uuidv4 } from 'uuid'
-import { getUserFromRequest, requireAuth } from '@/lib/auth'
+import { getUserFromRequest } from '@/lib/auth'
 
-const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp']
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+
+// Initialize ImageKit
+const imagekit = new ImageKit({
+  publicKey: process.env.IMAGEKIT_PUBLIC_KEY || '',
+  privateKey: process.env.IMAGEKIT_PRIVATE_KEY || '',
+  urlEndpoint: process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT || ''
+})
 
 export async function POST(req: NextRequest) {
   try {
     const user = await getUserFromRequest(req)
-    if (!user) {
+    if (!user || !user.tenantId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -25,38 +31,42 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'File must be an image' }, { status: 400 })
     }
 
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      return NextResponse.json(
+        { error: 'Invalid file type. Allowed: jpg, jpeg, png, gif, webp' },
+        { status: 400 }
+      )
+    }
+
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json({ error: 'File size must be less than 5MB' }, { status: 400 })
     }
 
-    const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
-    const extension = safeName.split('.').pop()?.toLowerCase()
-
-    if (!extension || !ALLOWED_EXTENSIONS.includes(extension)) {
-      return NextResponse.json({ error: 'Invalid file type. Allowed: jpg, jpeg, png, gif, webp' }, { status: 400 })
-    }
-
+    // Read file as base64
     const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
+    const base64String = Buffer.from(bytes).toString('base64')
 
-    const uniqueId = uuidv4()
-    const filename = `${uniqueId}.${extension}`
+    // Generate unique filename
+    const fileId = uuidv4()
+    const fileName = `${fileId}.webp`
 
-    const uploadDir = join(process.cwd(), 'public', 'uploads')
-
-    try {
-      await mkdir(uploadDir, { recursive: true })
-    } catch (err: unknown) {
-      if (err instanceof Error && 'code' in err && err.code !== 'EEXIST') {
-        throw err
+    // Upload to ImageKit with organization folder
+    const uploadResponse = await imagekit.upload({
+      file: base64String,
+      fileName: fileName,
+      folder: `stockalert/${user.tenantId.replace(/-/g, '').substring(0, 12)}`,
+      isPrivateFile: false,
+      useUniqueFileName: false,
+      tags: ['upload', `org:${user.tenantId}`],
+      customMetadata: {
+        uploadedBy: user.id,
+        organizationId: user.tenantId,
+        originalName: file.name,
+        uploadedAt: new Date().toISOString()
       }
-    }
+    })
 
-    const filepath = join(uploadDir, filename)
-
-    await writeFile(filepath, buffer)
-
-    const imageUrl = `/uploads/${filename}`
+    const imageUrl = uploadResponse.url
 
     return NextResponse.json({ image_url: imageUrl }, { status: 201 })
   } catch (error) {
