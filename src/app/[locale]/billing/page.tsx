@@ -1480,7 +1480,7 @@ export default function POSPage() {
                   <p className="text-sm font-medium text-gray-700 mb-2">Scan to save receipt</p>
                   <div className="bg-white p-2 inline-block">
                     <img 
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(typeof window !== 'undefined' ? `${window.location.origin}/receipt/${lastSale.invoice?.id}` : '')}`}
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`${process.env.NEXT_PUBLIC_APP_URL || 'https://stockalert-seven.vercel.app'}/receipt/${lastSale.invoice?.id}`)}`}
                       alt="Receipt QR Code"
                       className="w-32 h-32"
                     />
