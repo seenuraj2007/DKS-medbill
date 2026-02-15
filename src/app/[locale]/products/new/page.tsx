@@ -2,12 +2,27 @@
 
 import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Save, Package, Tag, Hash, AlertTriangle, Mail, Phone, DollarSign, Box, Scan } from 'lucide-react'
+import { ArrowLeft, Save, Package, Tag, Hash, AlertTriangle, Mail, Phone, DollarSign, Box, Scan, Clock, Scale, Info } from 'lucide-react'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import ImageUpload from '@/components/ImageUpload'
 import { SubscriptionGate } from '@/components/SubscriptionGate'
 import { useUpgradeToast, ToastProvider } from '@/components/UpgradeNotification'
+
+const UNIT_OPTIONS = [
+  { value: 'unit', label: 'Unit (pcs)' },
+  { value: 'kg', label: 'Kilogram (kg)' },
+  { value: 'g', label: 'Gram (g)' },
+  { value: 'liter', label: 'Liter (L)' },
+  { value: 'ml', label: 'Milliliter (mL)' },
+  { value: 'dozen', label: 'Dozen (12 pcs)' },
+  { value: 'bunch', label: 'Bunch' },
+  { value: 'pair', label: 'Pair (2 pcs)' },
+  { value: 'packet', label: 'Packet' },
+  { value: 'box', label: 'Box' },
+  { value: 'crate', label: 'Crate' },
+  { value: 'ton', label: 'Ton' },
+]
 
 const BarcodeScanner = dynamic(() => import('@/components/BarcodeScanner'), {
   ssr: false,
@@ -64,8 +79,13 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
     supplier_phone: '',
     unit_cost: '',
     selling_price: '',
-    unit: '',
-    image_url: ''
+    unit: 'unit',
+    image_url: '',
+    // New fields for produce/weight-based items
+    is_perishable: false,
+    expiry_date: '',
+    weight_per_unit: '1',
+    min_weight: ''
   })
 
   useEffect(() => {
@@ -92,8 +112,12 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
         supplier_phone: product.supplier_phone || '',
         unit_cost: product.unit_cost?.toString() || '',
         selling_price: product.selling_price?.toString() || '',
-        unit: product.unit || '',
-        image_url: product.image_url || ''
+        unit: product.unit || 'unit',
+        image_url: product.image_url || '',
+        is_perishable: product.is_perishable || false,
+        expiry_date: product.expiry_date ? product.expiry_date.split('T')[0] : '',
+        weight_per_unit: product.weight_per_unit?.toString() || '1',
+        min_weight: product.min_weight?.toString() || ''
       })
     } catch (err) {
       setError('Failed to load product')
@@ -117,7 +141,10 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
         current_quantity: formData.current_quantity ? parseInt(formData.current_quantity) || 0 : 0,
         reorder_point: formData.reorder_point ? parseInt(formData.reorder_point) || 0 : 0,
         unit_cost: formData.unit_cost ? parseFloat(formData.unit_cost) || 0 : 0,
-        selling_price: formData.selling_price ? parseFloat(formData.selling_price) || 0 : 0
+        selling_price: formData.selling_price ? parseFloat(formData.selling_price) || 0 : 0,
+        weight_per_unit: formData.weight_per_unit ? parseFloat(formData.weight_per_unit) || 1 : 1,
+        min_weight: formData.min_weight ? parseFloat(formData.min_weight) || null : null,
+        expiry_date: formData.expiry_date || null
       }
 
       const url = isEdit ? `/api/products/${resolvedParams?.id}` : '/api/products'
@@ -280,14 +307,24 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
                   placeholder="Electronics"
                 />
 
-                <InputField
-                  label="Unit"
-                  icon={Box}
-                  name="unit"
-                  value={formData.unit}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, unit: e.target.value })}
-                  placeholder="pcs, kg, liters"
-                />
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Unit
+                  </label>
+                  <div className="relative">
+                    <Box className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <select
+                      name="unit"
+                      value={formData.unit}
+                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, unit: e.target.value })}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900 bg-white appearance-none"
+                    >
+                      {UNIT_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
 
                 <InputField
                   label="Current Quantity"
@@ -310,6 +347,66 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
                   placeholder="10"
                   min="0"
                 />
+
+                {/* Perishable / Weight-based Section */}
+                <div className="col-span-1 sm:col-span-2 bg-amber-50 border border-amber-200 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Info className="w-5 h-5 text-amber-600" />
+                    <h3 className="font-semibold text-amber-800">Produce & Weight Settings</h3>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        id="is_perishable"
+                        name="is_perishable"
+                        checked={formData.is_perishable}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, is_perishable: e.target.checked })}
+                        className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                      />
+                      <label htmlFor="is_perishable" className="text-sm font-medium text-gray-700">
+                        This is a perishable item
+                      </label>
+                    </div>
+
+                    {formData.is_perishable && (
+                      <InputField
+                        label="Expiry Date"
+                        icon={Clock}
+                        type="date"
+                        name="expiry_date"
+                        value={formData.expiry_date}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, expiry_date: e.target.value })}
+                        placeholder=""
+                      />
+                    )}
+
+                    <InputField
+                      label="Weight per Unit (kg)"
+                      icon={Scale}
+                      type="number"
+                      name="weight_per_unit"
+                      value={formData.weight_per_unit}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, weight_per_unit: e.target.value })}
+                      placeholder="1"
+                      min="0"
+                      step="0.001"
+                    />
+
+                    <InputField
+                      label="Minimum Sale Weight (kg)"
+                      icon={Scale}
+                      type="number"
+                      name="min_weight"
+                      value={formData.min_weight}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, min_weight: e.target.value })}
+                      placeholder="0.1"
+                      min="0"
+                      step="0.001"
+                    />
+                  </div>
+                </div>
 
                 <InputField
                   label="Unit Cost ($)"

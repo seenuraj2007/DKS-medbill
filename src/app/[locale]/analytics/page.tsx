@@ -45,9 +45,8 @@ const StatCard = ({ title, value, change, trend, icon: Icon, color, subtext }: a
         <Icon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
       </div>
       {change && (
-        <span className={`flex items-center gap-1 text-xs sm:text-sm font-semibold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full ${
-          trend === 'up' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-        }`}>
+        <span className={`flex items-center gap-1 text-xs sm:text-sm font-semibold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full ${trend === 'up' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+          }`}>
           {trend === 'up' ? <ArrowUpRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> : <ArrowDownRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />}
           <span className="hidden sm:inline">{change}</span>
         </span>
@@ -111,7 +110,7 @@ export default function AnalyticsPage() {
         credentials: 'include'
       })
       if (!res.ok) throw new Error('Export failed')
-      
+
       const blob = await res.blob()
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -203,7 +202,7 @@ export default function AnalyticsPage() {
               </div>
               <div className="flex items-center gap-2 sm:gap-3">
                 <div className="relative">
-                  <button 
+                  <button
                     onClick={() => setShowDatePicker(!showDatePicker)}
                     className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 bg-white border border-gray-200 rounded-xl text-gray-700 font-medium hover:bg-gray-50 hover:shadow-md transition-all cursor-pointer text-sm"
                   >
@@ -217,9 +216,8 @@ export default function AnalyticsPage() {
                         <button
                           key={p}
                           onClick={() => { setPeriod(p); setShowDatePicker(false); }}
-                          className={`w-full text-left px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-                            period === p ? 'bg-indigo-50 text-indigo-700' : 'hover:bg-gray-50 text-gray-700'
-                          }`}
+                          className={`w-full text-left px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${period === p ? 'bg-indigo-50 text-indigo-700' : 'hover:bg-gray-50 text-gray-700'
+                            }`}
                         >
                           {periodLabels[p]}
                         </button>
@@ -227,14 +225,14 @@ export default function AnalyticsPage() {
                     </div>
                   )}
                 </div>
-                <button 
-                  onClick={fetchAnalytics} 
+                <button
+                  onClick={fetchAnalytics}
                   className="p-2 sm:p-2.5 text-gray-600 hover:text-gray-900 hover:bg-white rounded-xl transition-all cursor-pointer border border-gray-200 shadow-sm"
                   title="Refresh data"
                 >
                   <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
-                <button 
+                <button
                   onClick={handleExport}
                   className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-medium hover:from-indigo-600 hover:to-purple-700 transition-all cursor-pointer text-sm"
                 >
@@ -252,11 +250,10 @@ export default function AnalyticsPage() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${
-                      activeTab === tab.id
-                        ? 'bg-white text-indigo-700 shadow-md'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                    } cursor-pointer`}
+                    className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${activeTab === tab.id
+                      ? 'bg-white text-indigo-700 shadow-md'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      } cursor-pointer`}
                   >
                     <tab.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     {tab.label}
@@ -268,16 +265,16 @@ export default function AnalyticsPage() {
             <div className="pb-20 sm:pb-8">
               {activeTab === 'overview' && (
                 <>
-                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
                     {statCards.map((stat, i) => (
                       <StatCard key={i} {...stat} />
                     ))}
                   </div>
 
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-                    <div className="lg:col-span-2 bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-4 sm:p-6">
-                      <div className="flex items-center justify-between mb-4 sm:mb-6">
-                        <h3 className="text-base sm:text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <div className="lg:col-span-2 bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-3 sm:p-6">
+                      <div className="flex items-center justify-between mb-3 sm:mb-6">
+                        <h3 className="text-sm sm:text-lg font-bold text-gray-900 flex items-center gap-2">
                           <span className="w-1 h-4 sm:h-5 bg-indigo-500 rounded-full"></span>
                           Revenue Trend
                         </h3>
@@ -288,7 +285,7 @@ export default function AnalyticsPage() {
                           </span>
                         </div>
                       </div>
-                      <ResponsiveContainer width="100%" height={250}>
+                      <ResponsiveContainer width="100%" height={200}>
                         <AreaChart data={data?.revenueByDay || []}>
                           <defs>
                             <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
@@ -297,40 +294,40 @@ export default function AnalyticsPage() {
                             </linearGradient>
                           </defs>
                           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                          <XAxis 
-                            dataKey="date" 
-                            tick={{ fontSize: 10 }} 
-                            stroke="#9ca3af" 
+                          <XAxis
+                            dataKey="date"
+                            tick={{ fontSize: 10 }}
+                            stroke="#9ca3af"
                             tickFormatter={(v) => {
                               const date = new Date(v)
                               return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
                             }}
                           />
-                          <YAxis 
-                            tick={{ fontSize: 10 }} 
-                            stroke="#9ca3af" 
-                            tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`} 
+                          <YAxis
+                            tick={{ fontSize: 10 }}
+                            stroke="#9ca3af"
+                            tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
                           />
                           <Tooltip content={<CustomTooltip />} />
-                          <Area 
-                            type="monotone" 
-                            dataKey="revenue" 
-                            stroke="#6366f1" 
-                            strokeWidth={3} 
-                            fillOpacity={1} 
-                            fill="url(#colorRevenue)" 
+                          <Area
+                            type="monotone"
+                            dataKey="revenue"
+                            stroke="#6366f1"
+                            strokeWidth={3}
+                            fillOpacity={1}
+                            fill="url(#colorRevenue)"
                           />
                         </AreaChart>
                       </ResponsiveContainer>
                     </div>
 
-                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-4 sm:p-6">
-                      <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
+                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-3 sm:p-6">
+                      <h3 className="text-sm sm:text-lg font-bold text-gray-900 mb-3 sm:mb-6 flex items-center gap-2">
                         <span className="w-1 h-4 sm:h-5 bg-purple-500 rounded-full"></span>
                         Stock Status
                       </h3>
-                      <div className="mb-4 sm:mb-6">
-                        <ResponsiveContainer width="100%" height={140}>
+                      <div className="mb-3 sm:mb-6">
+                        <ResponsiveContainer width="100%" height={120}>
                           <RechartsPie>
                             <Pie
                               data={stockStatus}
@@ -356,7 +353,7 @@ export default function AnalyticsPage() {
                               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
                               <span className="text-sm font-medium text-gray-700">{item.label}</span>
                             </div>
-                              <span className="font-bold text-gray-900">{item.value}</span>
+                            <span className="font-bold text-gray-900">{item.value}</span>
                           </div>
                         ))}
                       </div>
@@ -395,7 +392,7 @@ export default function AnalyticsPage() {
                       {data?.lowStockProducts && data.lowStockProducts.length > 0 ? (
                         <div className="space-y-3">
                           {data.lowStockProducts.slice(0, 8).map((product) => (
-                            <Link 
+                            <Link
                               key={product.id}
                               href={`/products/${product.id}/edit`}
                               className="flex items-center gap-4 p-3 bg-amber-50 hover:bg-amber-100 rounded-xl transition-colors cursor-pointer border border-amber-100"
@@ -435,7 +432,7 @@ export default function AnalyticsPage() {
                     <ResponsiveContainer width="100%" height={250}>
                       <BarChart data={data?.categoryBreakdown || []} layout="vertical">
                         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
-                        <XAxis type="number" tick={{ fontSize: 11 }} stroke="#9ca3af" tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`} />
+                        <XAxis type="number" tick={{ fontSize: 11 }} stroke="#9ca3af" tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
                         <YAxis type="category" dataKey="category" tick={{ fontSize: 11 }} stroke="#9ca3af" width={100} />
                         <Tooltip content={<CustomTooltip />} />
                         <Bar dataKey="revenue" fill="#6366f1" radius={[0, 4, 4, 0]} />
@@ -446,53 +443,53 @@ export default function AnalyticsPage() {
               )}
 
               {activeTab === 'revenue' && (
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-5 border border-green-200">
-                      <p className="text-sm text-green-700 font-medium mb-1">Total Revenue</p>
-                      <p className="text-2xl font-bold text-green-800">{formatCurrency(data?.sales.total || 0)}</p>
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+                    <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-3 sm:p-5 border border-green-200">
+                      <p className="text-xs sm:text-sm text-green-700 font-medium mb-1">Total Revenue</p>
+                      <p className="text-xl sm:text-2xl font-bold text-green-800">{formatCurrency(data?.sales.total || 0)}</p>
                     </div>
-                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-5 border border-blue-200">
-                      <p className="text-sm text-blue-700 font-medium mb-1">Avg Daily</p>
-                      <p className="text-2xl font-bold text-blue-800">
+                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-3 sm:p-5 border border-blue-200">
+                      <p className="text-xs sm:text-sm text-blue-700 font-medium mb-1">Avg Daily</p>
+                      <p className="text-xl sm:text-2xl font-bold text-blue-800">
                         {formatCurrency((data?.sales.total || 0) / Math.max(1, parseInt(period)))}
                       </p>
                     </div>
-                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-5 border border-purple-200">
-                      <p className="text-sm text-purple-700 font-medium mb-1">Best Day</p>
-                      <p className="text-2xl font-bold text-purple-800">
+                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-3 sm:p-5 border border-purple-200">
+                      <p className="text-xs sm:text-sm text-purple-700 font-medium mb-1">Best Day</p>
+                      <p className="text-xl sm:text-2xl font-bold text-purple-800">
                         {formatCurrency(Math.max(...(data?.revenueByDay.map(d => d.revenue) || [0])))}
                       </p>
                     </div>
-                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-5 border border-orange-200">
-                      <p className="text-sm text-orange-700 font-medium mb-1">Transactions</p>
-                      <p className="text-2xl font-bold text-orange-800">{formatNumber(data?.sales.count || 0)}</p>
+                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-3 sm:p-5 border border-orange-200">
+                      <p className="text-xs sm:text-sm text-orange-700 font-medium mb-1">Transactions</p>
+                      <p className="text-xl sm:text-2xl font-bold text-orange-800">{formatNumber(data?.sales.count || 0)}</p>
                     </div>
                   </div>
 
-                  <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-6">
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                        <span className="w-1 h-5 bg-green-500 rounded-full"></span>
+                  <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-3 sm:p-6">
+                    <div className="flex items-center justify-between mb-3 sm:mb-6">
+                      <h3 className="text-sm sm:text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <span className="w-1 h-4 sm:h-5 bg-green-500 rounded-full"></span>
                         Revenue Over Time
                       </h3>
                     </div>
-                    <ResponsiveContainer width="100%" height={400}>
+                    <ResponsiveContainer width="100%" height={300}>
                       <ComposedChart data={data?.revenueByDay || []}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                        <XAxis 
-                          dataKey="date" 
-                          tick={{ fontSize: 11 }} 
+                        <XAxis
+                          dataKey="date"
+                          tick={{ fontSize: 11 }}
                           stroke="#9ca3af"
                           tickFormatter={(v) => {
                             const date = new Date(v)
                             return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
                           }}
                         />
-                        <YAxis 
-                          tick={{ fontSize: 11 }} 
+                        <YAxis
+                          tick={{ fontSize: 11 }}
                           stroke="#9ca3af"
-                          tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`}
+                          tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
                         />
                         <Tooltip content={<CustomTooltip />} />
                         <Bar dataKey="revenue" fill="#6366f1" radius={[4, 4, 0, 0]} opacity={0.8} />
@@ -502,12 +499,12 @@ export default function AnalyticsPage() {
                   </div>
 
                   {data?.paymentMethods && data.paymentMethods.length > 0 && (
-                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-6">
-                      <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-                        <span className="w-1 h-5 bg-indigo-500 rounded-full"></span>
+                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-3 sm:p-6">
+                      <h3 className="text-sm sm:text-lg font-bold text-gray-900 mb-3 sm:mb-6 flex items-center gap-2">
+                        <span className="w-1 h-4 sm:h-5 bg-indigo-500 rounded-full"></span>
                         Payment Methods
                       </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                         {data.paymentMethods.map((method, i) => (
                           <div key={i} className="p-4 bg-gray-50 rounded-xl">
                             <div className="flex items-center gap-3 mb-3">
@@ -584,7 +581,7 @@ export default function AnalyticsPage() {
                         <BarChart data={data?.categoryBreakdown || []}>
                           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                           <XAxis dataKey="category" tick={{ fontSize: 11 }} stroke="#9ca3af" />
-                          <YAxis tick={{ fontSize: 11 }} stroke="#9ca3af" tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`} />
+                          <YAxis tick={{ fontSize: 11 }} stroke="#9ca3af" tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
                           <Tooltip formatter={(value: number | undefined) => formatCurrency(value || 0)} />
                           <Bar dataKey="value" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
                         </BarChart>
@@ -611,12 +608,11 @@ export default function AnalyticsPage() {
                           {(data?.topProducts || []).slice(0, 15).map((product, i) => (
                             <tr key={product.id} className="border-b border-gray-50 hover:bg-gray-50/50">
                               <td className="py-3 px-4">
-                                <span className={`w-6 h-6 inline-flex items-center justify-center rounded-full text-xs font-bold ${
-                                  i === 0 ? 'bg-amber-100 text-amber-700' :
+                                <span className={`w-6 h-6 inline-flex items-center justify-center rounded-full text-xs font-bold ${i === 0 ? 'bg-amber-100 text-amber-700' :
                                   i === 1 ? 'bg-gray-200 text-gray-700' :
-                                  i === 2 ? 'bg-orange-100 text-orange-700' :
-                                  'bg-gray-100 text-gray-600'
-                                }`}>
+                                    i === 2 ? 'bg-orange-100 text-orange-700' :
+                                      'bg-gray-100 text-gray-600'
+                                  }`}>
                                   {i + 1}
                                 </span>
                               </td>
@@ -640,60 +636,58 @@ export default function AnalyticsPage() {
               )}
 
               {activeTab === 'stock' && (
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-5 border border-green-200">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center">
-                          <CheckCircle className="w-5 h-5 text-white" />
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+                    <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-3 sm:p-5 border border-green-200">
+                      <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                        <div className="w-8 sm:w-10 h-8 sm:h-10 bg-green-500 rounded-xl flex items-center justify-center">
+                          <CheckCircle className="w-4 sm:w-5 h-4 sm:h-5 text-white" />
                         </div>
-                        <span className="text-sm text-green-700 font-medium">In Stock</span>
+                        <span className="text-xs sm:text-sm text-green-700 font-medium">In Stock</span>
                       </div>
-                      <p className="text-3xl font-bold text-green-800">
+                      <p className="text-2xl sm:text-3xl font-bold text-green-800">
                         {(data?.stock.total || 0) - (data?.stock.lowStock || 0) - (data?.stock.outOfStock || 0)}
                       </p>
-                      <p className="text-sm text-green-600 mt-1">items available</p>
+                      <p className="text-xs sm:text-sm text-green-600 mt-1">items available</p>
                     </div>
-                    <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl p-5 border border-amber-200">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center">
-                          <AlertTriangle className="w-5 h-5 text-white" />
+                    <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl p-3 sm:p-5 border border-amber-200">
+                      <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                        <div className="w-8 sm:w-10 h-8 sm:h-10 bg-amber-500 rounded-xl flex items-center justify-center">
+                          <AlertTriangle className="w-4 sm:w-5 h-4 sm:h-5 text-white" />
                         </div>
-                        <span className="text-sm text-amber-700 font-medium">Low Stock</span>
+                        <span className="text-xs sm:text-sm text-amber-700 font-medium">Low Stock</span>
                       </div>
-                      <p className="text-3xl font-bold text-amber-800">{data?.stock.lowStock || 0}</p>
-                      <p className="text-sm text-amber-600 mt-1">need attention</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-amber-800">{data?.stock.lowStock || 0}</p>
+                      <p className="text-xs sm:text-sm text-amber-600 mt-1">need attention</p>
                     </div>
-                    <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-2xl p-5 border border-red-200">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center">
-                          <XCircle className="w-5 h-5 text-white" />
+                    <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-2xl p-3 sm:p-5 border border-red-200">
+                      <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                        <div className="w-8 sm:w-10 h-8 sm:h-10 bg-red-500 rounded-xl flex items-center justify-center">
+                          <XCircle className="w-4 sm:w-5 h-4 sm:h-5 text-white" />
                         </div>
-                        <span className="text-sm text-red-700 font-medium">Out of Stock</span>
+                        <span className="text-xs sm:text-sm text-red-700 font-medium">Out of Stock</span>
                       </div>
-                      <p className="text-3xl font-bold text-red-800">{data?.stock.outOfStock || 0}</p>
-                      <p className="text-sm text-red-600 mt-1">need restock</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-red-800">{data?.stock.outOfStock || 0}</p>
+                      <p className="text-xs sm:text-sm text-red-600 mt-1">need restock</p>
                     </div>
-                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-5 border border-purple-200">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center">
-                          <IndianRupee className="w-5 h-5 text-white" />
+                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-3 sm:p-5 border border-purple-200">
+                      <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                        <div className="w-8 sm:w-10 h-8 sm:h-10 bg-purple-500 rounded-xl flex items-center justify-center">
+                          <IndianRupee className="w-4 sm:w-5 h-4 sm:h-5 text-white" />
                         </div>
-                        <span className="text-sm text-purple-700 font-medium">Total Value</span>
+                        <span className="text-xs sm:text-sm text-purple-700 font-medium">Total Value</span>
                       </div>
-                      <p className="text-3xl font-bold text-purple-800">{formatCurrency(data?.stock.value || 0)}</p>
-                      <p className="text-sm text-purple-600 mt-1">inventory worth</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-purple-800">{formatCurrency(data?.stock.value || 0)}</p>
+                      <p className="text-xs sm:text-sm text-purple-600 mt-1">inventory worth</p>
                     </div>
                   </div>
 
-                  <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-6">
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                        <span className="w-1 h-5 bg-indigo-500 rounded-full"></span>
-                        Stock Distribution by Category
-                      </h3>
-                    </div>
-                    <ResponsiveContainer width="100%" height={350}>
+                  <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-3 sm:p-6">
+                    <h3 className="text-sm sm:text-lg font-bold text-gray-900 mb-3 sm:mb-6 flex items-center gap-2">
+                      <span className="w-1 h-4 sm:h-5 bg-blue-500 rounded-full"></span>
+                      Stock Distribution by Category
+                    </h3>
+                    <ResponsiveContainer width="100%" height={250}>
                       <BarChart data={data?.categoryBreakdown || []}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                         <XAxis dataKey="category" tick={{ fontSize: 11 }} stroke="#9ca3af" />
@@ -729,16 +723,15 @@ export default function AnalyticsPage() {
                                 <td className="text-right py-3 px-4 text-gray-600">{product.current_quantity}</td>
                                 <td className="text-right py-3 px-4 text-gray-600">{product.reorder_point}</td>
                                 <td className="text-right py-3 px-4">
-                                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                                    product.current_quantity === 0 
-                                      ? 'bg-red-100 text-red-700' 
-                                      : 'bg-amber-100 text-amber-700'
-                                  }`}>
+                                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${product.current_quantity === 0
+                                    ? 'bg-red-100 text-red-700'
+                                    : 'bg-amber-100 text-amber-700'
+                                    }`}>
                                     {product.current_quantity === 0 ? 'Out of Stock' : 'Low Stock'}
                                   </span>
                                 </td>
                                 <td className="text-right py-3 px-4">
-                                  <Link 
+                                  <Link
                                     href={`/products/${product.id}/edit`}
                                     className="text-indigo-600 hover:text-indigo-800 text-sm font-medium cursor-pointer"
                                   >
@@ -764,30 +757,30 @@ export default function AnalyticsPage() {
               )}
 
               {activeTab === 'performance' && (
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-6">
-                      <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                        <span className="w-1 h-5 bg-green-500 rounded-full"></span>
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-4 sm:p-6">
+                      <h3 className="text-sm sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                        <span className="w-1 h-4 sm:h-5 bg-green-500 rounded-full"></span>
                         Revenue Growth
                       </h3>
                       <div className="flex items-end gap-2">
-                        <span className="text-4xl font-bold text-gray-900">+12.5%</span>
-                        <span className="text-sm text-green-600 mb-1">vs last period</span>
+                        <span className="text-3xl sm:text-4xl font-bold text-gray-900">+12.5%</span>
+                        <span className="text-xs sm:text-sm text-green-600 mb-1">vs last period</span>
                       </div>
                       <div className="mt-4 h-2 bg-gray-100 rounded-full overflow-hidden">
                         <div className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full" style={{ width: '75%' }}></div>
                       </div>
                       <p className="text-sm text-gray-500 mt-2">Performance Score: 75/100</p>
                     </div>
-                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-6">
-                      <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                        <span className="w-1 h-5 bg-blue-500 rounded-full"></span>
+                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-4 sm:p-6">
+                      <h3 className="text-sm sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                        <span className="w-1 h-4 sm:h-5 bg-blue-500 rounded-full"></span>
                         Order Fulfillment
                       </h3>
                       <div className="flex items-end gap-2">
-                        <span className="text-4xl font-bold text-gray-900">98.5%</span>
-                        <span className="text-sm text-green-600 mb-1">success rate</span>
+                        <span className="text-3xl sm:text-4xl font-bold text-gray-900">98.5%</span>
+                        <span className="text-xs sm:text-sm text-green-600 mb-1">success rate</span>
                       </div>
                       <div className="mt-4 h-2 bg-gray-100 rounded-full overflow-hidden">
                         <div className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full" style={{ width: '98.5%' }}></div>

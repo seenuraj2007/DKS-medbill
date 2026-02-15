@@ -76,6 +76,10 @@ export async function GET(req: NextRequest) {
         unit: product.unit,
         image_url: product.imageUrl,
         is_active: product.isActive,
+        is_perishable: product.isPerishable || false,
+        expiry_date: product.expiryDate,
+        weight_per_unit: product.weightPerUnit ? Number(product.weightPerUnit) : 1,
+        min_weight: product.minWeight ? Number(product.minWeight) : null,
         deleted_at: product.deletedAt,
         created_at: product.createdAt.toISOString(),
         updated_at: product.updatedAt.toISOString(),
@@ -115,7 +119,8 @@ export async function POST(req: NextRequest) {
     const {
       name, sku, barcode, category, current_quantity, reorder_point,
       supplier_id, supplier_name, supplier_email, supplier_phone,
-      unit_cost, selling_price, unit, image_url
+      unit_cost, selling_price, unit, image_url,
+      is_perishable, expiry_date, weight_per_unit, min_weight
     } = body
 
     if (!name) {
@@ -152,7 +157,11 @@ export async function POST(req: NextRequest) {
         imageUrl: image_url || null,
         supplierName: supplier_name || null,
         supplierEmail: supplier_email || null,
-        supplierPhone: supplier_phone || null
+        supplierPhone: supplier_phone || null,
+        isPerishable: is_perishable || false,
+        expiryDate: expiry_date ? new Date(expiry_date) : null,
+        weightPerUnit: weight_per_unit ? parseFloat(weight_per_unit) : 1,
+        minWeight: min_weight ? parseFloat(min_weight) : null
       })
     } catch (error) {
       if (error instanceof Error && error.message.includes('PRODUCT_CONFLICT')) {

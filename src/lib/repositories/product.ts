@@ -15,6 +15,10 @@ export interface CreateProductInput {
   supplierName?: string;
   supplierEmail?: string;
   supplierPhone?: string;
+  isPerishable?: boolean;
+  expiryDate?: Date | null;
+  weightPerUnit?: number;
+  minWeight?: number | null;
 }
 
 export interface UpdateProductInput {
@@ -32,6 +36,10 @@ export interface UpdateProductInput {
   supplierEmail?: string;
   supplierPhone?: string;
   isActive?: boolean;
+  isPerishable?: boolean;
+  expiryDate?: Date | null;
+  weightPerUnit?: number;
+  minWeight?: number | null;
 }
 
 export class ProductRepository extends BaseRepository {
