@@ -432,18 +432,7 @@ export default function POSPage() {
 
   // Cart actions
   const addToCart = async (product: Product) => {
-    // Check if product has serial numbers
-    const res = await fetch(`/api/serial-numbers?productId=${product.id}&status=IN_STOCK`)
-    if (res.ok) {
-      const data = await res.json()
-      if (data.serialNumbers && data.serialNumbers.length > 0) {
-        // Product has serial numbers, open modal to select
-        openSerialModal(product)
-        return
-      }
-    }
-    
-    // No serial numbers, add normally
+    // Add to cart immediately for better UX
     const existingItem = cart.find(item => item.product.id === product.id)
     
     if (existingItem) {
@@ -462,6 +451,21 @@ export default function POSPage() {
         ...calculateItemPrice(product)
       }
       setCart([...cart, newItem])
+    }
+    
+    // Check if product has serial numbers (async, non-blocking)
+    try {
+      const res = await fetch(`/api/serial-numbers?productId=${product.id}&status=IN_STOCK`)
+      if (res.ok) {
+        const data = await res.json()
+        if (data.serialNumbers && data.serialNumbers.length > 0) {
+          // Product has serial numbers, open modal to select
+          openSerialModal(product)
+        }
+      }
+    } catch (error) {
+      // Silent fail - product already added to cart
+      console.error('Error checking serial numbers:', error)
     }
   }
 
@@ -923,7 +927,7 @@ export default function POSPage() {
                 )}
               </div>
             ) : (
-              <div className={viewMode === 'grid' 
+              <div className={viewMode === 'grid'
                 ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3"
                 : "space-y-2"
               }>
@@ -931,51 +935,64 @@ export default function POSPage() {
                   <button
                     key={product.id}
                     onClick={() => addToCart(product)}
+                    disabled={product.current_quantity === 0}
                     className={viewMode === 'grid'
-                      ? `h-full p-3 bg-white rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-md transition-all text-left ${product.current_quantity <= product.reorder_point ? 'ring-2 ring-orange-200' : ''}`
-                      : "p-3 bg-white rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-md transition-all flex items-center gap-3"
+                      ? `relative h-full min-h-[140px] p-3 sm:p-4 bg-white rounded-xl border-2 ${product.current_quantity === 0 ? 'border-gray-200 opacity-50 cursor-not-allowed' : product.current_quantity <= product.reorder_point ? 'border-orange-300 ring-2 ring-orange-100' : 'border-gray-200'} hover:border-indigo-400 hover:shadow-lg active:scale-95 active:bg-indigo-50 transition-all text-left touch-manipulation select-none`
+                      : `relative w-full p-3 sm:p-4 bg-white rounded-xl border-2 ${product.current_quantity === 0 ? 'border-gray-200 opacity-50 cursor-not-allowed' : 'border-gray-200'} hover:border-indigo-400 hover:shadow-lg active:scale-95 active:bg-indigo-50 transition-all flex items-center gap-3 touch-manipulation select-none`
                     }
+                    style={{ WebkitTapHighlightColor: 'transparent' }}
                   >
                     {viewMode === 'grid' ? (
-                      <div className="flex flex-col h-full">
-                        <div className="w-full h-24 bg-gray-100 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
+                      <div className="flex flex-col h-full w-full">
+                        <div className="w-full aspect-square max-h-28 bg-gray-100 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
                           {product.image_url ? (
-                            <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+                            <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" loading="lazy" />
                           ) : (
-                            <Package className="w-8 h-8 text-gray-300" />
+                            <Package className="w-10 h-10 text-gray-400" />
                           )}
                         </div>
-                         <div className="flex-1 flex flex-col">
-                           <p className="font-medium text-gray-900 text-sm truncate">{product.name}</p>
-                           <p className="text-xs text-gray-500">{product.sku || 'No SKU'}</p>
-                           <div className="flex items-center justify-between mt-auto pt-1">
-                             <p className="font-bold text-indigo-600">₹{product.selling_price.toFixed(2)}</p>
-                             <div className="flex items-center gap-2">
-                               <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${product.current_quantity === 0 ? 'bg-red-100 text-red-600' : product.current_quantity <= product.reorder_point ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'}`}>
-                                 Stock: {product.current_quantity}
-                               </span>
-                             </div>
-                           </div>
-                         </div>
+                        <div className="flex-1 flex flex-col min-h-0">
+                          <p className="font-semibold text-gray-900 text-sm sm:text-base leading-tight line-clamp-2 mb-1">{product.name}</p>
+                          <p className="text-xs text-gray-500 mb-2">{product.sku || 'No SKU'}</p>
+                          <div className="flex items-center justify-between mt-auto pt-1 gap-1">
+                            <p className="font-bold text-indigo-600 text-base sm:text-lg">₹{product.selling_price.toFixed(0)}</p>
+                            <span className={`text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap ${product.current_quantity === 0 ? 'bg-red-100 text-red-700' : product.current_quantity <= product.reorder_point ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'}`}>
+                              {product.current_quantity}
+                            </span>
+                          </div>
+                        </div>
+                        {product.current_quantity === 0 && (
+                          <div className="absolute inset-0 bg-gray-100/80 rounded-xl flex items-center justify-center">
+                            <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">OUT OF STOCK</span>
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <>
-                        <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
                           {product.image_url ? (
-                            <img src={product.image_url} alt={product.name} className="w-full h-full object-cover rounded-lg" />
+                            <img src={product.image_url} alt={product.name} className="w-full h-full object-cover rounded-xl" loading="lazy" />
                           ) : (
-                            <Package className="w-6 h-6 text-gray-300" />
+                            <Package className="w-8 h-8 text-gray-400" />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-gray-900 truncate">{product.name}</p>
+                          <p className="font-semibold text-gray-900 text-base sm:text-lg truncate">{product.name}</p>
                           <p className="text-sm text-gray-500">{product.sku || 'No SKU'}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${product.current_quantity === 0 ? 'bg-red-100 text-red-700' : product.current_quantity <= product.reorder_point ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'}`}>
+                              Stock: {product.current_quantity}
+                            </span>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="font-bold text-indigo-600">₹{product.selling_price.toFixed(2)}</p>
-                          <p className="text-xs text-gray-500">Qty: {product.current_quantity}</p>
+                        <div className="text-right flex flex-col items-end gap-1">
+                          <p className="font-bold text-indigo-600 text-lg sm:text-xl">₹{product.selling_price.toFixed(0)}</p>
+                          {product.current_quantity > 0 && (
+                            <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
+                              <Plus className="w-5 h-5 text-indigo-600" />
+                            </div>
+                          )}
                         </div>
-                        <Plus className="w-5 h-5 text-indigo-600" />
                       </>
                     )}
                   </button>
@@ -1023,47 +1040,50 @@ export default function POSPage() {
           </div>
 
           {/* Cart Items */}
-          <div className="flex-1 overflow-y-auto p-4">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4">
             {cart.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-gray-400">
+              <div className="flex flex-col items-center justify-center h-full text-gray-400 py-8">
                 <ShoppingCart className="w-16 h-16 mb-3 opacity-30" />
-                <p className="text-gray-900 font-medium">Cart is empty</p>
-                <p className="text-sm">Click on products to add them</p>
+                <p className="text-gray-900 font-medium text-lg">Cart is empty</p>
+                <p className="text-sm text-gray-500">Tap products to add them</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {cart.map(item => (
-                  <div key={item.product.id} className="p-3 bg-gray-50 rounded-xl">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 text-sm truncate">{item.product.name}</p>
-                        <p className="text-xs text-gray-500">₹{item.unitPrice.toFixed(2)} each</p>
+                  <div key={item.product.id} className="p-3 sm:p-4 bg-gray-50 rounded-xl touch-manipulation">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1 min-w-0 pr-2">
+                        <p className="font-semibold text-gray-900 text-base leading-tight">{item.product.name}</p>
+                        <p className="text-sm text-gray-500 mt-1">₹{item.unitPrice.toFixed(2)} each</p>
                       </div>
                       <button
                         onClick={() => removeFromCart(item.product.id)}
-                        className="p-1 hover:bg-red-100 rounded-lg transition-colors"
+                        className="p-2 hover:bg-red-100 rounded-lg transition-colors touch-manipulation"
+                        aria-label="Remove item"
                       >
-                        <Trash2 className="w-4 h-4 text-red-500" />
+                        <Trash2 className="w-5 h-5 text-red-500" />
                       </button>
                     </div>
-                    
+
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-3">
                         <button
                           onClick={() => updateQuantity(item.product.id, -1)}
-                          className="w-8 h-8 bg-white rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-100"
+                          className="w-10 h-10 bg-white rounded-xl border-2 border-gray-200 flex items-center justify-center hover:bg-gray-100 active:bg-gray-200 touch-manipulation"
+                          aria-label="Decrease quantity"
                         >
-                          <Minus className="w-4 h-4 text-gray-700" />
+                          <Minus className="w-5 h-5 text-gray-700" />
                         </button>
-                        <span className="w-10 text-center font-medium text-gray-900">{item.quantity}</span>
+                        <span className="w-12 text-center font-bold text-gray-900 text-lg">{item.quantity}</span>
                         <button
                           onClick={() => updateQuantity(item.product.id, 1)}
-                          className="w-8 h-8 bg-white rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-100"
+                          className="w-10 h-10 bg-white rounded-xl border-2 border-gray-200 flex items-center justify-center hover:bg-gray-100 active:bg-gray-200 touch-manipulation"
+                          aria-label="Increase quantity"
                         >
-                          <Plus className="w-4 h-4 text-gray-700" />
+                          <Plus className="w-5 h-5 text-gray-700" />
                         </button>
                       </div>
-                      <p className="font-bold text-gray-900">₹{item.totalAmount.toFixed(2)}</p>
+                      <p className="font-bold text-gray-900 text-lg">₹{item.totalAmount.toFixed(2)}</p>
                     </div>
                     
                     {item.discount > 0 && (
@@ -1138,19 +1158,20 @@ export default function POSPage() {
             </div>
             
             {/* Payment Methods */}
-            <div className="grid grid-cols-3 gap-2 mb-3">
+            <div className="grid grid-cols-3 gap-2 mb-4">
               {PAYMENT_METHODS.map(method => (
                 <button
                   key={method.id}
                   onClick={() => setPaymentMethod(method.id)}
-                  className={`py-2 rounded-lg text-xs font-medium transition-all ${
+                  className={`py-3 sm:py-2 rounded-xl text-sm font-medium transition-all touch-manipulation ${
                     paymentMethod === method.id
                       ? `${method.color} text-white shadow-md`
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  <span className="block text-lg mb-0.5">{method.icon}</span>
-                  {method.label}
+                  <span className="block text-xl mb-1">{method.icon}</span>
+                  <span className="hidden sm:inline">{method.label}</span>
+                  <span className="sm:hidden text-xs">{method.label}</span>
                 </button>
               ))}
             </div>
@@ -1202,17 +1223,18 @@ export default function POSPage() {
             <button
               onClick={() => setShowCompleteModal(true)}
               disabled={cart.length === 0 || processing || (paymentMethod === 'cash' && cashReceived < total)}
-              className="w-full py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-colors shadow-lg shadow-green-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-4 sm:py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-colors shadow-lg shadow-green-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-lg sm:text-base touch-manipulation"
             >
               {processing ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Processing...
+                  <Loader2 className="w-6 h-6 sm:w-5 sm:h-5 animate-spin" />
+                  <span>Processing...</span>
                 </>
               ) : (
                 <>
-                  <CheckCircle className="w-5 h-5" />
-                  Complete Sale
+                  <CheckCircle className="w-6 h-6 sm:w-5 sm:h-5" />
+                  <span>Complete Sale</span>
+                  <span className="ml-2 text-lg">₹{total.toFixed(0)}</span>
                 </>
               )}
             </button>
