@@ -33,13 +33,19 @@ export default function ReceiptPage() {
 
   const fetchReceipt = async () => {
     try {
+      console.log('Fetching receipt for ID:', params.id)
       const res = await fetch(`/api/receipt/${params.id}`)
+      console.log('API response status:', res.status)
       if (!res.ok) {
-        throw new Error('Receipt not found or expired')
+        const errorText = await res.text()
+        console.error('API error:', errorText)
+        throw new Error(`Receipt not found or expired (${res.status})`)
       }
       const data = await res.json()
+      console.log('Receipt data received:', data)
       setReceipt(data.receipt)
     } catch (err) {
+      console.error('Fetch error:', err)
       setError(err instanceof Error ? err.message : 'Failed to load receipt')
     } finally {
       setLoading(false)
@@ -87,7 +93,8 @@ export default function ReceiptPage() {
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h1 className="text-xl font-bold text-gray-900 mb-2">Receipt Not Found</h1>
           <p className="text-gray-600 mb-4">{error || 'This receipt may have expired or been removed.'}</p>
-          <p className="text-sm text-gray-500">Receipts are available for 1 year from the date of purchase.</p>
+          <p className="text-sm text-gray-500 mb-4">Receipts are available for 1 year from the date of purchase.</p>
+          <p className="text-xs text-gray-400">ID: {params.id}</p>
         </div>
       </div>
     )
