@@ -29,7 +29,7 @@ export function LanguageSwitcher() {
 
   return (
     <div className="relative inline-flex items-center">
-      <Globe className="w-4 h-4 absolute left-3 text-gray-400" />
+      <Globe className="w-4 h-4 absolute left-3 text-gray-500" />
       <select
         value={currentLocale}
         onChange={(e) => handleChange(e.target.value)}
@@ -42,7 +42,7 @@ export function LanguageSwitcher() {
         ))}
       </select>
       <div className="absolute right-3 pointer-events-none">
-        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </div>

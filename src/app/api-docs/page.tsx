@@ -163,7 +163,7 @@ export default function APIDocsPage() {
                         <div className="relative">
                           <button
                             onClick={() => handleCopy(endpoint.code)}
-                            className="absolute right-2 top-2 text-gray-400 hover:text-gray-600"
+                            className="absolute right-2 top-2 text-gray-500 hover:text-gray-600"
                           >
                             {copiedCode === endpoint.code ? <CheckCircle className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5" />}
                           </button>

@@ -133,7 +133,7 @@ export default function AlertsPage() {
             {alerts.length === 0 ? (
               <div className="text-center py-12 sm:py-20">
                 <div className="w-14 h-14 sm:w-20 sm:h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                  <Bell className="w-7 h-7 sm:w-10 sm:h-10 text-gray-400" />
+                  <Bell className="w-7 h-7 sm:w-10 sm:h-10 text-gray-500" />
                 </div>
                 <h3 className="text-base sm:text-xl font-semibold text-gray-900 mb-2">No alerts</h3>
                 <p className="text-gray-500 text-sm">
@@ -162,7 +162,7 @@ export default function AlertsPage() {
                         )}
                       </div>
                       <p className="text-xs sm:text-sm text-gray-500 mb-1.5 sm:mb-2">Product: <span className="font-medium text-gray-700">{alert.product_name}</span></p>
-                      <p className="text-xs text-gray-400 flex items-center gap-2">
+                      <p className="text-xs text-gray-500 flex items-center gap-2">
                         <span>{new Date(alert.created_at).toLocaleString()}</span>
                       </p>
                     </div>

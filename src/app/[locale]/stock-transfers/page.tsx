@@ -120,7 +120,7 @@ export default function StockTransfersPage() {
             {transfers.length === 0 ? (
               <div className="text-center py-20">
                 <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <ArrowUpDown className="w-10 h-10 text-gray-400" />
+                  <ArrowUpDown className="w-10 h-10 text-gray-500" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">No stock transfers found</h3>
                 <p className="text-gray-500 mb-8 max-w-md mx-auto">Get started by creating your first stock transfer to move inventory between locations.</p>
@@ -176,7 +176,7 @@ export default function StockTransfersPage() {
                         </td>
                         <td className="hidden sm:table-cell px-6 py-5">
                           <div className="flex items-center gap-2">
-                            <Package className="w-4 h-4 text-gray-400" />
+                            <Package className="w-4 h-4 text-gray-500" />
                             <span className="font-medium text-gray-700">{transfer.items_count || 0}</span>
                             <span className="text-gray-500 text-sm">items</span>
                           </div>

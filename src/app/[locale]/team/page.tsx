@@ -180,7 +180,7 @@ export default function TeamPage() {
                 <h2 className="text-xl font-bold text-gray-900">Create New User</h2>
                 <button
                   onClick={() => setShowCreateForm(false)}
-                  className="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all cursor-pointer"
+                  className="p-2.5 text-gray-500 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -192,7 +192,7 @@ export default function TeamPage() {
                     Email Address <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                     <input
                       type="email"
                       value={createForm.email}
@@ -209,7 +209,7 @@ export default function TeamPage() {
                     Password <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                     <input
                       type="password"
                       value={createForm.password}
@@ -241,7 +241,7 @@ export default function TeamPage() {
                     Role <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                     <select
                       value={createForm.role}
                       onChange={(e) => setCreateForm({ ...createForm, role: e.target.value })}
@@ -315,7 +315,7 @@ export default function TeamPage() {
             {team.length === 0 ? (
               <div className="text-center py-16 bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-100">
                 <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Users className="w-10 h-10 text-gray-400" />
+                  <Users className="w-10 h-10 text-gray-500" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">No team members yet</h3>
                 <p className="text-gray-500 mb-6">Create your first team member to get started</p>
@@ -359,13 +359,13 @@ export default function TeamPage() {
                               e.stopPropagation()
                               handleRemoveMember(member.id)
                             }}
-                            className="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all cursor-pointer"
+                            className="p-2.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all cursor-pointer"
                             title="Remove member"
                           >
                             <X className="w-5 h-5" />
                           </button>
                         )}
-                        <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-indigo-600 transition-colors" />
+                        <ChevronRight className="w-5 h-5 text-gray-500 group-hover:text-indigo-600 transition-colors" />
                       </div>
                     </div>
                   </div>

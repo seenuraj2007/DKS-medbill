@@ -295,7 +295,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   <p className="text-sm text-gray-500 mb-2">Current Quantity</p>
                   <p className={`text-4xl font-bold ${isOutOfStock ? 'text-red-600' : isLowStock ? 'text-amber-600' : 'text-gray-900'}`}>
                     {product.current_quantity}
-                    <span className="text-lg font-normal text-gray-400 ml-2">{product.unit || 'units'}</span>
+                    <span className="text-lg font-normal text-gray-500 ml-2">{product.unit || 'units'}</span>
                   </p>
                 </div>
                 <div className="text-right">
@@ -427,7 +427,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                       </div>
                       <div className="text-right">
                         <p className="text-sm text-gray-500">{new Date(history.created_at).toLocaleDateString()}</p>
-                        {history.notes && <p className="text-xs text-gray-400 mt-1">{history.notes}</p>}
+                        {history.notes && <p className="text-xs text-gray-500 mt-1">{history.notes}</p>}
                       </div>
                     </div>
                   ))}

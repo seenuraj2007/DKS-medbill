@@ -304,7 +304,7 @@ export default function PurchaseOrderFormPage({ params }: { params?: Promise<{ i
                     Supplier <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <Truck className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Truck className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                     <select
                       value={formData.supplier_id}
                       onChange={(e) => setFormData({ ...formData, supplier_id: e.target.value })}
@@ -371,7 +371,7 @@ export default function PurchaseOrderFormPage({ params }: { params?: Promise<{ i
                   <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-xl">
                     <Package className="w-12 h-12 text-gray-200 mx-auto mb-3" />
                     <p className="text-gray-500">No items added yet</p>
-                    <p className="text-sm text-gray-400 mt-1">Click &quot;Add Item&quot; to get started</p>
+                    <p className="text-sm text-gray-500 mt-1">Click &quot;Add Item&quot; to get started</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -380,7 +380,7 @@ export default function PurchaseOrderFormPage({ params }: { params?: Promise<{ i
                         <button
                           type="button"
                           onClick={() => removeItem(index)}
-                          className="absolute top-2 right-2 text-gray-400 hover:text-red-600 p-1"
+                          className="absolute top-2 right-2 text-gray-500 hover:text-red-600 p-1"
                           title="Remove item"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -407,7 +407,7 @@ export default function PurchaseOrderFormPage({ params }: { params?: Promise<{ i
                                   ))
                                 )}
                               </select>
-                              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                                 </svg>

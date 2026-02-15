@@ -246,7 +246,7 @@ export default function LocationFormPage({ params }: PageProps) {
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                          <MapPinHouse className="h-5 w-5 text-gray-400" />
+                          <MapPinHouse className="h-5 w-5 text-gray-500" />
                         </div>
                         <input
                           type="text"
@@ -267,7 +267,7 @@ export default function LocationFormPage({ params }: PageProps) {
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                          <MapPin className="h-5 w-5 text-gray-400" />
+                          <MapPin className="h-5 w-5 text-gray-500" />
                         </div>
                         <input
                           type="text"
@@ -331,7 +331,7 @@ export default function LocationFormPage({ params }: PageProps) {
                         </label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <Globe className="h-5 w-5 text-gray-400" />
+                            <Globe className="h-5 w-5 text-gray-500" />
                           </div>
                           <input
                             type="text"
@@ -366,7 +366,7 @@ export default function LocationFormPage({ params }: PageProps) {
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                          <User className="h-5 w-5 text-gray-400" />
+                          <User className="h-5 w-5 text-gray-500" />
                         </div>
                         <input
                           type="text"
@@ -386,7 +386,7 @@ export default function LocationFormPage({ params }: PageProps) {
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                          <Mail className="h-5 w-5 text-gray-400" />
+                          <Mail className="h-5 w-5 text-gray-500" />
                         </div>
                         <input
                           type="email"
@@ -406,7 +406,7 @@ export default function LocationFormPage({ params }: PageProps) {
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                          <Phone className="h-5 w-5 text-gray-400" />
+                          <Phone className="h-5 w-5 text-gray-500" />
                         </div>
                         <input
                           type="tel"

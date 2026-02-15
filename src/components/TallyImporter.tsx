@@ -234,7 +234,7 @@ Product C,SKU003,50,65,5,9012,100,Groceries`
                 : 'border-gray-300 hover:border-gray-400'
             }`}
           >
-            <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <Upload className="w-12 h-12 text-gray-500 mx-auto mb-4" />
             <p className="text-gray-900 font-medium mb-2">{t('selectFile')}</p>
             <p className="text-sm text-gray-500 mb-4">{t('supportedFormats')}</p>
             <input
@@ -256,7 +256,7 @@ Product C,SKU003,50,65,5,9012,100,Groceries`
                 <span className="text-sm">{file.name}</span>
                 <button
                   onClick={() => setFile(null)}
-                  className="ml-2 text-gray-400 hover:text-red-500"
+                  className="ml-2 text-gray-500 hover:text-red-500"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -337,7 +337,7 @@ Product C,SKU003,50,65,5,9012,100,Groceries`
               <CardTitle className="text-gray-900">{t('importPreview')}</CardTitle>
               <button
                 onClick={() => setPreview(null)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-500 hover:text-gray-600"
               >
                 <X className="w-5 h-5" />
               </button>

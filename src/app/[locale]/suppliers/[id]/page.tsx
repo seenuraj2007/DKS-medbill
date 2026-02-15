@@ -259,7 +259,7 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ id: s
                 <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-2xl">
                   <Package className="w-16 h-16 text-gray-200 mx-auto mb-3" />
                   <p className="text-gray-500">No products yet</p>
-                  <p className="text-sm text-gray-400 mt-1">Add products to this supplier</p>
+                  <p className="text-sm text-gray-500 mt-1">Add products to this supplier</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto -mx-6 sm:mx-0">

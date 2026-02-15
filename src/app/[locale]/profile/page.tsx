@@ -317,7 +317,7 @@ export default function ProfilePage() {
                   Full Name
                 </label>
                 <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                   <input
                     type="text"
                     value={form.full_name}
@@ -334,7 +334,7 @@ export default function ProfilePage() {
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                   <input
                     type="email"
                     value={user?.email || ''}
@@ -375,7 +375,7 @@ export default function ProfilePage() {
                   Current Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                   <input
                     type="password"
                     value={form.current_password}
@@ -393,7 +393,7 @@ export default function ProfilePage() {
                   New Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                   <input
                     type="password"
                     value={form.new_password}
@@ -411,7 +411,7 @@ export default function ProfilePage() {
                   Confirm New Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                   <input
                     type="password"
                     value={form.confirm_password}

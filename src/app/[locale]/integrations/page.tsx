@@ -131,7 +131,7 @@ export default function IntegrationsPage() {
                   <button
                     className={`mt-4 w-full py-2.5 rounded-xl font-semibold transition-all ${integration.status === 'Available'
                         ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 shadow-md hover:shadow-lg'
-                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-gray-100 text-gray-500 cursor-not-allowed'
                       }`}
                     disabled={integration.status !== 'Available'}
                   >

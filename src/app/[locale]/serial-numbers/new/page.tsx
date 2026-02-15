@@ -244,7 +244,7 @@ export default function NewSerialNumberPage() {
                     value={selectedBatch}
                     onChange={(e) => setSelectedBatch(e.target.value)}
                     disabled={!selectedProduct}
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 disabled:bg-gray-100 disabled:text-gray-400"
+                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 disabled:bg-gray-100 disabled:text-gray-500"
                   >
                     <option value="">Select batch...</option>
                     {batches.map(batch => (
@@ -276,7 +276,7 @@ export default function NewSerialNumberPage() {
                     Unit Cost (Optional)
                   </label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                     <input
                       type="number"
                       step="0.01"

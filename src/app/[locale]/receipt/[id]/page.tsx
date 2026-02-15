@@ -95,7 +95,7 @@ export default function ReceiptPage() {
           <h1 className="text-xl font-bold text-gray-900 mb-2">Receipt Not Found</h1>
           <p className="text-gray-600 mb-4">{error || 'This receipt may have expired or been removed.'}</p>
           <p className="text-sm text-gray-500 mb-4">Receipts are available for 1 year from the date of purchase.</p>
-          <p className="text-xs text-gray-400">ID: {params.id}</p>
+          <p className="text-xs text-gray-500">ID: {params.id}</p>
         </div>
       </div>
     )
@@ -176,7 +176,7 @@ export default function ReceiptPage() {
 
           {/* Expiry Notice */}
           <div className="mt-6 pt-4 border-t border-gray-100">
-            <p className="text-xs text-gray-400 text-center">
+            <p className="text-xs text-gray-500 text-center">
               Valid until: {new Date(receipt.expiresAt).toLocaleDateString('en-IN')}
             </p>
           </div>
@@ -208,7 +208,7 @@ export default function ReceiptPage() {
         </p>
         {/* Watermark */}
         <div className="fixed bottom-4 right-4 opacity-10 pointer-events-none print:hidden">
-          <span className="text-4xl font-bold text-gray-400 rotate-45">DKS</span>
+          <span className="text-4xl font-bold text-gray-500 rotate-45">DKS</span>
         </div>
       </div>
     </div>

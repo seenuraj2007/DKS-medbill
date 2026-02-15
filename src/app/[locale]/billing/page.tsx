@@ -830,7 +830,7 @@ export default function POSPage() {
           <div className="p-4 bg-white border-b border-gray-200">
             <div className="flex gap-3 mb-3">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                 <input
                   ref={searchInputRef}
                   type="text"
@@ -844,7 +844,7 @@ export default function POSPage() {
                     onClick={() => setSearchTerm('')}
                     className="absolute right-3 top-1/2 -translate-y-1/2"
                   >
-                    <X className="w-4 h-4 text-gray-400" />
+                    <X className="w-4 h-4 text-gray-500" />
                   </button>
                 )}
               </div>
@@ -1001,7 +1001,7 @@ export default function POSPage() {
                           {product.image_url ? (
                             <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" loading="lazy" />
                           ) : (
-                            <Package className="w-10 h-10 text-gray-400" />
+                            <Package className="w-10 h-10 text-gray-500" />
                           )}
                         </div>
                         <div className="flex-1 flex flex-col min-h-0">
@@ -1026,7 +1026,7 @@ export default function POSPage() {
                           {product.image_url ? (
                             <img src={product.image_url} alt={product.name} className="w-full h-full object-cover rounded-xl" loading="lazy" />
                           ) : (
-                            <Package className="w-8 h-8 text-gray-400" />
+                            <Package className="w-8 h-8 text-gray-500" />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -1085,17 +1085,17 @@ export default function POSPage() {
                   <p className="text-sm text-gray-500">{selectedCustomer.phone}</p>
                 )}
                 {!selectedCustomer && (
-                  <p className="text-xs text-gray-400">Tap to select customer</p>
+                  <p className="text-xs text-gray-500">Tap to select customer</p>
                 )}
               </div>
-              <ChevronDown className="w-5 h-5 text-gray-400" />
+              <ChevronDown className="w-5 h-5 text-gray-500" />
             </button>
           </div>
 
           {/* Cart Items */}
           <div className="flex-1 overflow-y-auto p-3 sm:p-4">
             {cart.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-gray-400 py-8">
+              <div className="flex flex-col items-center justify-center h-full text-gray-500 py-8">
                 <ShoppingCart className="w-16 h-16 mb-3 opacity-30" />
                 <p className="text-gray-900 font-medium text-lg">Cart is empty</p>
                 <p className="text-sm text-gray-500">Tap products to add them</p>
@@ -1193,7 +1193,7 @@ export default function POSPage() {
                     Weight (kg)
                   </label>
                   <div className="relative">
-                    <Scale className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Scale className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                     <input
                       type="number"
                       value={enteredWeight}
@@ -1352,7 +1352,7 @@ export default function POSPage() {
                   ))}
                 </div>
                 <div className="relative">
-                  <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                   <input
                     type="number"
                     value={cashReceived || ''}
@@ -1516,7 +1516,7 @@ export default function POSPage() {
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-gray-900">₹{held.total.toFixed(2)}</p>
                           <p className="text-xs text-gray-500">{held.cart.length} items • {new Date(held.timestamp).toLocaleTimeString()}</p>
-                          {held.note && <p className="text-xs text-gray-400 truncate">{held.note}</p>}
+                          {held.note && <p className="text-xs text-gray-500 truncate">{held.note}</p>}
                         </div>
                         <div className="flex gap-1 ml-2">
                           <button
@@ -1643,7 +1643,7 @@ export default function POSPage() {
                       className="w-32 h-32"
                     />
                   </div>
-                  <p className="text-xs text-gray-400 mt-2">Valid for 1 year</p>
+                  <p className="text-xs text-gray-500 mt-2">Valid for 1 year</p>
                 </div>
                 
                 <div className="flex gap-2">
@@ -1840,7 +1840,7 @@ export default function POSPage() {
                       <img src={upiQrDataUrl} alt="UPI QR Code" className="w-48 h-48" />
                     ) : (
                       <div className="w-48 h-48 flex items-center justify-center">
-                        <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+                        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
                       </div>
                     )}
                   </div>

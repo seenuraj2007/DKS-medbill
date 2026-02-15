@@ -12,7 +12,7 @@ const InputField = ({ label, icon: Icon, type = 'text', name, value, onChange, p
       {label} {required && <span className="text-red-500">*</span>}
     </label>
     <div className="relative">
-      <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+      <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
       <input
         type={type}
         name={name}
@@ -202,7 +202,7 @@ export default function SupplierFormPage({ params }: { params?: Promise<{ id?: s
                   <div className="md:col-span-2">
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Address</label>
                     <div className="relative">
-                      <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                      <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
                       <input
                         type="text"
                         name="address"
@@ -257,7 +257,7 @@ export default function SupplierFormPage({ params }: { params?: Promise<{ id?: s
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Notes</label>
                   <div className="relative">
-                    <FileText className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                    <FileText className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
                     <textarea
                       name="notes"
                       value={formData.notes}

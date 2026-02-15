@@ -58,7 +58,7 @@ export default function BarcodeScanner({ onDetected, onClose }: BarcodeScannerPr
           <h3 className="text-lg font-semibold text-gray-900">Scan Barcode / QR Code</h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-500 hover:text-gray-600 transition-colors"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

@@ -247,7 +247,7 @@ export default function StockTransferFormPage({ params }: { params?: Promise<{ i
                     From Location <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                     <select
                       value={formData.from_location_id}
                       onChange={(e) => setFormData({ ...formData, from_location_id: e.target.value })}
@@ -267,7 +267,7 @@ export default function StockTransferFormPage({ params }: { params?: Promise<{ i
                     To Location <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                     <select
                       value={formData.to_location_id}
                       onChange={(e) => setFormData({ ...formData, to_location_id: e.target.value })}
@@ -314,7 +314,7 @@ export default function StockTransferFormPage({ params }: { params?: Promise<{ i
                   <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-xl">
                     <Package className="w-12 h-12 text-gray-200 mx-auto mb-3" />
                     <p className="text-gray-500">No items added yet</p>
-                    <p className="text-sm text-gray-400 mt-1">Click &quot;Add Item&quot; to get started</p>
+                    <p className="text-sm text-gray-500 mt-1">Click &quot;Add Item&quot; to get started</p>
                   </div>
                 ) : (
                   <div className="space-y-4">

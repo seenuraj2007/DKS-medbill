@@ -380,7 +380,7 @@ export default function SubscriptionPage() {
                         onClick={() => handleUpgrade(plan.id)}
                         disabled={isCurrentPlan(plan.id) || upgrading}
                         className={`mt-4 px-6 py-2.5 rounded-xl font-medium transition-all flex items-center gap-2 shadow-lg ${isCurrentPlan(plan.id)
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
                             : 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 hover:shadow-xl hover:-translate-y-0.5 cursor-pointer'
                           }`}
                       >

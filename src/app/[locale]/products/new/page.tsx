@@ -35,7 +35,7 @@ const InputField = ({ label, icon: Icon, type = 'text', name, value, onChange, p
       {label} {required && <span className="text-red-500">*</span>}
     </label>
     <div className="relative">
-      <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+      <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
       <input
         type={type}
         name={name}
@@ -278,7 +278,7 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <Hash className="w-5 h-5 text-gray-400" />
+                      <Hash className="w-5 h-5 text-gray-500" />
                     </div>
                     <input
                       type="text"
@@ -312,7 +312,7 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
                     Unit
                   </label>
                   <div className="relative">
-                    <Box className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Box className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                     <select
                       name="unit"
                       value={formData.unit}

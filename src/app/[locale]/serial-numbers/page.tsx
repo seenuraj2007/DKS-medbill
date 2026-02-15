@@ -170,7 +170,7 @@ export default function SerialNumbersPage() {
         <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
               <input
                 type="text"
                 placeholder="Search serial numbers..."
@@ -347,7 +347,7 @@ export default function SerialNumbersPage() {
                                 />
                               ) : (
                                 <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                                  <Package className="w-5 h-5 text-gray-400" />
+                                  <Package className="w-5 h-5 text-gray-500" />
                                 </div>
                               )}
                               <div>
@@ -366,11 +366,11 @@ export default function SerialNumbersPage() {
                           <td className="px-4 py-4">
                             {serial.stockLevel ? (
                               <div className="flex items-center gap-1.5 text-sm text-gray-700">
-                                <Building className="w-4 h-4 text-gray-400" />
+                                <Building className="w-4 h-4 text-gray-500" />
                                 {serial.stockLevel.location.name}
                               </div>
                             ) : (
-                              <span className="text-sm text-gray-400">-</span>
+                              <span className="text-sm text-gray-500">-</span>
                             )}
                           </td>
                           
@@ -401,7 +401,7 @@ export default function SerialNumbersPage() {
                                 )}
                               </div>
                             ) : (
-                              <span className="text-sm text-gray-400">No warranty</span>
+                              <span className="text-sm text-gray-500">No warranty</span>
                             )}
                           </td>
                           

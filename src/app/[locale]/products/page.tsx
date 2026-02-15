@@ -152,7 +152,7 @@ export default function ProductsPage() {
             <div className="flex flex-col sm:flex-row gap-3">
               {/* Search */}
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                 <input
                   type="text"
                   placeholder="Search products..."
@@ -216,12 +216,12 @@ export default function ProductsPage() {
           {filteredProducts.length === 0 ? (
             <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-100 p-8 sm:p-16 text-center">
               <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Package className="w-10 h-10 text-gray-400" />
+                <Package className="w-10 h-10 text-gray-500" />
               </div>
               <p className="text-gray-600 mb-2 font-medium text-lg">
                 {searchTerm || categoryFilter ? 'No products found' : 'No products yet'}
               </p>
-              <p className="text-gray-400 text-sm mb-6">
+              <p className="text-gray-500 text-sm mb-6">
                 {searchTerm || categoryFilter ? 'Try adjusting your search or filters' : 'Get started by adding your first product'}
               </p>
               {!searchTerm && !categoryFilter && (
@@ -251,7 +251,7 @@ export default function ProductsPage() {
                         {product.image_url ? (
                           <img src={product.image_url} alt={product.name} className="w-14 h-14 rounded-xl object-cover" />
                         ) : (
-                          <Package className="w-7 h-7 text-gray-400" />
+                          <Package className="w-7 h-7 text-gray-500" />
                         )}
                       </div>
                       <div className="min-w-0 flex-1">

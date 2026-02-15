@@ -121,7 +121,7 @@ export default function PurchaseOrdersPage() {
             {orders.length === 0 ? (
               <div className="text-center py-12 sm:py-20">
                 <div className="w-14 h-14 sm:w-20 sm:h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                  <FileText className="w-7 h-7 sm:w-10 sm:h-10 text-gray-400" />
+                  <FileText className="w-7 h-7 sm:w-10 sm:h-10 text-gray-500" />
                 </div>
                 <h3 className="text-base sm:text-xl font-semibold text-gray-900 mb-2">No purchase orders found</h3>
                 <p className="text-gray-500 mb-4 sm:mb-6 max-w-md mx-auto text-sm sm:text-base">Get started by creating your first purchase order to restock your inventory.</p>

@@ -87,7 +87,7 @@ const LowStockItem = memo(({ item, onClick }: LowStockItemProps) => (
         </p>
       </div>
     </div>
-    <ChevronRight className="w-4 h-4 text-gray-400" />
+    <ChevronRight className="w-4 h-4 text-gray-500" />
   </div>
 ))
 
@@ -442,10 +442,10 @@ export default function DashboardPage() {
                   {stats?.lowStockItems?.length === 0 ? (
                     <div className="text-center py-8 sm:py-12">
                       <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                        <Package className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
+                        <Package className="w-6 h-6 sm:w-8 sm:h-8 text-gray-500" />
                       </div>
                       <p className="text-gray-500 font-medium text-sm sm:text-base">No low stock items</p>
-                      <p className="text-xs sm:text-sm text-gray-400 mt-1">All your products are well stocked!</p>
+                      <p className="text-xs sm:text-sm text-gray-500 mt-1">All your products are well stocked!</p>
                     </div>
                   ) : (
                     <div className="space-y-2 sm:space-y-3">
