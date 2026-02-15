@@ -931,16 +931,18 @@ export default function POSPage() {
                             <Package className="w-8 h-8 text-gray-300" />
                           )}
                         </div>
-                        <div className="flex-1 flex flex-col">
-                          <p className="font-medium text-gray-900 text-sm truncate">{product.name}</p>
-                          <p className="text-xs text-gray-500">{product.sku || 'No SKU'}</p>
-                          <div className="flex items-center justify-between mt-auto pt-1">
-                            <p className="font-bold text-indigo-600">₹{product.selling_price.toFixed(2)}</p>
-                            {product.current_quantity <= product.reorder_point && (
-                              <span className="text-xs text-orange-600">Low Stock</span>
-                            )}
-                          </div>
-                        </div>
+                         <div className="flex-1 flex flex-col">
+                           <p className="font-medium text-gray-900 text-sm truncate">{product.name}</p>
+                           <p className="text-xs text-gray-500">{product.sku || 'No SKU'}</p>
+                           <div className="flex items-center justify-between mt-auto pt-1">
+                             <p className="font-bold text-indigo-600">₹{product.selling_price.toFixed(2)}</p>
+                             <div className="flex items-center gap-2">
+                               <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${product.current_quantity === 0 ? 'bg-red-100 text-red-600' : product.current_quantity <= product.reorder_point ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'}`}>
+                                 Stock: {product.current_quantity}
+                               </span>
+                             </div>
+                           </div>
+                         </div>
                       </div>
                     ) : (
                       <>
