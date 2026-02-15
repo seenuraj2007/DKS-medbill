@@ -146,3 +146,19 @@ select option {
 .text-gray-600 { color: #4b5563 !important; }
 .text-gray-500 { color: #6b7280 !important; }
 .text-gray-400 { color: #9ca3af !important; }
+
+/* Ensure SVG icons are always visible */
+svg {
+  color: inherit;
+  fill: currentColor;
+}
+
+/* Fix for lucide-react icons visibility */
+.lucide {
+  color: inherit !important;
+}
+
+/* Ensure icons in buttons and links are visible */
+button svg, a svg, .flex svg, .inline-flex svg {
+  color: inherit !important;
+}
