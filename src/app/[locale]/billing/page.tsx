@@ -9,7 +9,7 @@ import {
   Wallet, IndianRupee, QrCode, Calculator, RefreshCw,
   ArrowLeft, Save, FolderOpen, Tag, Grid, List,
   ChevronDown, Move, Edit3, Star, AlertCircle,
-  Loader2, Info
+  Loader2, Info, Scale
 } from 'lucide-react'
 import QRCode from 'qrcode'
 
@@ -29,6 +29,10 @@ interface Product {
   hsn_code?: string | null
   gst_rate?: number
   is_favorite?: boolean
+  is_perishable?: boolean
+  expiry_date?: string | null
+  weight_per_unit?: number
+  min_weight?: number | null
 }
 
 interface CartItem {
@@ -42,6 +46,7 @@ interface CartItem {
   igstAmount: number
   totalAmount: number
   serialNumbers?: string[] // Selected serial numbers for this item
+  weightKg?: number // For weight-based products
 }
 
 interface SerialNumberInfo {
@@ -167,6 +172,11 @@ export default function POSPage() {
   // Serial number state
   const [showSerialModal, setShowSerialModal] = useState(false)
   const [selectedProductForSerial, setSelectedProductForSerial] = useState<Product | null>(null)
+  
+  // Weight input state for produce
+  const [showWeightModal, setShowWeightModal] = useState(false)
+  const [selectedProductForWeight, setSelectedProductForWeight] = useState<Product | null>(null)
+  const [enteredWeight, setEnteredWeight] = useState('')
   const [availableSerials, setAvailableSerials] = useState<SerialNumberInfo[]>([])
   const [selectedSerials, setSelectedSerials] = useState<string[]>([])
   const [loadingSerials, setLoadingSerials] = useState(false)
@@ -440,6 +450,17 @@ export default function POSPage() {
     // Add to cart immediately for better UX
     const existingItem = cart.find(item => item.product.id === product.id)
     
+    // Check if this is a weight-based product
+    const isWeightBased = product.weight_per_unit && product.weight_per_unit > 0
+    
+    if (isWeightBased) {
+      // Show weight input modal for produce/weight-based items
+      setSelectedProductForWeight(product)
+      setEnteredWeight('')
+      setShowWeightModal(true)
+      return
+    }
+
     if (existingItem) {
       const updatedCart = cart.map(item => 
         item.product.id === product.id 
@@ -1086,7 +1107,13 @@ export default function POSPage() {
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1 min-w-0 pr-2">
                         <p className="font-semibold text-gray-900 text-base leading-tight">{item.product.name}</p>
-                        <p className="text-sm text-gray-500 mt-1">₹{item.unitPrice.toFixed(2)} each</p>
+                        {item.weightKg ? (
+                          <p className="text-sm text-indigo-600 mt-1 font-medium">
+                            {item.weightKg.toFixed(3)} kg × ₹{item.unitPrice.toFixed(2)}/kg
+                          </p>
+                        ) : (
+                          <p className="text-sm text-gray-500 mt-1">₹{item.unitPrice.toFixed(2)} each</p>
+                        )}
                       </div>
                       <button
                         onClick={() => removeFromCart(item.product.id)}
@@ -1101,7 +1128,8 @@ export default function POSPage() {
                       <div className="flex items-center gap-3">
                         <button
                           onClick={() => updateQuantity(item.product.id, -1)}
-                          className="w-10 h-10 bg-white rounded-xl border-2 border-gray-200 flex items-center justify-center hover:bg-gray-100 active:bg-gray-200 touch-manipulation"
+                          disabled={!!item.weightKg}
+                          className="w-10 h-10 bg-white rounded-xl border-2 border-gray-200 flex items-center justify-center hover:bg-gray-100 active:bg-gray-200 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
                           aria-label="Decrease quantity"
                         >
                           <Minus className="w-5 h-5 text-gray-700" />
@@ -1109,7 +1137,8 @@ export default function POSPage() {
                         <span className="w-12 text-center font-bold text-gray-900 text-lg">{item.quantity}</span>
                         <button
                           onClick={() => updateQuantity(item.product.id, 1)}
-                          className="w-10 h-10 bg-white rounded-xl border-2 border-gray-200 flex items-center justify-center hover:bg-gray-100 active:bg-gray-200 touch-manipulation"
+                          disabled={!!item.weightKg}
+                          className="w-10 h-10 bg-white rounded-xl border-2 border-gray-200 flex items-center justify-center hover:bg-gray-100 active:bg-gray-200 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
                           aria-label="Increase quantity"
                         >
                           <Plus className="w-5 h-5 text-gray-700" />
@@ -1137,10 +1166,106 @@ export default function POSPage() {
                               {serial}
                             </span>
                           ))}
-                        </div>
-                      </div>
-                    )}
+            </div>
+          </div>
+        )}
+
+        {/* Weight Input Modal for Produce/Weight-based Items */}
+        {showWeightModal && selectedProductForWeight && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden">
+              <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900">Enter Weight</h2>
+                  <p className="text-sm text-gray-500">{selectedProductForWeight.name}</p>
+                </div>
+                <button
+                  onClick={() => setShowWeightModal(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-600" />
+                </button>
+              </div>
+              
+              <div className="p-4">
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Weight (kg)
+                  </label>
+                  <div className="relative">
+                    <Scale className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="number"
+                      value={enteredWeight}
+                      onChange={(e) => setEnteredWeight(e.target.value)}
+                      placeholder="0.5"
+                      step="0.01"
+                      min={selectedProductForWeight.min_weight || 0.01}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 text-lg"
+                      autoFocus
+                    />
                   </div>
+                  <p className="text-sm text-gray-500 mt-2">
+                    Price: ₹{selectedProductForWeight.selling_price}/kg • 
+                    Min: {selectedProductForWeight.min_weight || 0.1}kg
+                  </p>
+                </div>
+
+                {enteredWeight && parseFloat(enteredWeight) > 0 && (
+                  <div className="p-3 bg-indigo-50 rounded-xl">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-700">Total:</span>
+                      <span className="text-xl font-bold text-indigo-600">
+                        ₹{(parseFloat(enteredWeight) * selectedProductForWeight.selling_price).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <div className="p-4 border-t border-gray-200 flex gap-3">
+                <button
+                  onClick={() => setShowWeightModal(false)}
+                  className="flex-1 py-2.5 border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    const weight = parseFloat(enteredWeight)
+                    if (weight > 0) {
+                      // Add weight-based item to cart
+                      const pricePerKg = selectedProductForWeight.selling_price
+                      const totalPrice = weight * pricePerKg
+                      
+                      const newItem: CartItem = {
+                        product: selectedProductForWeight,
+                        quantity: 1,
+                        unitPrice: pricePerKg,
+                        discount: 0,
+                        weightKg: weight,
+                        taxableAmount: totalPrice,
+                        cgstAmount: 0,
+                        sgstAmount: 0,
+                        igstAmount: 0,
+                        totalAmount: totalPrice
+                      }
+                      setCart([...cart, newItem])
+                      setShowWeightModal(false)
+                      setEnteredWeight('')
+                    }
+                  }}
+                  disabled={!enteredWeight || parseFloat(enteredWeight) <= 0}
+                  className="flex-1 py-2.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  Add to Cart
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
                 ))}
               </div>
             )}
