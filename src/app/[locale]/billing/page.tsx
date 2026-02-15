@@ -126,6 +126,16 @@ export default function POSPage() {
   const [showCustomerSelect, setShowCustomerSelect] = useState(false)
   const [showReceipt, setShowReceipt] = useState(false)
   const [lastSale, setLastSale] = useState<SaleResult | null>(null)
+  const [receiptData, setReceiptData] = useState<{
+    cart: CartItem[]
+    customer: Customer | null
+    subtotal: number
+    totalDiscount: number
+    totalGST: number
+    paymentMethod: string
+    cashReceived: number
+    change: number
+  } | null>(null)
   const [showScanner, setShowScanner] = useState(false)
   const [scannedBarcode, setScannedBarcode] = useState('')
   const [globalDiscount, setGlobalDiscount] = useState(0)
@@ -565,6 +575,17 @@ export default function POSPage() {
       const data = await res.json()
       
       if (data.invoice) {
+        // Store receipt data before clearing cart
+        setReceiptData({
+          cart: [...cart],
+          customer: selectedCustomer,
+          subtotal,
+          totalDiscount,
+          totalGST,
+          paymentMethod,
+          cashReceived,
+          change
+        })
         setLastSale({ success: true, invoice: data.invoice })
         setShowReceipt(true)
         clearCart()
@@ -1409,6 +1430,7 @@ export default function POSPage() {
                   <button
                     onClick={() => {
                       setShowReceipt(false)
+                      setReceiptData(null)
                       setCashReceived(0)
                     }}
                     className="flex-1 py-2 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors"
@@ -1467,12 +1489,12 @@ export default function POSPage() {
               </div>
 
               {/* Customer Details */}
-              {selectedCustomer && (
+              {receiptData?.customer && (
                 <div className="border-b border-gray-400 pb-2 mb-2">
                   <p className="font-semibold">Customer:</p>
-                  <p>{selectedCustomer.name}</p>
-                  {selectedCustomer.phone && <p>Phone: {selectedCustomer.phone}</p>}
-                  {selectedCustomer.gstNumber && <p>GSTIN: {selectedCustomer.gstNumber}</p>}
+                  <p>{receiptData.customer.name}</p>
+                  {receiptData.customer.phone && <p>Phone: {receiptData.customer.phone}</p>}
+                  {receiptData.customer.gstNumber && <p>GSTIN: {receiptData.customer.gstNumber}</p>}
                 </div>
               )}
 
@@ -1484,7 +1506,7 @@ export default function POSPage() {
                   <span className="w-16 text-right">Price</span>
                   <span className="w-16 text-right">Amt</span>
                 </div>
-                {cart.map((item, index) => (
+                {receiptData?.cart.map((item, index) => (
                   <div key={index} className="flex py-1">
                     <span className="w-8">{item.quantity}</span>
                     <span className="flex-1 truncate pr-2">{item.product.name}</span>
@@ -1498,17 +1520,17 @@ export default function POSPage() {
               <div className="border-b-2 border-gray-900 pb-2 mb-2">
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
-                  <span>₹{subtotal.toFixed(2)}</span>
+                  <span>₹{receiptData?.subtotal.toFixed(2)}</span>
                 </div>
-                {totalDiscount > 0 && (
+                {receiptData && receiptData.totalDiscount > 0 && (
                   <div className="flex justify-between">
                     <span>Discount:</span>
-                    <span>-₹{totalDiscount.toFixed(2)}</span>
+                    <span>-₹{receiptData.totalDiscount.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
                   <span>Tax:</span>
-                  <span>₹{totalGST.toFixed(2)}</span>
+                  <span>₹{receiptData?.totalGST.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between font-bold text-sm pt-1 border-t border-gray-400 mt-1">
                   <span>TOTAL:</span>
@@ -1520,17 +1542,17 @@ export default function POSPage() {
               <div className="border-b border-gray-400 pb-2 mb-2">
                 <div className="flex justify-between">
                   <span>Payment Method:</span>
-                  <span className="font-semibold">{PAYMENT_METHODS.find(m => m.id === paymentMethod)?.label}</span>
+                  <span className="font-semibold">{PAYMENT_METHODS.find(m => m.id === receiptData?.paymentMethod)?.label}</span>
                 </div>
-                {paymentMethod === 'cash' && cashReceived > 0 && (
+                {receiptData?.paymentMethod === 'cash' && receiptData.cashReceived > 0 && (
                   <>
                     <div className="flex justify-between">
                       <span>Cash Received:</span>
-                      <span>₹{cashReceived.toFixed(2)}</span>
+                      <span>₹{receiptData.cashReceived.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Change:</span>
-                      <span>₹{change.toFixed(2)}</span>
+                      <span>₹{receiptData.change.toFixed(2)}</span>
                     </div>
                   </>
                 )}
