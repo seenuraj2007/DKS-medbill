@@ -39,23 +39,23 @@ const formatCurrency = (value: number) => new Intl.NumberFormat('en-IN', { style
 const formatNumber = (value: number) => new Intl.NumberFormat('en-US').format(value || 0)
 
 const StatCard = ({ title, value, change, trend, icon: Icon, color, subtext }: any) => (
-  <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-6 hover:shadow-xl transition-shadow">
-    <div className="flex items-center justify-between mb-4">
-      <div className={`p-3 rounded-xl bg-gradient-to-br ${color} shadow-lg`}>
-        <Icon className="w-6 h-6 text-white" />
+  <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-3 sm:p-4 lg:p-6 hover:shadow-xl transition-shadow">
+    <div className="flex items-center justify-between mb-2 sm:mb-4">
+      <div className={`p-2 sm:p-3 rounded-xl bg-gradient-to-br ${color} shadow-lg`}>
+        <Icon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
       </div>
       {change && (
-        <span className={`flex items-center gap-1 text-sm font-semibold px-2 py-1 rounded-full ${
+        <span className={`flex items-center gap-1 text-xs sm:text-sm font-semibold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full ${
           trend === 'up' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
         }`}>
-          {trend === 'up' ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-          {change}
+          {trend === 'up' ? <ArrowUpRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> : <ArrowDownRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />}
+          <span className="hidden sm:inline">{change}</span>
         </span>
       )}
     </div>
-    <p className="text-sm text-gray-600 mb-1">{title}</p>
-    <p className="text-2xl font-bold text-gray-900">{value}</p>
-    {subtext && <p className="text-xs text-gray-500 mt-1">{subtext}</p>}
+    <p className="text-xs sm:text-sm text-gray-600 mb-0.5 sm:mb-1">{title}</p>
+    <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">{value}</p>
+    {subtext && <p className="text-xs text-gray-500 mt-0.5 sm:mt-1">{subtext}</p>}
   </div>
 )
 
@@ -190,25 +190,26 @@ export default function AnalyticsPage() {
             </div>
           )}
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
-                  <BarChart3 className="w-6 h-6 text-white" />
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-4 sm:py-6">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
+                  <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h1>
-                  <p className="text-sm text-gray-500">Track your business performance</p>
+                  <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Analytics</h1>
+                  <p className="text-xs sm:text-sm text-gray-500">Track performance</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <div className="relative">
                   <button 
                     onClick={() => setShowDatePicker(!showDatePicker)}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-gray-700 font-medium hover:bg-gray-50 hover:shadow-md transition-all cursor-pointer"
+                    className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 bg-white border border-gray-200 rounded-xl text-gray-700 font-medium hover:bg-gray-50 hover:shadow-md transition-all cursor-pointer text-sm"
                   >
-                    <Calendar className="w-5 h-5 text-gray-500" />
-                    {periodLabels[period]}
+                    <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
+                    <span className="hidden sm:inline">{periodLabels[period]}</span>
+                    <span className="sm:hidden">{period}</span>
                   </button>
                   {showDatePicker && (
                     <div className="absolute right-0 top-full mt-2 bg-white rounded-xl shadow-xl border border-gray-200 p-2 z-10 min-w-[180px]">
@@ -228,65 +229,66 @@ export default function AnalyticsPage() {
                 </div>
                 <button 
                   onClick={fetchAnalytics} 
-                  className="p-2.5 text-gray-600 hover:text-gray-900 hover:bg-white rounded-xl transition-all cursor-pointer border border-gray-200 shadow-sm"
+                  className="p-2 sm:p-2.5 text-gray-600 hover:text-gray-900 hover:bg-white rounded-xl transition-all cursor-pointer border border-gray-200 shadow-sm"
                   title="Refresh data"
                 >
-                  <RefreshCw className="w-5 h-5" />
+                  <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
                 <button 
                   onClick={handleExport}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-medium hover:from-indigo-600 hover:to-purple-700 transition-all cursor-pointer shadow-lg shadow-indigo-200">
-                  <Download className="w-5 h-5" />
-                  Export
+                  className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-medium hover:from-indigo-600 hover:to-purple-700 transition-all cursor-pointer text-sm"
+                >
+                  <Download className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="hidden sm:inline">Export</span>
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="mb-6">
-              <div className="flex gap-1 bg-gray-100 p-1 rounded-xl overflow-x-auto">
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+            <div className="mb-4 sm:mb-6">
+              <div className="flex gap-1.5 bg-gray-100 p-1.5 rounded-xl overflow-x-auto scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0 sm:overflow-visible">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
+                    className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${
                       activeTab === tab.id
                         ? 'bg-white text-indigo-700 shadow-md'
                         : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                     } cursor-pointer`}
                   >
-                    <tab.icon className="w-4 h-4" />
+                    <tab.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     {tab.label}
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="pb-8">
+            <div className="pb-20 sm:pb-8">
               {activeTab === 'overview' && (
                 <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
                     {statCards.map((stat, i) => (
                       <StatCard key={i} {...stat} />
                     ))}
                   </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                    <div className="lg:col-span-2 bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-6">
-                      <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                          <span className="w-1 h-5 bg-indigo-500 rounded-full"></span>
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+                    <div className="lg:col-span-2 bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-4 sm:p-6">
+                      <div className="flex items-center justify-between mb-4 sm:mb-6">
+                        <h3 className="text-base sm:text-lg font-bold text-gray-900 flex items-center gap-2">
+                          <span className="w-1 h-4 sm:h-5 bg-indigo-500 rounded-full"></span>
                           Revenue Trend
                         </h3>
-                        <div className="flex items-center gap-2 text-sm">
-                          <span className="text-gray-500">vs previous period</span>
+                        <div className="flex items-center gap-2 text-xs sm:text-sm">
+                          <span className="text-gray-500 hidden sm:inline">vs previous period</span>
                           <span className="flex items-center gap-1 text-green-600 font-semibold">
-                            <ArrowUpRight className="w-4 h-4" /> 12.5%
+                            <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4" /> 12.5%
                           </span>
                         </div>
                       </div>
-                      <ResponsiveContainer width="100%" height={320}>
+                      <ResponsiveContainer width="100%" height={250}>
                         <AreaChart data={data?.revenueByDay || []}>
                           <defs>
                             <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
@@ -297,7 +299,7 @@ export default function AnalyticsPage() {
                           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                           <XAxis 
                             dataKey="date" 
-                            tick={{ fontSize: 11 }} 
+                            tick={{ fontSize: 10 }} 
                             stroke="#9ca3af" 
                             tickFormatter={(v) => {
                               const date = new Date(v)
@@ -305,7 +307,7 @@ export default function AnalyticsPage() {
                             }}
                           />
                           <YAxis 
-                            tick={{ fontSize: 11 }} 
+                            tick={{ fontSize: 10 }} 
                             stroke="#9ca3af" 
                             tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`} 
                           />
@@ -322,13 +324,13 @@ export default function AnalyticsPage() {
                       </ResponsiveContainer>
                     </div>
 
-                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-6">
-                      <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-                        <span className="w-1 h-5 bg-purple-500 rounded-full"></span>
+                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-4 sm:p-6">
+                      <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
+                        <span className="w-1 h-4 sm:h-5 bg-purple-500 rounded-full"></span>
                         Stock Status
                       </h3>
-                      <div className="mb-6">
-                        <ResponsiveContainer width="100%" height={180}>
+                      <div className="mb-4 sm:mb-6">
+                        <ResponsiveContainer width="100%" height={140}>
                           <RechartsPie>
                             <Pie
                               data={stockStatus}
@@ -361,33 +363,33 @@ export default function AnalyticsPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-6">
-                      <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-                        <span className="w-1 h-5 bg-green-500 rounded-full"></span>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-4 sm:p-6">
+                      <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
+                        <span className="w-1 h-4 sm:h-5 bg-green-500 rounded-full"></span>
                         Top Selling Products
                       </h3>
-                      <div className="space-y-3">
+                      <div className="space-y-2 sm:space-y-3">
                         {(data?.topProducts || []).slice(0, 8).map((product, i) => (
-                          <div key={product.id} className="flex items-center gap-4 p-3 hover:bg-gray-50 rounded-xl transition-colors">
-                            <div className="w-8 h-8 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-lg flex items-center justify-center text-indigo-600 font-bold text-sm">
+                          <div key={product.id} className="flex items-center gap-2 sm:gap-4 p-2 sm:p-3 hover:bg-gray-50 rounded-xl transition-colors">
+                            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-lg flex items-center justify-center text-indigo-600 font-bold text-xs sm:text-sm">
                               {i + 1}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="font-medium text-gray-900 truncate">{product.name}</p>
-                              <p className="text-sm text-gray-500">{formatNumber(product.quantity)} sold</p>
+                              <p className="font-medium text-gray-900 text-sm sm:text-base truncate">{product.name}</p>
+                              <p className="text-xs sm:text-sm text-gray-500">{formatNumber(product.quantity)} sold</p>
                             </div>
                             <div className="text-right">
-                              <p className="font-bold text-green-600">{formatCurrency(product.revenue)}</p>
+                              <p className="font-bold text-green-600 text-sm sm:text-base">{formatCurrency(product.revenue)}</p>
                             </div>
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-6">
-                      <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-                        <span className="w-1 h-5 bg-amber-500 rounded-full"></span>
+                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-4 sm:p-6">
+                      <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
+                        <span className="w-1 h-4 sm:h-5 bg-amber-500 rounded-full"></span>
                         Low Stock Alerts
                       </h3>
                       {data?.lowStockProducts && data.lowStockProducts.length > 0 ? (
@@ -402,12 +404,12 @@ export default function AnalyticsPage() {
                                 <AlertTriangle className="w-5 h-5 text-amber-600" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="font-medium text-gray-900 truncate">{product.name}</p>
-                                <p className="text-sm text-amber-700">
+                                <p className="font-medium text-gray-900 truncate text-sm sm:text-base">{product.name}</p>
+                                <p className="text-xs sm:text-sm text-amber-700">
                                   {product.current_quantity} left (reorder at {product.reorder_point})
                                 </p>
                               </div>
-                              <span className="px-2 py-1 bg-amber-200 text-amber-800 rounded-full text-xs font-semibold">
+                              <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-amber-200 text-amber-800 rounded-full text-xs font-semibold flex-shrink-0">
                                 Low
                               </span>
                             </Link>
@@ -425,12 +427,12 @@ export default function AnalyticsPage() {
                     </div>
                   </div>
 
-                  <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-6">
-                    <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-                      <span className="w-1 h-5 bg-blue-500 rounded-full"></span>
+                  <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-4 sm:p-6">
+                    <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
+                      <span className="w-1 h-4 sm:h-5 bg-blue-500 rounded-full"></span>
                       Category Performance
                     </h3>
-                    <ResponsiveContainer width="100%" height={300}>
+                    <ResponsiveContainer width="100%" height={250}>
                       <BarChart data={data?.categoryBreakdown || []} layout="vertical">
                         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
                         <XAxis type="number" tick={{ fontSize: 11 }} stroke="#9ca3af" tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`} />
