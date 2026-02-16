@@ -1141,11 +1141,15 @@ export default function POSPage() {
           </div>
 
           {/* Cart Items - Amazon/ASOS Style */}
-          <div className="flex-1 overflow-y-auto p-3 sm:p-4" suppressHydrationWarning>
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4">
             {cart.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-gray-500 py-8" suppressHydrationWarning>
-                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4" suppressHydrationWarning>
-                  <ShoppingCart className="w-12 h-12 text-gray-400" />
+              <div className="flex flex-col items-center justify-center h-full text-gray-500 py-8">
+                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
+                    <circle cx="8" cy="21" r="1"/>
+                    <circle cx="19" cy="21" r="1"/>
+                    <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+                  </svg>
                 </div>
                 <p className="text-gray-900 font-semibold text-xl mb-2">Your cart is empty</p>
                 <p className="text-sm text-gray-500 text-center mb-6">Add products to get started</p>
