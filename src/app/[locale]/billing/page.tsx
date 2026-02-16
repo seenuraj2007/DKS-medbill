@@ -925,8 +925,8 @@ export default function POSPage() {
       )}
 
       <div className="flex-1 flex flex-col lg:flex-row overflow-auto lg:overflow-hidden">
-        {/* Products Section */}
-        <div className={`flex-1 flex flex-col overflow-auto lg:overflow-hidden pb-24 lg:pb-0 ${showMobileCart ? 'hidden lg:flex' : 'flex'}`}>
+        {/* Products Section - show on mobile when cart is hidden, or always on desktop */}
+        <div className={`flex-1 flex flex-col overflow-auto lg:overflow-hidden ${cart.length > 0 ? 'hidden lg:flex' : 'flex'}`}>
           {/* Search & Filters */}
           <div className="p-4 bg-white border-b border-gray-200">
             <div className="flex gap-3 mb-3">
@@ -1099,17 +1099,19 @@ export default function POSPage() {
         </div>
 
         {/* Cart Section */}
-        <div className={`w-full lg:w-[420px] bg-white border-l border-gray-200 flex flex-col overflow-auto lg:overflow-hidden ${showMobileCart ? 'fixed inset-0 z-[60]' : 'hidden lg:flex'}`}>
-          {/* Mobile Cart Header */}
-          <div className="lg:hidden flex items-center justify-between p-5 border-b border-gray-200 bg-gray-50">
-            <h2 className="text-xl font-bold text-gray-900">Cart ({cart.length} items)</h2>
-            <button
-              onClick={() => setShowMobileCart(false)}
-              className="p-3 hover:bg-gray-200 rounded-xl transition-colors"
-            >
-              <X className="w-7 h-7 text-gray-600" />
-            </button>
-          </div>
+        <div className={`w-full lg:w-[420px] bg-white border-l border-gray-200 flex flex-col overflow-auto lg:overflow-hidden ${showMobileCart ? 'fixed inset-0 z-[60]' : cart.length > 0 ? 'flex' : 'hidden lg:flex'}`}>
+          {/* Mobile Cart Header - only show when manually opened */}
+          {showMobileCart && (
+            <div className="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 bg-indigo-600 text-white">
+              <h2 className="text-lg font-bold">Cart ({cart.length})</h2>
+              <button
+                onClick={() => setShowMobileCart(false)}
+                className="p-2 hover:bg-indigo-700 rounded-lg"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+          )}
           
           {/* Customer Selection */}
           <div className="p-4 border-b border-gray-200">
