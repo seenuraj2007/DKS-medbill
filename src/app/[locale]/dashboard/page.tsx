@@ -53,7 +53,7 @@ const StatCard = memo(({ title, value, icon: Icon, color, trend }: StatCardProps
             )}
         </div>
         <h3 className="text-[1.375rem] sm:text-2xl font-bold text-gray-900 tracking-tight">{value}</h3>
-        <p className="text-[0.75rem] text-gray-500 mt-0.5 font-medium">{title}</p>
+        <p className="text-[0.75rem] text-gray-700 mt-0.5 font-semibold">{title}</p>
     </div>
 ))
 

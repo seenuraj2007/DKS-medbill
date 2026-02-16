@@ -439,8 +439,8 @@ export default function POSPage() {
   }, [selectedCustomer, organization])
 
   useEffect(() => {
-    if (cart.length > 0 && paymentMethod === 'cash' && cashReceived === 0) {
-      setCashReceived(Math.ceil(total))
+    if (cart.length > 0 && paymentMethod === 'cash' && cashReceived === 0 && total > 0) {
+      setCashReceived(Math.round(total))
     }
   }, [cart.length, paymentMethod, total, cashReceived])
 
@@ -618,6 +618,7 @@ export default function POSPage() {
     setGlobalDiscount(0)
     setSelectedCustomer(null)
     setItemNotes({})
+    setCashReceived(0)
   }
 
   const holdSale = () => {
@@ -1099,7 +1100,7 @@ export default function POSPage() {
         </div>
 
         {/* Cart Section */}
-        <div className={`w-full lg:w-[420px] bg-white border-l border-gray-200 flex flex-col overflow-auto lg:overflow-hidden ${showMobileCart ? 'fixed inset-0 z-[60]' : 'hidden lg:flex'}`} suppressHydrationWarning>
+        <div className={`w-full lg:w-[420px] bg-white border-l border-gray-200 flex flex-col ${showMobileCart ? 'fixed inset-0 z-[60] overflow-y-auto' : 'hidden lg:flex overflow-hidden lg:overflow-auto'}`} suppressHydrationWarning>
           {/* Mobile Cart Header */}
           <div className="lg:hidden flex items-center justify-between p-5 border-b border-gray-200 bg-gray-50">
             <h2 className="text-xl font-bold text-gray-900">Cart ({cart.length} items)</h2>
@@ -1135,8 +1136,8 @@ export default function POSPage() {
             </button>
           </div>
 
-          {/* Cart Items - Fixed on mobile, scrollable on desktop */}
-          <div className="flex-1 p-3 sm:p-4 overflow-hidden lg:overflow-auto" suppressHydrationWarning>
+          {/* Cart Items - Full page scroll on mobile */}
+          <div className="flex-1 p-3 sm:p-4" suppressHydrationWarning>
             {cart.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-gray-500 py-8">
                 <ShoppingCart className="w-16 h-16 mb-3 opacity-30" />
@@ -1144,7 +1145,7 @@ export default function POSPage() {
                 <p className="text-sm text-gray-500">Tap products to add them</p>
               </div>
             ) : (
-              <div className="space-y-3 overflow-hidden lg:overflow-auto">
+              <div className="space-y-3">
                 {cart.map(item => (
                   <div key={item.product.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     {/* Product Header with Image */}
