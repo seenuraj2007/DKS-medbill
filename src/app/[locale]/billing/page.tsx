@@ -1056,15 +1056,15 @@ export default function POSPage() {
         </div>
 
         {/* Cart Section */}
-        <div className={`w-full lg:w-96 bg-white border-l border-gray-200 flex flex-col overflow-auto lg:overflow-hidden ${showMobileCart ? 'fixed inset-0 z-50 lg:static lg:z-auto' : 'hidden lg:flex'}`}>
+        <div className={`w-full lg:w-[420px] bg-white border-l border-gray-200 flex flex-col overflow-auto lg:overflow-hidden ${showMobileCart ? 'fixed inset-0 z-50 lg:static lg:z-auto' : 'hidden lg:flex'}`}>
           {/* Mobile Cart Header */}
-          <div className="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
-            <h2 className="text-lg font-bold text-gray-900">Shopping Cart ({cart.length} items)</h2>
+          <div className="lg:hidden flex items-center justify-between p-5 border-b border-gray-200 bg-gray-50">
+            <h2 className="text-xl font-bold text-gray-900">Cart ({cart.length} items)</h2>
             <button
               onClick={() => setShowMobileCart(false)}
-              className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+              className="p-3 hover:bg-gray-200 rounded-xl transition-colors"
             >
-              <X className="w-6 h-6 text-gray-600" />
+              <X className="w-7 h-7 text-gray-600" />
             </button>
           </div>
           
@@ -1101,50 +1101,50 @@ export default function POSPage() {
                 <p className="text-sm text-gray-500">Tap products to add them</p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {cart.map(item => (
-                  <div key={item.product.id} className="p-3 sm:p-4 bg-gray-50 rounded-xl touch-manipulation">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1 min-w-0 pr-2">
-                        <p className="font-semibold text-gray-900 text-base leading-tight">{item.product.name}</p>
+                  <div key={item.product.id} className="p-4 sm:p-4 bg-gray-50 rounded-2xl touch-manipulation">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1 min-w-0 pr-3">
+                        <p className="font-semibold text-gray-900 text-lg leading-tight">{item.product.name}</p>
                         {item.weightKg ? (
-                          <p className="text-sm text-indigo-600 mt-1 font-medium">
+                          <p className="text-base text-indigo-600 mt-2 font-medium">
                             {item.weightKg.toFixed(3)} kg × ₹{item.unitPrice.toFixed(2)}/kg
                           </p>
                         ) : (
-                          <p className="text-sm text-gray-500 mt-1">₹{item.unitPrice.toFixed(2)} each</p>
+                          <p className="text-base text-gray-500 mt-2">₹{item.unitPrice.toFixed(2)} each</p>
                         )}
                       </div>
                       <button
                         onClick={() => removeFromCart(item.product.id)}
-                        className="p-2 hover:bg-red-100 rounded-lg transition-colors touch-manipulation"
+                        className="p-3 hover:bg-red-100 rounded-xl transition-colors touch-manipulation"
                         aria-label="Remove item"
                       >
-                        <Trash2 className="w-5 h-5 text-red-500" />
+                        <Trash2 className="w-6 h-6 text-red-500" />
                       </button>
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-4">
                         <button
                           onClick={() => updateQuantity(item.product.id, -1)}
                           disabled={!!item.weightKg}
-                          className="w-10 h-10 bg-white rounded-xl border-2 border-gray-200 flex items-center justify-center hover:bg-gray-100 active:bg-gray-200 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-12 h-12 bg-white rounded-xl border-2 border-gray-200 flex items-center justify-center hover:bg-gray-100 active:bg-gray-200 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
                           aria-label="Decrease quantity"
                         >
-                          <Minus className="w-5 h-5 text-gray-700" />
+                          <Minus className="w-6 h-6 text-gray-700" />
                         </button>
-                        <span className="w-12 text-center font-bold text-gray-900 text-lg">{item.quantity}</span>
+                        <span className="w-14 text-center font-bold text-gray-900 text-xl">{item.quantity}</span>
                         <button
                           onClick={() => updateQuantity(item.product.id, 1)}
                           disabled={!!item.weightKg}
-                          className="w-10 h-10 bg-white rounded-xl border-2 border-gray-200 flex items-center justify-center hover:bg-gray-100 active:bg-gray-200 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-12 h-12 bg-white rounded-xl border-2 border-gray-200 flex items-center justify-center hover:bg-gray-100 active:bg-gray-200 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
                           aria-label="Increase quantity"
                         >
-                          <Plus className="w-5 h-5 text-gray-700" />
+                          <Plus className="w-6 h-6 text-gray-700" />
                         </button>
                       </div>
-                      <p className="font-bold text-gray-900 text-lg">₹{item.totalAmount.toFixed(2)}</p>
+                      <p className="font-bold text-gray-900 text-xl">₹{item.totalAmount.toFixed(2)}</p>
                     </div>
                     
                     {item.discount > 0 && (
@@ -1272,25 +1272,25 @@ export default function POSPage() {
           </div>
 
           {/* Totals */}
-          <div className="p-4 bg-gray-50 border-t border-gray-200 space-y-2">
-            <div className="flex justify-between text-sm">
+          <div className="p-5 bg-gray-50 border-t border-gray-200 space-y-3">
+            <div className="flex justify-between text-base">
               <span className="text-gray-600">Subtotal</span>
               <span className="font-medium text-gray-900">₹{subtotal.toFixed(2)}</span>
             </div>
             
             {totalDiscount > 0 && (
-              <div className="flex justify-between text-sm text-green-600">
+              <div className="flex justify-between text-base text-green-600">
                 <span>Discount ({globalDiscountType === 'percent' ? `${globalDiscount}%` : `₹${globalDiscount}`})</span>
                 <span className="font-medium">-₹{totalDiscount.toFixed(2)}</span>
               </div>
             )}
             
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between text-base">
               <span className="text-gray-600">GST</span>
               <span className="font-medium text-gray-900">₹{totalGST.toFixed(2)}</span>
             </div>
             
-            <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-200">
+            <div className="flex justify-between text-xl font-bold pt-3 border-t border-gray-200">
               <span className="text-gray-900">Total</span>
               <span className="text-indigo-600">₹{total.toFixed(2)}</span>
             </div>
@@ -1315,20 +1315,20 @@ export default function POSPage() {
             </div>
             
             {/* Payment Methods */}
-            <div className="grid grid-cols-3 gap-2 mb-4">
+            <div className="grid grid-cols-3 gap-3 mb-4">
               {PAYMENT_METHODS.map(method => (
                 <button
                   key={method.id}
                   onClick={() => setPaymentMethod(method.id)}
-                  className={`py-3 sm:py-2 rounded-xl text-sm font-medium transition-all touch-manipulation ${
+                  className={`py-4 sm:py-2 rounded-xl text-base font-medium transition-all touch-manipulation ${
                     paymentMethod === method.id
                       ? `${method.color} text-white shadow-md`
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  <span className="block text-xl mb-1">{method.icon}</span>
+                  <span className="block text-2xl mb-1">{method.icon}</span>
                   <span className="hidden sm:inline">{method.label}</span>
-                  <span className="sm:hidden text-xs">{method.label}</span>
+                  <span className="sm:hidden">{method.label}</span>
                 </button>
               ))}
             </div>
@@ -1380,19 +1380,19 @@ export default function POSPage() {
             <button
               onClick={() => setShowCompleteModal(true)}
               disabled={cart.length === 0 || processing || (paymentMethod === 'cash' && cashReceived < total)}
-              className="w-full py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-colors shadow-lg shadow-green-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-base touch-manipulation"
+              className="w-full py-4 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-colors shadow-lg shadow-green-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 text-lg touch-manipulation"
             >
               {processing ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-6 h-6 animate-spin" />
                   <span>Processing...</span>
                 </>
               ) : (
                 <>
-                  <CheckCircle className="w-5 h-5" />
+                  <CheckCircle className="w-6 h-6" />
                   <span className="hidden sm:inline">Complete Sale</span>
-                  <span className="sm:hidden">Pay</span>
-                  <span className="ml-1">₹{total.toFixed(0)}</span>
+                  <span className="sm:hidden text-xl">Pay ₹{total.toFixed(0)}</span>
+                  <span className="hidden sm:inline">₹{total.toFixed(0)}</span>
                 </>
               )}
             </button>
