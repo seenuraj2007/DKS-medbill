@@ -13,6 +13,7 @@ const nextConfig = {
   },
   compress: true,
   poweredByHeader: false,
+  productionBrowserSourceMaps: false,
   experimental: {
     optimizePackageImports: [
       'lucide-react',
@@ -20,7 +21,11 @@ const nextConfig = {
       '@radix-ui/react-tabs',
       'framer-motion',
       'date-fns',
+      '@prisma/client',
     ],
+    webpackBuildWorker: true,
+    parallelServerBuildTraces: true,
+    parallelServerCompiles: true,
   },
   async headers() {
     return [
@@ -42,6 +47,28 @@ const nextConfig = {
           {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin'
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600, stale-while-revalidate=86400'
+          }
+        ]
+      },
+      {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=60, stale-while-revalidate=300'
+          }
+        ]
+      },
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable'
           }
         ]
       }

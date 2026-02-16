@@ -34,19 +34,13 @@ export default function ReceiptPage() {
 
   const fetchReceipt = async () => {
     try {
-      console.log('Fetching receipt for ID:', params.id)
       const res = await fetch(`/api/receipt/${params.id}`)
-      console.log('API response status:', res.status)
       if (!res.ok) {
-        const errorText = await res.text()
-        console.error('API error:', errorText)
         throw new Error(`Receipt not found or expired (${res.status})`)
       }
       const data = await res.json()
-      console.log('Receipt data received:', data)
       setReceipt(data.receipt)
     } catch (err) {
-      console.error('Fetch error:', err)
       setError(err instanceof Error ? err.message : 'Failed to load receipt')
     } finally {
       setLoading(false)
@@ -63,7 +57,6 @@ export default function ReceiptPage() {
         })
       } catch (err) {
         // User cancelled or share failed
-        console.log('Share cancelled')
       }
     } else {
       // Fallback: copy to clipboard

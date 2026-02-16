@@ -242,16 +242,13 @@ export default function POSPage() {
     try {
       setLoading(true)
       setError(null)
-      console.log('[POS] Fetching products from /api/billing/products')
       const res = await fetch('/api/billing/products', {
         credentials: 'include'
       })
-      console.log('[POS] Response status:', res.status)
       
       // Check if response is HTML (redirect to login)
       const contentType = res.headers.get('content-type')
       if (!contentType || !contentType.includes('application/json')) {
-        console.log('[POS] Received HTML response, redirecting to auth')
         router.push('/auth')
         return
       }

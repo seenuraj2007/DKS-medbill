@@ -111,11 +111,9 @@ export default function PurchaseOrderFormPage({ params }: { params?: Promise<{ i
     
     if (field === 'product_id') {
       const productId = String(value)
-      console.log('Selecting product:', productId)
       
       if (productId && productId !== '0' && products.length > 0) {
         const product = products.find(p => p.id === productId)
-        console.log('Found product:', product)
         if (product) {
           newItems[index] = {
             ...newItems[index],
