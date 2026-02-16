@@ -1141,9 +1141,9 @@ export default function POSPage() {
           </div>
 
           {/* Cart Items - Amazon/ASOS Style */}
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4">
             {cart.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-gray-500 py-12 px-4">
+              <div className="flex flex-col items-center justify-center h-full text-gray-500 py-8">
                 <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                   <ShoppingCart className="w-12 h-12 text-gray-400" />
                 </div>
