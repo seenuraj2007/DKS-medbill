@@ -925,8 +925,8 @@ export default function POSPage() {
       )}
 
       <div className="flex-1 flex flex-col lg:flex-row overflow-auto lg:overflow-hidden">
-        {/* Products Section - show on mobile when cart is hidden, or always on desktop */}
-        <div className={`flex-1 flex flex-col overflow-auto lg:overflow-hidden ${cart.length > 0 ? 'hidden lg:flex' : 'flex'}`}>
+        {/* Products Section */}
+        <div className={`flex-1 flex flex-col overflow-auto lg:overflow-hidden pb-24 lg:pb-0 ${showMobileCart ? 'hidden lg:flex' : 'flex'}`}>
           {/* Search & Filters */}
           <div className="p-4 bg-white border-b border-gray-200">
             <div className="flex gap-3 mb-3">
@@ -1099,19 +1099,17 @@ export default function POSPage() {
         </div>
 
         {/* Cart Section */}
-        <div className={`w-full lg:w-[420px] bg-white border-l border-gray-200 flex flex-col overflow-auto lg:overflow-hidden ${showMobileCart ? 'fixed inset-0 z-[60]' : cart.length > 0 ? 'flex' : 'hidden lg:flex'}`}>
-          {/* Mobile Cart Header - only show when manually opened */}
-          {showMobileCart && (
-            <div className="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 bg-indigo-600 text-white">
-              <h2 className="text-lg font-bold">Cart ({cart.length})</h2>
-              <button
-                onClick={() => setShowMobileCart(false)}
-                className="p-2 hover:bg-indigo-700 rounded-lg"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-          )}
+        <div className={`w-full lg:w-[420px] bg-white border-l border-gray-200 flex flex-col overflow-auto lg:overflow-hidden ${showMobileCart ? 'fixed inset-0 z-[60]' : 'hidden lg:flex'}`}>
+          {/* Mobile Cart Header */}
+          <div className="lg:hidden flex items-center justify-between p-5 border-b border-gray-200 bg-gray-50">
+            <h2 className="text-xl font-bold text-gray-900">Cart ({cart.length} items)</h2>
+            <button
+              onClick={() => setShowMobileCart(false)}
+              className="p-3 hover:bg-gray-200 rounded-xl transition-colors"
+            >
+              <X className="w-7 h-7 text-gray-600" />
+            </button>
+          </div>
           
           {/* Customer Selection */}
           <div className="p-4 border-b border-gray-200">
@@ -1137,8 +1135,8 @@ export default function POSPage() {
             </button>
           </div>
 
-          {/* Cart Items */}
-          <div className="flex-1 overflow-y-auto p-3 sm:p-4 pb-32">
+          {/* Cart Items - Fixed height, scrollable on desktop but fixed on mobile */}
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4 lg:overflow-visible lg:flex-1">
             {cart.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-gray-500 py-8">
                 <ShoppingCart className="w-16 h-16 mb-3 opacity-30" />
@@ -1146,70 +1144,116 @@ export default function POSPage() {
                 <p className="text-sm text-gray-500">Tap products to add them</p>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3 max-h-[50vh] lg:max-h-none overflow-y-auto lg:overflow-visible">
                 {cart.map(item => (
-                  <div key={item.product.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
-                    {/* Compact single row design */}
-                    <div className="flex items-center gap-3">
-                      {/* Product Image - smaller */}
-                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
-                        {item.product.image_url ? (
-                          <img 
-                            src={item.product.image_url} 
-                            alt={item.product.name}
-                            className="object-cover w-full h-full"
-                          />
-                        ) : (
-                          <Package className="w-6 h-6 text-gray-400" />
-                        )}
-                      </div>
-                      
-                      {/* Product Info */}
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 text-sm truncate">
-                          {item.product.name}
-                        </h3>
-                        <p className="text-xs text-gray-500">
-                          {item.weightKg 
-                            ? `${item.weightKg.toFixed(2)} kg @ ₹${item.unitPrice.toFixed(0)}/kg`
-                            : `₹${item.unitPrice.toFixed(0)} × ${item.quantity}`
-                          }
-                        </p>
-                      </div>
-                      
-                      {/* Quantity Controls - very compact */}
-                      <div className="flex items-center gap-1 bg-gray-50 rounded-lg p-1">
-                        <button
-                          onClick={() => updateQuantity(item.product.id, -1)}
-                          disabled={!!item.weightKg || item.quantity <= 1}
-                          className="w-7 h-7 bg-white rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-100 disabled:opacity-40"
-                        >
-                          <Minus className="w-4 h-4 text-gray-600" />
-                        </button>
-                        <span className="w-6 text-center font-bold text-gray-900 text-sm">
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() => updateQuantity(item.product.id, 1)}
-                          disabled={!!item.weightKg}
-                          className="w-7 h-7 bg-white rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-100 disabled:opacity-40"
-                        >
-                          <Plus className="w-4 h-4 text-gray-600" />
-                        </button>
-                      </div>
-                      
-                      {/* Price & Delete */}
-                      <div className="flex items-center gap-2">
-                        <div className="text-right">
-                          <p className="font-bold text-gray-900 text-sm">₹{item.totalAmount.toFixed(0)}</p>
+                  <div key={item.product.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    {/* Product Header with Image */}
+                    <div className="p-4 pb-3">
+                      <div className="flex gap-3">
+                        {/* Product Image */}
+                        <div className="w-16 h-16 bg-gray-100 rounded-xl flex-shrink-0 flex items-center justify-center overflow-hidden">
+                          {item.product.image_url ? (
+                            <img 
+                              src={item.product.image_url} 
+                              alt={item.product.name}
+                              className="object-cover w-full h-full"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <Package className="w-8 h-8 text-gray-400" />
+                          )}
                         </div>
+                        
+                        {/* Product Info */}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-bold text-gray-900 text-base leading-tight line-clamp-2">
+                            {item.product.name}
+                          </h3>
+                          {item.product.sku && (
+                            <p className="text-xs text-gray-500 mt-0.5">SKU: {item.product.sku}</p>
+                          )}
+                          
+                          {/* Price Info */}
+                          <div className="mt-2 flex items-center gap-2">
+                            {item.weightKg ? (
+                              <span className="text-sm text-gray-600">
+                                {item.weightKg.toFixed(2)} kg × ₹{item.unitPrice.toFixed(0)}
+                              </span>
+                            ) : (
+                              <span className="text-sm text-gray-600">
+                                ₹{item.unitPrice.toFixed(0)} × {item.quantity}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Total Price */}
+                        <div className="text-right">
+                          <p className="text-xl font-bold text-gray-900">₹{item.totalAmount.toFixed(0)}</p>
+                          {item.discount > 0 && (
+                            <span className="text-xs text-green-600 font-medium">-{item.discount}%</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Quantity Controls */}
+                    <div className="px-4 pb-4">
+                      <div className="flex items-center justify-between bg-gray-50 rounded-xl p-2">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => updateQuantity(item.product.id, -1)}
+                            disabled={!!item.weightKg || item.quantity <= 1}
+                            className="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-100 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+                            aria-label="Decrease quantity"
+                          >
+                            <Minus className="w-5 h-5 text-gray-700" />
+                          </button>
+                          
+                          <span className="w-12 text-center font-bold text-gray-900 text-lg">
+                            {item.quantity}
+                          </span>
+                          
+                          <button
+                            onClick={() => updateQuantity(item.product.id, 1)}
+                            disabled={!!item.weightKg}
+                            className="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-100 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+                            aria-label="Increase quantity"
+                          >
+                            <Plus className="w-5 h-5 text-gray-700" />
+                          </button>
+                        </div>
+                        
+                        {/* Remove Button */}
                         <button
                           onClick={() => removeFromCart(item.product.id)}
-                          className="p-1.5 hover:bg-red-50 rounded-lg transition-colors"
+                          className="flex items-center gap-1.5 px-3 py-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium"
+                          aria-label="Remove item"
                         >
-                          <Trash2 className="w-4 h-4 text-red-500" />
+                          <Trash2 className="w-4 h-4" />
+                          <span className="hidden sm:inline">Remove</span>
                         </button>
                       </div>
+                      
+                      {/* Serial Numbers (if any) */}
+                      {item.serialNumbers && item.serialNumbers.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-gray-100">
+                          <p className="text-xs text-gray-500 mb-2 flex items-center gap-1.5">
+                            <Tag className="w-3.5 h-3.5" />
+                            Serial Numbers ({item.serialNumbers.length})
+                          </p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {item.serialNumbers.map((serial, idx) => (
+                              <span
+                                key={idx}
+                                className="text-xs font-mono bg-indigo-50 text-indigo-700 px-2 py-1 rounded-md border border-indigo-100"
+                              >
+                                {serial}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
