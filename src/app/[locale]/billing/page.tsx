@@ -1099,7 +1099,7 @@ export default function POSPage() {
         </div>
 
         {/* Cart Section */}
-        <div className={`w-full lg:w-[420px] bg-white border-l border-gray-200 flex flex-col overflow-auto lg:overflow-hidden ${showMobileCart ? 'fixed inset-0 z-[60]' : 'hidden lg:flex'}`}>
+        <div className={`w-full lg:w-[420px] bg-white border-l border-gray-200 flex flex-col overflow-auto lg:overflow-hidden ${showMobileCart ? 'fixed inset-0 z-[60]' : 'hidden lg:flex'}`} suppressHydrationWarning>
           {/* Mobile Cart Header */}
           <div className="lg:hidden flex items-center justify-between p-5 border-b border-gray-200 bg-gray-50">
             <h2 className="text-xl font-bold text-gray-900">Cart ({cart.length} items)</h2>
