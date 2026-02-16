@@ -1144,116 +1144,70 @@ export default function POSPage() {
                 <p className="text-sm text-gray-500">Tap products to add them</p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {cart.map(item => (
-                  <div key={item.product.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    {/* Product Header with Image */}
-                    <div className="p-4 pb-3">
-                      <div className="flex gap-3">
-                        {/* Product Image */}
-                        <div className="w-16 h-16 bg-gray-100 rounded-xl flex-shrink-0 flex items-center justify-center overflow-hidden">
-                          {item.product.image_url ? (
-                            <img 
-                              src={item.product.image_url} 
-                              alt={item.product.name}
-                              className="object-cover w-full h-full"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <Package className="w-8 h-8 text-gray-400" />
-                          )}
-                        </div>
-                        
-                        {/* Product Info */}
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-gray-900 text-base leading-tight line-clamp-2">
-                            {item.product.name}
-                          </h3>
-                          {item.product.sku && (
-                            <p className="text-xs text-gray-500 mt-0.5">SKU: {item.product.sku}</p>
-                          )}
-                          
-                          {/* Price Info */}
-                          <div className="mt-2 flex items-center gap-2">
-                            {item.weightKg ? (
-                              <span className="text-sm text-gray-600">
-                                {item.weightKg.toFixed(2)} kg × ₹{item.unitPrice.toFixed(0)}
-                              </span>
-                            ) : (
-                              <span className="text-sm text-gray-600">
-                                ₹{item.unitPrice.toFixed(0)} × {item.quantity}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        
-                        {/* Total Price */}
-                        <div className="text-right">
-                          <p className="text-xl font-bold text-gray-900">₹{item.totalAmount.toFixed(0)}</p>
-                          {item.discount > 0 && (
-                            <span className="text-xs text-green-600 font-medium">-{item.discount}%</span>
-                          )}
-                        </div>
+                  <div key={item.product.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
+                    {/* Compact single row design */}
+                    <div className="flex items-center gap-3">
+                      {/* Product Image - smaller */}
+                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
+                        {item.product.image_url ? (
+                          <img 
+                            src={item.product.image_url} 
+                            alt={item.product.name}
+                            className="object-cover w-full h-full"
+                          />
+                        ) : (
+                          <Package className="w-6 h-6 text-gray-400" />
+                        )}
                       </div>
-                    </div>
-                    
-                    {/* Quantity Controls */}
-                    <div className="px-4 pb-4">
-                      <div className="flex items-center justify-between bg-gray-50 rounded-xl p-2">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => updateQuantity(item.product.id, -1)}
-                            disabled={!!item.weightKg || item.quantity <= 1}
-                            className="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-100 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
-                            aria-label="Decrease quantity"
-                          >
-                            <Minus className="w-5 h-5 text-gray-700" />
-                          </button>
-                          
-                          <span className="w-12 text-center font-bold text-gray-900 text-lg">
-                            {item.quantity}
-                          </span>
-                          
-                          <button
-                            onClick={() => updateQuantity(item.product.id, 1)}
-                            disabled={!!item.weightKg}
-                            className="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-100 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
-                            aria-label="Increase quantity"
-                          >
-                            <Plus className="w-5 h-5 text-gray-700" />
-                          </button>
-                        </div>
-                        
-                        {/* Remove Button */}
+                      
+                      {/* Product Info */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900 text-sm truncate">
+                          {item.product.name}
+                        </h3>
+                        <p className="text-xs text-gray-500">
+                          {item.weightKg 
+                            ? `${item.weightKg.toFixed(2)} kg @ ₹${item.unitPrice.toFixed(0)}/kg`
+                            : `₹${item.unitPrice.toFixed(0)} × ${item.quantity}`
+                          }
+                        </p>
+                      </div>
+                      
+                      {/* Quantity Controls - very compact */}
+                      <div className="flex items-center gap-1 bg-gray-50 rounded-lg p-1">
                         <button
-                          onClick={() => removeFromCart(item.product.id)}
-                          className="flex items-center gap-1.5 px-3 py-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium"
-                          aria-label="Remove item"
+                          onClick={() => updateQuantity(item.product.id, -1)}
+                          disabled={!!item.weightKg || item.quantity <= 1}
+                          className="w-7 h-7 bg-white rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-100 disabled:opacity-40"
                         >
-                          <Trash2 className="w-4 h-4" />
-                          <span className="hidden sm:inline">Remove</span>
+                          <Minus className="w-4 h-4 text-gray-600" />
+                        </button>
+                        <span className="w-6 text-center font-bold text-gray-900 text-sm">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() => updateQuantity(item.product.id, 1)}
+                          disabled={!!item.weightKg}
+                          className="w-7 h-7 bg-white rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-100 disabled:opacity-40"
+                        >
+                          <Plus className="w-4 h-4 text-gray-600" />
                         </button>
                       </div>
                       
-                      {/* Serial Numbers (if any) */}
-                      {item.serialNumbers && item.serialNumbers.length > 0 && (
-                        <div className="mt-3 pt-3 border-t border-gray-100">
-                          <p className="text-xs text-gray-500 mb-2 flex items-center gap-1.5">
-                            <Tag className="w-3.5 h-3.5" />
-                            Serial Numbers ({item.serialNumbers.length})
-                          </p>
-                          <div className="flex flex-wrap gap-1.5">
-                            {item.serialNumbers.map((serial, idx) => (
-                              <span
-                                key={idx}
-                                className="text-xs font-mono bg-indigo-50 text-indigo-700 px-2 py-1 rounded-md border border-indigo-100"
-                              >
-                                {serial}
-                              </span>
-                            ))}
-                          </div>
+                      {/* Price & Delete */}
+                      <div className="flex items-center gap-2">
+                        <div className="text-right">
+                          <p className="font-bold text-gray-900 text-sm">₹{item.totalAmount.toFixed(0)}</p>
                         </div>
-                      )}
+                        <button
+                          onClick={() => removeFromCart(item.product.id)}
+                          className="p-1.5 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
