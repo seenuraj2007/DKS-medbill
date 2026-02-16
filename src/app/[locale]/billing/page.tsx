@@ -1136,7 +1136,7 @@ export default function POSPage() {
           </div>
 
           {/* Cart Items */}
-          <div className="flex-1 p-3 sm:p-4 overflow-y-auto lg:overflow-visible">
+          <div className="flex-1 p-3 sm:p-4 overflow-y-auto lg:overflow-visible" suppressHydrationWarning>
             {cart.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-gray-500 py-8">
                 <ShoppingCart className="w-16 h-16 mb-3 opacity-30" />
@@ -1358,7 +1358,7 @@ export default function POSPage() {
         )}
 
         {/* Totals */}
-          <div className="p-5 bg-gray-50 border-t border-gray-200 space-y-3">
+          <div className="p-5 bg-gray-50 border-t border-gray-200 space-y-3" suppressHydrationWarning>
             <div className="flex justify-between text-base">
               <span className="text-gray-600">Subtotal</span>
               <span className="font-medium text-gray-900">₹{subtotal.toFixed(2)}</span>
