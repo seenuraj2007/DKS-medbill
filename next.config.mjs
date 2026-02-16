@@ -14,6 +14,7 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
+  swcMinify: true,
   experimental: {
     optimizePackageImports: [
       'lucide-react',
@@ -22,10 +23,14 @@ const nextConfig = {
       'framer-motion',
       'date-fns',
       '@prisma/client',
+      'qrcode',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
     ],
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
+    optimizeCss: true,
   },
   async headers() {
     return [
