@@ -823,9 +823,9 @@ export default function POSPage() {
         </div>
       )}
 
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden pb-20 lg:pb-0">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-auto lg:overflow-hidden pb-20 lg:pb-0">
         {/* Products Section */}
-        <div className={`flex-1 flex flex-col overflow-hidden ${showMobileCart ? 'hidden lg:flex' : 'flex'}`}>
+        <div className={`flex-1 flex flex-col overflow-auto lg:overflow-hidden ${showMobileCart ? 'hidden lg:flex' : 'flex'}`}>
           {/* Search & Filters */}
           <div className="p-4 bg-white border-b border-gray-200">
             <div className="flex gap-3 mb-3">
