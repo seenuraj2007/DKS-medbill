@@ -264,51 +264,51 @@ export default function DashboardPage() {
                         </div>
 
                         {/* Quick Actions */}
-                        <div className="bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-600 text-white relative overflow-hidden rounded-xl sm:rounded-2xl shadow-xl">
-                            <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-                            <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+                        <div className="card-elevated-lg bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700 text-white relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #9333ea 50%, #4338ca 100%)' }}>
+                            <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+                            <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2" />
 
                             <div className="p-4 sm:p-5 relative">
-                                <h2 className="text-[0.9375rem] sm:text-lg font-bold mb-4">Quick Actions</h2>
+                                <h2 className="text-[0.9375rem] sm:text-lg font-bold mb-4 text-white drop-shadow-sm">Quick Actions</h2>
                                 <div className="space-y-2.5">
                                     <Link
                                         href="/products/new"
-                                        className="block bg-white/15 backdrop-blur-sm rounded-xl p-3.5 hover:bg-white/25 transition-all border border-white/10 cursor-pointer tap-bounce"
+                                        className="block bg-white/20 backdrop-blur-sm rounded-xl p-3.5 hover:bg-white/30 transition-all border border-white/20 cursor-pointer tap-bounce"
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
-                                                <Plus className="w-[1.1rem] h-[1.1rem]" />
+                                            <div className="w-9 h-9 bg-white/30 rounded-lg flex items-center justify-center shadow-sm">
+                                                <Plus className="w-[1.1rem] h-[1.1rem] text-white" />
                                             </div>
-                                            <span className="font-semibold text-[0.875rem]">Add New Product</span>
+                                            <span className="font-semibold text-[0.875rem] text-white">Add New Product</span>
                                         </div>
                                     </Link>
                                     <Link
                                         href="/products"
-                                        className="block bg-white/15 backdrop-blur-sm rounded-xl p-3.5 hover:bg-white/25 transition-all border border-white/10 cursor-pointer tap-bounce"
+                                        className="block bg-white/20 backdrop-blur-sm rounded-xl p-3.5 hover:bg-white/30 transition-all border border-white/20 cursor-pointer tap-bounce"
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
-                                                <Package className="w-[1.1rem] h-[1.1rem]" />
+                                            <div className="w-9 h-9 bg-white/30 rounded-lg flex items-center justify-center shadow-sm">
+                                                <Package className="w-[1.1rem] h-[1.1rem] text-white" />
                                             </div>
-                                            <span className="font-semibold text-[0.875rem]">View All Products</span>
+                                            <span className="font-semibold text-[0.875rem] text-white">View All Products</span>
                                         </div>
                                     </Link>
                                     <Link
                                         href="/alerts"
-                                        className="block bg-white/15 backdrop-blur-sm rounded-xl p-3.5 hover:bg-white/25 transition-all border border-white/10 cursor-pointer tap-bounce"
+                                        className="block bg-white/20 backdrop-blur-sm rounded-xl p-3.5 hover:bg-white/30 transition-all border border-white/20 cursor-pointer tap-bounce"
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
-                                                <Bell className="w-[1.1rem] h-[1.1rem]" />
+                                            <div className="w-9 h-9 bg-white/30 rounded-lg flex items-center justify-center shadow-sm">
+                                                <Bell className="w-[1.1rem] h-[1.1rem] text-white" />
                                             </div>
-                                            <span className="font-semibold text-[0.875rem]">Check Alerts</span>
+                                            <span className="font-semibold text-[0.875rem] text-white">Check Alerts</span>
                                         </div>
                                     </Link>
                                 </div>
 
-                                <div className="mt-4 p-3 bg-white/10 backdrop-blur-sm rounded-xl border border-white/10">
-                                    <p className="text-[0.75rem] text-white/85">
-                                        <span className="font-semibold">💡 Tip:</span> Set reorder points to get alerts when stock runs low.
+                                <div className="mt-4 p-3 bg-white/20 backdrop-blur-sm rounded-xl border border-white/20">
+                                    <p className="text-[0.75rem] text-white">
+                                        <span className="font-semibold text-white">💡 Tip:</span> Set reorder points to get alerts when stock runs low.
                                     </p>
                                 </div>
                             </div>

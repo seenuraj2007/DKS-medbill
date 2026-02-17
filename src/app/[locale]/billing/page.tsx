@@ -277,6 +277,7 @@ export default function POSPage() {
   
   // Serial number state
   const [showSerialModal, setShowSerialModal] = useState(false)
+  const [showClearCartConfirm, setShowClearCartConfirm] = useState(false)
   const [selectedProductForSerial, setSelectedProductForSerial] = useState<Product | null>(null)
   
   // Weight input state for produce
@@ -344,12 +345,19 @@ export default function POSPage() {
   )
 
   // API calls with error handling
-  const fetchProducts = useCallback(async () => {
+  const fetchProducts = useCallback(async (skipLoading = false) => {
     try {
-      setLoading(true)
+      if (!skipLoading) setLoading(true)
       setError(null)
-      const res = await fetch('/api/billing/products', {
-        credentials: 'include'
+      // Add cache-busting timestamp to ensure fresh data
+      const timestamp = Date.now()
+      const res = await fetch(`/api/billing/products?t=${timestamp}`, {
+        credentials: 'include',
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
       })
       
       // Check if response is HTML (redirect to login)
@@ -367,14 +375,38 @@ export default function POSPage() {
         throw new Error(`Failed to fetch products: ${res.status}`)
       }
       const data = await res.json()
-      setProducts(data.products || [])
+      setProducts([]) // Clear first to force re-render
+      setTimeout(() => setProducts(data.products || []), 0)
     } catch (error) {
       console.error('Error fetching products:', error)
       setError('Failed to load products. Please try again.')
     } finally {
-      setLoading(false)
+      if (!skipLoading) setLoading(false)
     }
   }, [router])
+
+  // Dedicated function to refresh products after sale without loading state
+  const refreshProductsAfterSale = useCallback(async () => {
+    try {
+      const timestamp = Date.now()
+      const res = await fetch(`/api/billing/products?t=${timestamp}`, {
+        credentials: 'include',
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      })
+      
+      if (res.ok) {
+        const data = await res.json()
+        setProducts([]) // Clear first to force re-render
+        setTimeout(() => setProducts(data.products || []), 0)
+      }
+    } catch (error) {
+      console.error('Error refreshing products after sale:', error)
+    }
+  }, [])
 
   const fetchCustomers = useCallback(async () => {
     try {
@@ -651,13 +683,21 @@ export default function POSPage() {
   }
 
   const clearCart = () => {
-    if (cart.length > 0 && !confirm('Are you sure you want to clear the cart?')) return
+    if (cart.length > 0) {
+      setShowClearCartConfirm(true)
+    } else {
+      performClearCart()
+    }
+  }
+
+  const performClearCart = () => {
     setCart([])
     setGlobalDiscount(0)
     setSelectedCustomer(null)
     setItemNotes({})
     setCashReceived(0)
     setShowMobileCart(false)
+    setShowClearCartConfirm(false)
   }
 
   const holdSale = () => {
@@ -763,7 +803,7 @@ export default function POSPage() {
         setShowReceipt(true)
         clearCart()
         // Refresh products to show updated stock levels
-        fetchProducts()
+        setTimeout(() => refreshProductsAfterSale(), 500)
       } else {
         setError(data.error || 'Sale failed. Please try again.')
       }
@@ -847,7 +887,7 @@ export default function POSPage() {
           setShowReceipt(true)
           clearCart()
           // Refresh products to show updated stock levels
-          fetchProducts()
+          refreshProductsAfterSale()
         }, 1500)
       } else {
         setUpiPaymentStatus('failed')
@@ -1009,7 +1049,7 @@ export default function POSPage() {
               </button>
 
               <button
-                onClick={fetchProducts}
+                onClick={() => fetchProducts()}
                 disabled={loading}
                 className="p-2.5 bg-gray-100 rounded-xl text-gray-600 hover:bg-gray-200 transition-colors disabled:opacity-50"
                 title="Refresh Products"
@@ -1097,7 +1137,7 @@ export default function POSPage() {
                 <p className="text-lg font-medium text-gray-900 mb-2">Failed to load products</p>
                 <p className="text-sm mb-4">{error}</p>
                 <button
-                  onClick={fetchProducts}
+                  onClick={() => fetchProducts()}
                   className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2"
                 >
                   <RefreshCw className="w-4 h-4" />
@@ -1704,6 +1744,58 @@ export default function POSPage() {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Clear Cart Confirmation Toast */}
+      {showClearCartConfirm && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[60] p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl transform animate-in zoom-in-95 duration-200">
+            {/* Header with Icon */}
+            <div className="p-6 pb-4 text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Trash2 className="w-8 h-8 text-red-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Clear Cart?</h3>
+              <p className="text-gray-500 text-sm">
+                Are you sure you want to remove all {cart.length} item{cart.length !== 1 ? 's' : ''} from your cart?
+              </p>
+            </div>
+
+            {/* Items Preview */}
+            <div className="px-6 pb-4">
+              <div className="bg-gray-50 rounded-xl p-3 max-h-32 overflow-y-auto">
+                {cart.slice(0, 3).map((item, index) => (
+                  <div key={item.product.id} className="flex items-center justify-between py-1.5 text-sm">
+                    <span className="text-gray-700 truncate flex-1">{item.product.name}</span>
+                    <span className="text-gray-500 ml-2">x{item.quantity}</span>
+                  </div>
+                ))}
+                {cart.length > 3 && (
+                  <p className="text-xs text-gray-400 py-1.5 text-center">
+                    +{cart.length - 3} more items
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="p-4 pt-2 space-y-2">
+              <button
+                onClick={performClearCart}
+                className="w-full py-3.5 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white rounded-xl font-semibold transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+              >
+                <Trash2 className="w-5 h-5" />
+                Yes, Clear Cart
+              </button>
+              <button
+                onClick={() => setShowClearCartConfirm(false)}
+                className="w-full py-3.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-semibold transition-all active:scale-[0.98]"
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>

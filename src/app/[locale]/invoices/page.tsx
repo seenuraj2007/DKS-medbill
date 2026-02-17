@@ -1,11 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import {
     Plus, FileText, Search, Filter,
     Download, Eye, Edit, Trash2, ChevronLeft, ChevronRight,
-    Receipt, Calendar, IndianRupee, X, MoreHorizontal, ArrowRight
+    Receipt, Calendar, IndianRupee, X, MoreHorizontal, ArrowRight,
+    TrendingUp, Users, CheckCircle2, Clock, AlertCircle, CheckCircle,
+    RefreshCw
 } from 'lucide-react'
 import SidebarLayout from '@/components/SidebarLayout'
 
@@ -41,34 +43,72 @@ export default function InvoicesPage() {
     const [page, setPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
     const [isFilterOpen, setIsFilterOpen] = useState(false)
+    const [lastRefresh, setLastRefresh] = useState(Date.now())
 
-    useEffect(() => {
-        fetchInvoices()
-    }, [page, statusFilter])
-
-    const fetchInvoices = async () => {
+    const fetchInvoices = useCallback(async (skipLoading = false) => {
         try {
-            setLoading(true)
+            if (!skipLoading) setLoading(true)
+            const timestamp = Date.now()
             const params = new URLSearchParams({
                 page: page.toString(),
-                limit: '20'
+                limit: '20',
+                t: timestamp.toString()
             })
             if (statusFilter !== 'all') {
                 params.append('status', statusFilter)
             }
 
-            const res = await fetch(`/api/invoices?${params}`)
+            const res = await fetch(`/api/invoices?${params}`, {
+                cache: 'no-store',
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                }
+            })
             if (!res.ok) throw new Error('Failed to fetch invoices')
 
             const data = await res.json()
-            setInvoices(data.invoices || [])
-            setTotalPages(data.pagination?.totalPages || 1)
+            setInvoices([]) // Clear first to force re-render
+            setTimeout(() => {
+                setInvoices(data.invoices || [])
+                setTotalPages(data.pagination?.totalPages || 1)
+            }, 0)
+            setLastRefresh(Date.now())
         } catch (err: any) {
             setError(err.message)
         } finally {
-            setLoading(false)
+            if (!skipLoading) setLoading(false)
         }
-    }
+    }, [page, statusFilter])
+
+    // Fetch on mount and when dependencies change
+    useEffect(() => {
+        fetchInvoices()
+    }, [fetchInvoices])
+
+    // Auto-refresh when page becomes visible (user returns from POS)
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                // Refresh data when user comes back to this tab
+                fetchInvoices(true)
+            }
+        }
+
+        document.addEventListener('visibilitychange', handleVisibilityChange)
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }, [fetchInvoices])
+
+    // Poll for new invoices every 5 seconds when on first page
+    useEffect(() => {
+        if (page !== 1) return
+        
+        const interval = setInterval(() => {
+            fetchInvoices(true)
+        }, 5000)
+
+        return () => clearInterval(interval)
+    }, [fetchInvoices, page])
 
     const deleteInvoice = async (id: string) => {
         if (!confirm('Are you sure you want to delete this invoice?')) return
@@ -76,7 +116,7 @@ export default function InvoicesPage() {
         try {
             const res = await fetch(`/api/invoices/${id}`, { method: 'DELETE' })
             if (!res.ok) throw new Error('Failed to delete invoice')
-            fetchInvoices()
+            fetchInvoices(false)
         } catch (err: any) {
             setError(err.message)
         }
@@ -107,11 +147,44 @@ export default function InvoicesPage() {
 
     const getStatusIcon = (status: string) => {
         switch (status) {
-            case 'PAID': return '✓'
-            case 'OVERDUE': return '!'
-            case 'ISSUED': return '•'
-            case 'DRAFT': return '○'
-            default: return '○'
+            case 'PAID': return <CheckCircle className="w-3 h-3" />
+            case 'OVERDUE': return <AlertCircle className="w-3 h-3" />
+            case 'ISSUED': return <Clock className="w-3 h-3" />
+            case 'DRAFT': return <FileText className="w-3 h-3" />
+            default: return <FileText className="w-3 h-3" />
+        }
+    }
+
+    const getStatusDotColor = (status: string) => {
+        switch (status) {
+            case 'PAID': return 'bg-green-500'
+            case 'ISSUED': return 'bg-blue-500'
+            case 'DRAFT': return 'bg-gray-400'
+            case 'OVERDUE': return 'bg-red-500'
+            case 'CANCELLED': return 'bg-gray-300'
+            default: return 'bg-gray-400'
+        }
+    }
+
+    const getStatusBgColor = (status: string) => {
+        switch (status) {
+            case 'PAID': return 'bg-green-50'
+            case 'ISSUED': return 'bg-blue-50'
+            case 'DRAFT': return 'bg-gray-100'
+            case 'OVERDUE': return 'bg-red-50'
+            case 'CANCELLED': return 'bg-gray-100'
+            default: return 'bg-gray-100'
+        }
+    }
+
+    const getStatusTextColor = (status: string) => {
+        switch (status) {
+            case 'PAID': return 'text-green-700'
+            case 'ISSUED': return 'text-blue-700'
+            case 'DRAFT': return 'text-gray-700'
+            case 'OVERDUE': return 'text-red-700'
+            case 'CANCELLED': return 'text-gray-500'
+            default: return 'text-gray-700'
         }
     }
 
@@ -147,18 +220,62 @@ export default function InvoicesPage() {
                     </Link>
                 </div>
 
-                {/* Mobile Header */}
-                <div className="sm:hidden flex items-center justify-between mb-4 sticky top-0 bg-gray-50 py-4 z-10">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Invoices</h1>
-                        <p className="text-sm text-gray-500">{filteredInvoices.length} invoices</p>
-                    </div>
+                {/* Mobile App Header */}
+                <div className="sm:hidden fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-b border-gray-100 z-40 px-4 py-3">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h1 className="text-xl font-bold text-gray-900">Invoices</h1>
+                            <p className="text-xs text-gray-500">{filteredInvoices.length} invoices</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                <button
+                        onClick={() => fetchInvoices()}
+                        className="p-2.5 rounded-full bg-gray-100 text-gray-600 active:scale-95 transition-all"
+                        title="Refresh"
+                    >
+                        <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+                    </button>
                     <button
                         onClick={() => setIsFilterOpen(true)}
-                        className="p-3 bg-white rounded-full shadow-md text-gray-700 hover:bg-gray-50 active:scale-95 transition-all"
+                        className={`p-2.5 rounded-full transition-all ${statusFilter !== 'all' ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-600'}`}
                     >
                         <Filter className="w-5 h-5" />
                     </button>
+                    <Link
+                        href="/invoices/new"
+                        className="p-2.5 bg-indigo-600 rounded-full text-white shadow-md shadow-indigo-500/30 active:scale-95 transition-all"
+                    >
+                        <Plus className="w-5 h-5" />
+                    </Link>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Mobile Stats Cards */}
+                <div className="sm:hidden mt-16 mb-4">
+                    <div className="grid grid-cols-3 gap-2">
+                        <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-3 text-white">
+                            <div className="flex items-center gap-1 mb-1">
+                                <FileText className="w-3.5 h-3.5 opacity-80" />
+                                <span className="text-[10px] font-medium opacity-80">Total</span>
+                            </div>
+                            <p className="text-lg font-bold">{invoices.length}</p>
+                        </div>
+                        <div className="bg-green-500 rounded-2xl p-3 text-white">
+                            <div className="flex items-center gap-1 mb-1">
+                                <CheckCircle className="w-3.5 h-3.5 opacity-80" />
+                                <span className="text-[10px] font-medium opacity-80">Paid</span>
+                            </div>
+                            <p className="text-lg font-bold">{invoices.filter(i => i.status === 'PAID').length}</p>
+                        </div>
+                        <div className="bg-orange-500 rounded-2xl p-3 text-white">
+                            <div className="flex items-center gap-1 mb-1">
+                                <Clock className="w-3.5 h-3.5 opacity-80" />
+                                <span className="text-[10px] font-medium opacity-80">Pending</span>
+                            </div>
+                            <p className="text-lg font-bold">{invoices.filter(i => i.status === 'ISSUED' || i.status === 'DRAFT').length}</p>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Desktop Filters */}
@@ -201,15 +318,19 @@ export default function InvoicesPage() {
                             placeholder="Search invoices..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-base"
+                            className="w-full pl-12 pr-10 py-3.5 bg-gray-100 border-0 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all text-base"
                         />
-                        {search && (
+                        {search ? (
                             <button
                                 onClick={() => setSearch('')}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 p-1 bg-gray-200 rounded-full"
+                                className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center"
                             >
-                                <X className="w-4 h-4 text-gray-600" />
+                                <X className="w-3.5 h-3.5 text-white" />
                             </button>
+                        ) : (
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                                <span className="text-xs text-gray-400 bg-white px-2 py-1 rounded-md">⌘K</span>
+                            </div>
                         )}
                     </div>
                 </div>
@@ -346,120 +467,86 @@ export default function InvoicesPage() {
                             )}
                         </div>
 
-                        {/* Mobile Card Layout */}
-                        <div className="sm:hidden space-y-3">
-                            {/* Swipe hint */}
-                            <div className="flex items-center justify-center gap-2 text-xs text-gray-400 py-2">
-                                <span className="bg-gray-100 px-3 py-1 rounded-full">Swipe cards for actions</span>
-                            </div>
-
-                            {filteredInvoices.map((invoice) => (
-                                <div
+                        {/* Mobile App Card Layout */}
+                        <div className="sm:hidden space-y-3 pb-24">
+                            {filteredInvoices.map((invoice, index) => (
+                                <Link
                                     key={invoice.id}
-                                    className="block bg-white rounded-2xl p-4 shadow-sm border border-gray-100"
+                                    href={`/invoices/${invoice.id}`}
+                                    className="block bg-white rounded-2xl p-4 shadow-sm border border-gray-100 active:scale-[0.98] transition-all"
+                                    style={{ animationDelay: `${index * 50}ms` }}
                                 >
-                                    <Link
-                                        href={`/invoices/${invoice.id}`}
-                                        className="block active:scale-[0.98] transition-transform"
-                                    >
-                                        <div className="flex items-start justify-between mb-3">
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <span className="text-lg font-bold text-gray-900">
-                                                        {invoice.invoiceNumber}
-                                                    </span>
-                                                </div>
-                                                <p className="text-sm text-gray-500 truncate">
-                                                    {invoice.customerName}
-                                                </p>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <span className={`px-3 py-1.5 text-xs font-bold rounded-full ${getStatusColorMobile(invoice.status)}`}>
-                                                    {getStatusIcon(invoice.status)} {invoice.status}
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <div className={`w-2 h-2 rounded-full ${getStatusDotColor(invoice.status)}`} />
+                                                <span className="text-sm font-bold text-gray-900">
+                                                    {invoice.invoiceNumber}
                                                 </span>
-                                                <ArrowRight className="w-5 h-5 text-gray-300" />
                                             </div>
-                                        </div>
-                                        
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-4 text-sm text-gray-500">
-                                                <span className="flex items-center gap-1">
-                                                    <Calendar className="w-4 h-4" />
+                                            <p className="text-sm text-gray-500 truncate mb-2">
+                                                {invoice.customerName}
+                                            </p>
+                                            <div className="flex items-center gap-3">
+                                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${getStatusBgColor(invoice.status)} ${getStatusTextColor(invoice.status)}`}>
+                                                    {getStatusIcon(invoice.status)}
+                                                    {invoice.status}
+                                                </span>
+                                                <span className="text-xs text-gray-400">
                                                     {getRelativeTime(invoice.invoiceDate)}
                                                 </span>
                                             </div>
-                                            <div className="text-right">
-                                                <p className="text-xl font-bold text-gray-900">
-                                                    ₹{Number(invoice.totalAmount).toLocaleString('en-IN', { minimumFractionDigits: 0 })}
-                                                </p>
-                                            </div>
                                         </div>
-                                    </Link>
-
-                                    {/* Mobile Actions */}
-                                    <div className="flex items-center gap-3 mt-4 pt-4 border-t border-gray-100">
-                                        <Link
-                                            href={`/invoices/${invoice.id}/edit`}
-                                            className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-gray-50 text-gray-700 rounded-xl font-medium text-sm active:bg-gray-100 transition-colors"
-                                        >
-                                            <Edit className="w-4 h-4" />
-                                            Edit
-                                        </Link>
-                                        <Link
-                                            href={`/invoices/${invoice.id}`}
-                                            className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-indigo-50 text-indigo-700 rounded-xl font-medium text-sm active:bg-indigo-100 transition-colors"
-                                        >
-                                            <Eye className="w-4 h-4" />
-                                            View
-                                        </Link>
-                                        {invoice.status === 'DRAFT' && (
-                                            <button
-                                                onClick={() => deleteInvoice(invoice.id)}
-                                                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-red-50 text-red-700 rounded-xl font-medium text-sm active:bg-red-100 transition-colors"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                                Delete
-                                            </button>
-                                        )}
+                                        <div className="text-right">
+                                            <p className="text-lg font-bold text-gray-900">
+                                                ₹{Number(invoice.totalAmount).toLocaleString('en-IN', { minimumFractionDigits: 0 })}
+                                            </p>
+                                            <ArrowRight className="w-4 h-4 text-gray-300 mt-2 ml-auto" />
+                                        </div>
                                     </div>
-                                </div>
+                                </Link>
                             ))}
 
-                            {/* Mobile Pagination */}
+                            {/* Mobile Load More / Pagination */}
                             {totalPages > 1 && (
-                                <div className="flex items-center justify-between pt-4">
+                                <div className="flex items-center justify-center gap-4 pt-4">
                                     <button
                                         onClick={() => setPage(p => Math.max(1, p - 1))}
                                         disabled={page === 1}
-                                        className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl shadow-sm border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all"
+                                        className="p-3 bg-white rounded-full shadow-sm border border-gray-200 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition-all"
                                     >
-                                        <ChevronLeft className="w-4 h-4" />
-                                        <span className="text-sm font-medium">Prev</span>
+                                        <ChevronLeft className="w-5 h-5 text-gray-600" />
                                     </button>
-                                    <span className="text-sm text-gray-500 font-medium">
-                                        {page} / {totalPages}
-                                    </span>
+                                    <div className="flex items-center gap-1">
+                                        {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => (
+                                            <button
+                                                key={i + 1}
+                                                onClick={() => setPage(i + 1)}
+                                                className={`w-2 h-2 rounded-full transition-all ${
+                                                    page === i + 1 ? 'bg-indigo-600 w-4' : 'bg-gray-300'
+                                                }`}
+                                            />
+                                        ))}
+                                    </div>
                                     <button
                                         onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                                         disabled={page === totalPages}
-                                        className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl shadow-sm border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all"
+                                        className="p-3 bg-white rounded-full shadow-sm border border-gray-200 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition-all"
                                     >
-                                        <span className="text-sm font-medium">Next</span>
-                                        <ChevronRight className="w-4 h-4" />
+                                        <ChevronRight className="w-5 h-5 text-gray-600" />
                                     </button>
                                 </div>
                             )}
+
+                            {/* End of list indicator */}
+                            <div className="text-center py-6">
+                                <p className="text-xs text-gray-400">
+                                    Showing {filteredInvoices.length} of {invoices.length} invoices
+                                </p>
+                            </div>
                         </div>
                     </>
                 )}
-
-                {/* Mobile Floating Action Button */}
-                <Link
-                    href="/invoices/new"
-                    className="sm:hidden fixed bottom-24 right-5 w-14 h-14 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-full shadow-xl shadow-indigo-500/40 flex items-center justify-center hover:from-indigo-600 hover:to-purple-700 active:scale-90 transition-all z-50 border-2 border-white"
-                >
-                    <Plus className="w-7 h-7" />
-                </Link>
 
                 {/* Mobile Filter Bottom Sheet */}
                 {isFilterOpen && (

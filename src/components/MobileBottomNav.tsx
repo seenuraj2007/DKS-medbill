@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { memo, useMemo } from 'react'
 import {
     LayoutDashboard, Package, Calculator, FileText, MoreHorizontal,
-    Menu
+    Menu, Grid3X3
 } from 'lucide-react'
 
 interface MobileBottomNavProps {
@@ -30,8 +30,14 @@ const MobileBottomNav = memo(function MobileBottomNav({ onMenuClick, locale }: M
                 return item.href
             }
         }
+        // Check if on More page
+        if (pathname === `/${locale}/more`) {
+            return '/more'
+        }
         return null
     }, [pathname, locale])
+
+    const isMoreActive = pathname === `/${locale}/more`
 
     return (
         <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
@@ -56,17 +62,18 @@ const MobileBottomNav = memo(function MobileBottomNav({ onMenuClick, locale }: M
                     )
                 })}
 
-                {/* More / Menu button */}
-                <button
-                    onClick={onMenuClick}
-                    className="mobile-nav-item mobile-nav-item-inactive"
-                    aria-label="Open menu"
+                {/* More Page Link */}
+                <Link
+                    href={`/${locale}/more`}
+                    prefetch={true}
+                    className={`mobile-nav-item ${isMoreActive ? 'mobile-nav-item-active' : 'mobile-nav-item-inactive'}`}
+                    aria-label="More"
                 >
-                    <div className="mobile-nav-icon-wrap">
-                        <MoreHorizontal className="mobile-nav-icon" strokeWidth={1.8} />
+                    <div className={`mobile-nav-icon-wrap ${isMoreActive ? 'mobile-nav-icon-active' : ''}`}>
+                        <Grid3X3 className="mobile-nav-icon" strokeWidth={isMoreActive ? 2.5 : 1.8} />
                     </div>
                     <span className="mobile-nav-label">More</span>
-                </button>
+                </Link>
             </div>
         </nav>
     )
