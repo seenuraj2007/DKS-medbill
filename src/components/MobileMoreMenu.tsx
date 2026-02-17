@@ -82,7 +82,7 @@ const MobileMoreMenu = memo(function MobileMoreMenu({ isOpen, onClose, locale, o
             />
             
             {/* Bottom Sheet */}
-            <div className="fixed bottom-0 left-0 right-0 bg-gray-50 rounded-t-3xl z-50 max-h-[90vh] overflow-hidden sm:hidden animate-slide-up shadow-2xl">
+            <div className="fixed bottom-0 left-0 right-0 bg-gray-50 rounded-t-3xl z-50 max-h-[90vh] sm:hidden animate-slide-up shadow-2xl flex flex-col">
                 {/* Handle bar */}
                 <div className="flex justify-center pt-3 pb-1">
                     <div className="w-10 h-1 bg-gray-300 rounded-full" />
@@ -106,7 +106,7 @@ const MobileMoreMenu = memo(function MobileMoreMenu({ isOpen, onClose, locale, o
                 </div>
 
                 {/* Content */}
-                <div className="overflow-y-auto max-h-[calc(90vh-140px)] pb-6">
+                <div className="overflow-y-auto max-h-[calc(90vh-140px)] pb-6 touch-pan-y" style={{ WebkitOverflowScrolling: 'touch' }}>
                     {menuSections.map((section, sectionIndex) => (
                         <div key={section.title} className={sectionIndex > 0 ? 'mt-2' : ''}>
                             <div className="px-5 py-2">
