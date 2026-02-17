@@ -234,28 +234,28 @@ export default function HomePage() {
               <Link href="/auth" className="hidden md:block text-white/70 hover:text-white font-medium transition-colors px-3 py-2 rounded-lg hover:bg-white/5 cursor-pointer text-sm">
                 Sign In
               </Link>
-              <Link href="/auth" className="bg-white text-slate-950 px-3 sm:px-4 py-2 rounded-xl font-semibold hover:bg-white/90 transition-all shadow-lg hover:shadow-xl text-xs sm:text-sm whitespace-nowrap">
+              <Link 
+                href="/auth" 
+                className="bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white px-3 sm:px-4 py-2 rounded-xl font-semibold hover:from-violet-500 hover:to-fuchsia-500 transition-all shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 text-xs sm:text-sm whitespace-nowrap border border-white/20"
+              >
                 Get Started
               </Link>
               
               {/* Mobile Menu Button */}
               <button 
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/10"
+                className="md:hidden w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 transition-all border border-white/20 flex items-center justify-center"
                 aria-label="Toggle menu"
               >
-                <div className="w-5 h-5 flex flex-col justify-center items-center gap-1.5">
-                  <motion.span 
-                    animate={{ rotate: mobileMenuOpen ? 45 : 0, y: mobileMenuOpen ? 6 : 0 }}
-                    className="w-5 h-0.5 bg-white block origin-center"
+                <div className="w-5 h-4 flex flex-col justify-between items-center py-0.5">
+                  <span 
+                    className={`w-5 h-0.5 bg-white rounded-full transition-all duration-300 origin-center ${mobileMenuOpen ? 'rotate-45 translate-y-[7px]' : ''}`}
                   />
-                  <motion.span 
-                    animate={{ opacity: mobileMenuOpen ? 0 : 1 }}
-                    className="w-5 h-0.5 bg-white block"
+                  <span 
+                    className={`w-5 h-0.5 bg-white rounded-full transition-all duration-300 ${mobileMenuOpen ? 'opacity-0 scale-0' : ''}`}
                   />
-                  <motion.span 
-                    animate={{ rotate: mobileMenuOpen ? -45 : 0, y: mobileMenuOpen ? -6 : 0 }}
-                    className="w-5 h-0.5 bg-white block origin-center"
+                  <span 
+                    className={`w-5 h-0.5 bg-white rounded-full transition-all duration-300 origin-center ${mobileMenuOpen ? '-rotate-45 -translate-y-[7px]' : ''}`}
                   />
                 </div>
               </button>
