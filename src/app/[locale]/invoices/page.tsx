@@ -456,7 +456,7 @@ export default function InvoicesPage() {
                 {/* Mobile Floating Action Button */}
                 <Link
                     href="/invoices/new"
-                    className="sm:hidden fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-full shadow-lg shadow-indigo-500/30 flex items-center justify-center hover:from-indigo-600 hover:to-purple-700 active:scale-95 transition-all z-40"
+                    className="sm:hidden fixed bottom-24 right-5 w-14 h-14 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-full shadow-xl shadow-indigo-500/40 flex items-center justify-center hover:from-indigo-600 hover:to-purple-700 active:scale-90 transition-all z-[80] border-2 border-white"
                 >
                     <Plus className="w-7 h-7" />
                 </Link>
