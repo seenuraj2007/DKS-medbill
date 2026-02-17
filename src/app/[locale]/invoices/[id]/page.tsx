@@ -290,22 +290,22 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                                         <td className="px-4 py-3 text-gray-600">{index + 1}</td>
                                         <td className="px-4 py-3">
                                             <p className="font-medium">{item.description}</p>
-                                            {(item.cgstAmount > 0 || item.sgstAmount > 0) && (
+                                            {(Number(item.cgstAmount) > 0 || Number(item.sgstAmount) > 0) && (
                                                 <p className="text-xs text-gray-500 mt-1">
-                                                    CGST @ {item.cgstRate}% = ₹{item.cgstAmount.toFixed(2)}, 
-                                                    SGST @ {item.sgstRate}% = ₹{item.sgstAmount.toFixed(2)}
+                                                    CGST @ {item.cgstRate}% = ₹{Number(item.cgstAmount).toFixed(2)}, 
+                                                    SGST @ {item.sgstRate}% = ₹{Number(item.sgstAmount).toFixed(2)}
                                                 </p>
                                             )}
-                                            {item.igstAmount > 0 && (
+                                            {Number(item.igstAmount) > 0 && (
                                                 <p className="text-xs text-gray-500 mt-1">
-                                                    IGST @ {item.igstRate}% = ₹{item.igstAmount.toFixed(2)}
+                                                    IGST @ {item.igstRate}% = ₹{Number(item.igstAmount).toFixed(2)}
                                                 </p>
                                             )}
                                         </td>
                                         <td className="px-4 py-3 text-center text-gray-600">{item.hsnCode || '-'}</td>
                                         <td className="px-4 py-3 text-center">{item.quantity}</td>
-                                        <td className="px-4 py-3 text-right">₹{item.unitPrice.toFixed(2)}</td>
-                                        <td className="px-4 py-3 text-right font-medium">₹{item.totalAmount.toFixed(2)}</td>
+                                        <td className="px-4 py-3 text-right">₹{Number(item.unitPrice).toFixed(2)}</td>
+                                        <td className="px-4 py-3 text-right font-medium">₹{Number(item.totalAmount).toFixed(2)}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -317,36 +317,36 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                         <div className="w-80 space-y-2">
                             <div className="flex justify-between text-gray-600">
                                 <span>Subtotal</span>
-                                <span>₹{invoice.subtotal.toFixed(2)}</span>
+                                <span>₹{Number(invoice.subtotal).toFixed(2)}</span>
                             </div>
-                            {invoice.totalCgst > 0 && (
+                            {Number(invoice.totalCgst) > 0 && (
                                 <div className="flex justify-between text-gray-600">
                                     <span>CGST</span>
-                                    <span>₹{invoice.totalCgst.toFixed(2)}</span>
+                                    <span>₹{Number(invoice.totalCgst).toFixed(2)}</span>
                                 </div>
                             )}
-                            {invoice.totalSgst > 0 && (
+                            {Number(invoice.totalSgst) > 0 && (
                                 <div className="flex justify-between text-gray-600">
                                     <span>SGST</span>
-                                    <span>₹{invoice.totalSgst.toFixed(2)}</span>
+                                    <span>₹{Number(invoice.totalSgst).toFixed(2)}</span>
                                 </div>
                             )}
-                            {invoice.totalIgst > 0 && (
+                            {Number(invoice.totalIgst) > 0 && (
                                 <div className="flex justify-between text-gray-600">
                                     <span>IGST</span>
-                                    <span>₹{invoice.totalIgst.toFixed(2)}</span>
+                                    <span>₹{Number(invoice.totalIgst).toFixed(2)}</span>
                                 </div>
                             )}
                             <div className="flex justify-between text-gray-600 border-t border-gray-200 pt-2">
                                 <span>Total GST</span>
-                                <span>₹{invoice.totalGst.toFixed(2)}</span>
+                                <span>₹{Number(invoice.totalGst).toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between text-xl font-bold text-gray-900 border-t-2 border-gray-900 pt-3">
                                 <span>Total Amount</span>
-                                <span>₹{invoice.totalAmount.toFixed(2)}</span>
+                                <span>₹{Number(invoice.totalAmount).toFixed(2)}</span>
                             </div>
                             <div className="text-right text-sm text-gray-600 mt-2">
-                                (Rupees {numberToWords(invoice.totalAmount)} Only)
+                                (Rupees {numberToWords(Number(invoice.totalAmount))} Only)
                             </div>
                         </div>
                     </div>
