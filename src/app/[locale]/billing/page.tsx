@@ -728,7 +728,8 @@ export default function POSPage() {
         total_amount: item.totalAmount,
         hsn_code: item.product.hsn_code,
         gst_rate: item.product.gst_rate,
-        serial_numbers: item.serialNumbers || undefined
+        serial_numbers: item.serialNumbers || undefined,
+        description: item.product.name
       }))
 
       const res = await fetch('/api/invoices', {
@@ -1892,7 +1893,7 @@ export default function POSPage() {
                 {receiptData?.cart.map((item, index) => (
                   <div key={index} className="flex py-1">
                     <span className="w-8">{item.quantity}</span>
-                    <span className="flex-1 truncate pr-2">{item.product.name}</span>
+                    <span className="flex-1 truncate pr-2">{item.product?.name || item.product?.sku || 'Unknown Item'}</span>
                     <span className="w-16 text-right">{item.unitPrice.toFixed(2)}</span>
                     <span className="w-16 text-right">{item.totalAmount.toFixed(2)}</span>
                   </div>
