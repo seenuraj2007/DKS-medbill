@@ -164,6 +164,7 @@ export default function HomePage() {
   })
 
   const [activeStep, setActiveStep] = useState(0)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -224,16 +225,45 @@ export default function HomePage() {
             </div>
 
             <div className="flex items-center gap-3">
-              <Link href="/auth" className="text-white/70 hover:text-white font-medium transition-colors px-4 py-2 rounded-lg hover:bg-white/5 cursor-pointer">
+              <Link href="/auth" className="hidden sm:block text-white/70 hover:text-white font-medium transition-colors px-4 py-2 rounded-lg hover:bg-white/5 cursor-pointer">
                 Sign In
               </Link>
-              <Link href="/auth" className="bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white px-5 py-2.5 rounded-xl font-medium hover:from-violet-600 hover:to-fuchsia-700 transition-all shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer">
-                Get Started Free
+              <Link href="/auth" className="bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white px-4 sm:px-5 py-2.5 rounded-xl font-medium hover:from-violet-600 hover:to-fuchsia-700 transition-all shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer text-sm sm:text-base">
+                <span className="hidden sm:inline">Get Started Free</span>
+                <span className="sm:hidden">Get Started</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
+              <button 
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+              >
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {mobileMenuOpen ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  )}
+                </svg>
+              </button>
             </div>
           </div>
         </div>
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="md:hidden absolute top-full left-0 right-0 bg-slate-950/95 backdrop-blur-xl border-b border-white/10"
+          >
+            <div className="px-4 py-4 space-y-3">
+              <a href="#features" onClick={() => setMobileMenuOpen(false)} className="block py-3 text-white/70 hover:text-white transition-colors font-medium border-b border-white/5">Features</a>
+              <a href="#comparison" onClick={() => setMobileMenuOpen(false)} className="block py-3 text-white/70 hover:text-white transition-colors font-medium border-b border-white/5">Why Us</a>
+              <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="block py-3 text-white/70 hover:text-white transition-colors font-medium border-b border-white/5">Pricing</a>
+              <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="block py-3 text-white/70 hover:text-white transition-colors font-medium">How It Works</a>
+            </div>
+          </motion.div>
+        )}
       </nav>
 
       <section ref={ref} className="pt-40 pb-24 px-4 relative overflow-hidden">
@@ -305,25 +335,25 @@ export default function HomePage() {
             </motion.div>
 
             <motion.h1
-              className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight tracking-tight"
+              className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold mb-4 sm:mb-6 leading-tight tracking-tight px-2 sm:px-0"
               variants={itemVariants}
             >
               <span className="bg-gradient-to-r from-white via-white to-white/70 bg-clip-text text-transparent">Inventory Management</span>
-              <br />
-              <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent relative inline-block">
+              <br className="hidden sm:block" />
+              <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent relative inline-block mt-2 sm:mt-0">
                 Built for Modern Businesses.
               </span>
             </motion.h1>
 
             <motion.p
-              className="text-xl text-white/60 mb-10 max-w-2xl mx-auto leading-relaxed"
+              className="text-base sm:text-xl text-white/60 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-4 sm:px-0"
               variants={itemVariants}
             >
               The only <span className="text-green-400 font-semibold">open source</span> inventory software with
-              <span className="text-amber-400 font-semibold"> WhatsApp alerts (Coming Soon)</span>,
+              <span className="text-amber-400 font-semibold"> WhatsApp alerts</span>,
               <span className="text-blue-400 font-semibold"> 1-click Tally import</span>, and
               <span className="text-green-400 font-semibold"> in-app notifications</span>.
-              Built by the community, free tier limited.
+              <span className="hidden sm:inline"> Built by the community, free tier limited.</span>
             </motion.p>
 
             <motion.div
@@ -406,15 +436,15 @@ export default function HomePage() {
               </div>
               <div className="flex-1 text-center text-xs text-white/40 font-mono">DKS StockAlert Dashboard</div>
             </div>
-            <div className="p-6 bg-gradient-to-br from-slate-900/50 to-slate-800/50">
-              <div className="grid grid-cols-4 gap-4 mb-6">
+            <div className="p-3 sm:p-6 bg-gradient-to-br from-slate-900/50 to-slate-800/50">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
                 {stats.map((stat, i) => {
                   const IconComponent = stat.Icon
-                  const gradientClass = 'w-10 h-10 rounded-lg bg-gradient-to-br ' + stat.color + ' flex items-center justify-center mb-3 shadow-lg'
+                  const gradientClass = 'w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br ' + stat.color + ' flex items-center justify-center mb-2 sm:mb-3 shadow-lg'
                   return (
                     <motion.div
                       key={i}
-                      className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:border-white/20 transition-all"
+                      className="bg-white/5 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 border border-white/10 hover:border-white/20 transition-all"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{
@@ -424,29 +454,29 @@ export default function HomePage() {
                       }}
                     >
                       <div className={gradientClass}>
-                        <IconComponent className="w-5 h-5 text-white" />
+                        <IconComponent className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                       </div>
                       <div className="flex items-baseline gap-2">
-                        <p className="text-2xl font-bold text-white">{stat.value}</p>
+                        <p className="text-lg sm:text-2xl font-bold text-white">{stat.value}</p>
                       </div>
-                      <p className="text-sm text-white/60">{stat.label}</p>
-                      <span className="text-xs text-green-400 font-medium mt-1 block">{stat.change}</span>
+                      <p className="text-xs sm:text-sm text-white/60">{stat.label}</p>
+                      <span className="text-[10px] sm:text-xs text-green-400 font-medium mt-1 block truncate">{stat.change}</span>
                     </motion.div>
                   )
                 })}
               </div>
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-white flex items-center gap-2">
+              <div className="bg-white/5 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 border border-white/10">
+                <div className="flex items-center justify-between mb-3 sm:mb-4">
+                  <h3 className="font-semibold text-white text-sm sm:text-base flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4 text-yellow-400" />
                     Low Stock Alerts
                   </h3>
-                  <span className="text-sm text-violet-400 font-medium cursor-pointer hover:text-violet-300">View All</span>
+                  <span className="text-xs sm:text-sm text-violet-400 font-medium cursor-pointer hover:text-violet-300">View All</span>
                 </div>
                 {alerts.map((item, i) => (
                   <motion.div
                     key={i}
-                    className="flex items-center justify-between py-3 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors rounded-lg px-2 -mx-2"
+                    className="flex items-center justify-between py-2 sm:py-3 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors rounded-lg px-2 -mx-2"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{
@@ -455,18 +485,18 @@ export default function HomePage() {
                       ease: [0.4, 0, 0.2, 1],
                     }}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center border border-white/10">
-                        <Package className="w-5 h-5 text-white/60" />
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/5 rounded-lg flex items-center justify-center border border-white/10 flex-shrink-0">
+                        <Package className="w-4 h-4 sm:w-5 sm:h-5 text-white/60" />
                       </div>
-                      <div>
-                        <p className="font-medium text-white">{item.name}</p>
-                        <p className="text-sm text-white/60">{item.stock} units left (reorder at {item.reorder})</p>
+                      <div className="min-w-0">
+                        <p className="font-medium text-white text-sm sm:text-base truncate">{item.name}</p>
+                        <p className="text-xs sm:text-sm text-white/60">{item.stock} left (reorder: {item.reorder})</p>
                       </div>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${item.status === 'critical' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                    <span className={`px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold flex-shrink-0 ${item.status === 'critical' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
                       }`}>
-                      {item.status === 'critical' ? 'Critical' : 'Low Stock'}
+                      {item.status === 'critical' ? 'Critical' : 'Low'}
                     </span>
                   </motion.div>
                 ))}
