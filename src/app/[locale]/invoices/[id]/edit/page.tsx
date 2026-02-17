@@ -265,10 +265,10 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
 
     return (
         <SidebarLayout>
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-6xl mx-auto px-4 sm:px-0">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-8">
-                    <div className="flex items-center gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+                    <div className="flex items-center gap-3 sm:gap-4">
                         <Link
                             href={`/invoices/${resolvedParams.id}`}
                             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -276,24 +276,24 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
                             <ArrowLeft className="w-5 h-5 text-gray-600" />
                         </Link>
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900">Edit Invoice</h1>
-                            <p className="text-gray-500 mt-1">Update invoice details</p>
+                            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Edit Invoice</h1>
+                            <p className="text-sm sm:text-base text-gray-500 mt-0.5 sm:mt-1">Update invoice details</p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3 ml-11 sm:ml-0">
                         <Link
                             href={`/invoices/${resolvedParams.id}`}
-                            className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+                            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-2 border border-gray-200 rounded-xl font-medium hover:bg-gray-50 transition-colors text-sm"
                         >
                             Cancel
                         </Link>
                         <button
                             onClick={handleSubmit}
                             disabled={saving || formData.items.length === 0}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-medium hover:from-indigo-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50"
+                            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-medium hover:from-indigo-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 text-sm"
                         >
                             <Save className="w-4 h-4" />
-                            {saving ? 'Saving...' : 'Save Changes'}
+                            {saving ? 'Saving...' : 'Save'}
                         </button>
                     </div>
                 </div>
@@ -307,9 +307,9 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Customer Details */}
-                    <div className="bg-white rounded-xl border border-gray-200 p-6">
-                        <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                            <User className="w-5 h-5 text-indigo-500" />
+                    <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+                        <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                            <User className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-500" />
                             Customer Details
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -402,9 +402,9 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
                     </div>
 
                     {/* Invoice Details */}
-                    <div className="bg-white rounded-xl border border-gray-200 p-6">
-                        <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                            <FileText className="w-5 h-5 text-indigo-500" />
+                    <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+                        <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                            <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-500" />
                             Invoice Details
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -435,35 +435,35 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
                     </div>
 
                     {/* Line Items */}
-                    <div className="bg-white rounded-xl border border-gray-200 p-6">
-                        <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                            <Package className="w-5 h-5 text-indigo-500" />
+                    <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+                        <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-4 flex items-center gap-2">
+                            <Package className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-500" />
                             Line Items
                         </h2>
-                        <p className="text-sm text-gray-500 mb-4">
+                        <p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
                             Note: Line items cannot be edited after invoice creation. Delete and recreate the invoice if needed.
                         </p>
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
+                        <div className="overflow-x-auto -mx-4 sm:mx-0">
+                            <table className="w-full min-w-[500px]">
                                 <thead>
                                     <tr className="bg-gray-50">
-                                        <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Item</th>
-                                        <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase">HSN</th>
-                                        <th className="px-3 py-2 text-center text-xs font-semibold text-gray-600 uppercase">Qty</th>
-                                        <th className="px-3 py-2 text-right text-xs font-semibold text-gray-600 uppercase">Price</th>
-                                        <th className="px-3 py-2 text-right text-xs font-semibold text-gray-600 uppercase">Total</th>
+                                        <th className="px-3 sm:px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase">Item</th>
+                                        <th className="px-2 sm:px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase">HSN</th>
+                                        <th className="px-2 sm:px-3 py-2 text-center text-xs font-semibold text-gray-600 uppercase">Qty</th>
+                                        <th className="px-2 sm:px-3 py-2 text-right text-xs font-semibold text-gray-600 uppercase">Price</th>
+                                        <th className="px-3 sm:px-4 py-2 text-right text-xs font-semibold text-gray-600 uppercase">Total</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200">
                                     {formData.items.map((item, index) => (
                                         <tr key={index}>
-                                            <td className="px-3 py-2">
-                                                <p className="font-medium">{item.description}</p>
+                                            <td className="px-3 sm:px-4 py-2 sm:py-3">
+                                                <p className="font-medium text-sm sm:text-base">{item.description}</p>
                                             </td>
-                                            <td className="px-3 py-2 text-gray-600">{item.hsnCode || '-'}</td>
-                                            <td className="px-3 py-2 text-center">{item.quantity}</td>
-                                            <td className="px-3 py-2 text-right">₹{item.unitPrice.toFixed(2)}</td>
-                                            <td className="px-3 py-2 text-right font-medium">₹{item.totalAmount.toFixed(2)}</td>
+                                            <td className="px-2 sm:px-3 py-2 sm:py-3 text-gray-600 text-xs sm:text-sm">{item.hsnCode || '-'}</td>
+                                            <td className="px-2 sm:px-3 py-2 sm:py-3 text-center text-sm">{item.quantity}</td>
+                                            <td className="px-2 sm:px-3 py-2 sm:py-3 text-right text-sm">₹{item.unitPrice.toFixed(2)}</td>
+                                            <td className="px-3 sm:px-4 py-2 sm:py-3 text-right font-medium text-sm">₹{item.totalAmount.toFixed(2)}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -472,30 +472,30 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
                     </div>
 
                     {/* Totals */}
-                    <div className="bg-white rounded-xl border border-gray-200 p-6">
+                    <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
                         <div className="flex justify-end">
-                            <div className="w-80 space-y-3">
-                                <div className="flex justify-between text-gray-600">
+                            <div className="w-full sm:w-80 space-y-2 sm:space-y-3">
+                                <div className="flex justify-between text-gray-600 text-sm sm:text-base">
                                     <span>Subtotal</span>
                                     <span>₹{subtotal.toFixed(2)}</span>
                                 </div>
-                                <div className="flex justify-between text-gray-600">
+                                <div className="flex justify-between text-gray-600 text-sm sm:text-base">
                                     <span>CGST</span>
                                     <span>₹{totalCgst.toFixed(2)}</span>
                                 </div>
-                                <div className="flex justify-between text-gray-600">
+                                <div className="flex justify-between text-gray-600 text-sm sm:text-base">
                                     <span>SGST</span>
                                     <span>₹{totalSgst.toFixed(2)}</span>
                                 </div>
-                                <div className="flex justify-between text-gray-600">
+                                <div className="flex justify-between text-gray-600 text-sm sm:text-base">
                                     <span>IGST</span>
                                     <span>₹{totalIgst.toFixed(2)}</span>
                                 </div>
-                                <div className="flex justify-between text-gray-600 border-t border-gray-200 pt-2">
+                                <div className="flex justify-between text-gray-600 border-t border-gray-200 pt-2 text-sm sm:text-base">
                                     <span>Total GST</span>
                                     <span>₹{totalGst.toFixed(2)}</span>
                                 </div>
-                                <div className="flex justify-between text-xl font-bold text-gray-900 border-t border-gray-200 pt-3">
+                                <div className="flex justify-between text-lg sm:text-xl font-bold text-gray-900 border-t border-gray-200 pt-3">
                                     <span>Total Amount</span>
                                     <span>₹{totalAmount.toFixed(2)}</span>
                                 </div>
@@ -504,7 +504,7 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
                     </div>
 
                     {/* Notes & Terms */}
-                    <div className="bg-white rounded-xl border border-gray-200 p-6">
+                    <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -513,7 +513,7 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
                                 <textarea
                                     value={formData.notes}
                                     onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full px-3 sm:px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm sm:text-base"
                                     rows={3}
                                     placeholder="Additional notes..."
                                 />
@@ -525,7 +525,7 @@ export default function EditInvoicePage({ params }: { params: Promise<{ id: stri
                                 <textarea
                                     value={formData.terms}
                                     onChange={(e) => setFormData(prev => ({ ...prev, terms: e.target.value }))}
-                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full px-3 sm:px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm sm:text-base"
                                     rows={3}
                                     placeholder="Payment terms..."
                                 />
