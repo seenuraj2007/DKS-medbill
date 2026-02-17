@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { memo, useMemo } from 'react'
 import {
-    LayoutDashboard, Package, Calculator, Bell, MoreHorizontal,
+    LayoutDashboard, Package, Calculator, FileText, MoreHorizontal,
     Menu
 } from 'lucide-react'
 
@@ -17,7 +17,7 @@ const navItems = [
     { href: '/dashboard', label: 'Home', icon: LayoutDashboard },
     { href: '/products', label: 'Products', icon: Package },
     { href: '/billing', label: 'POS', icon: Calculator },
-    { href: '/alerts', label: 'Alerts', icon: Bell },
+    { href: '/invoices', label: 'Invoices', icon: FileText },
 ]
 
 const MobileBottomNav = memo(function MobileBottomNav({ onMenuClick, locale }: MobileBottomNavProps) {
@@ -52,9 +52,6 @@ const MobileBottomNav = memo(function MobileBottomNav({ onMenuClick, locale }: M
                                 <Icon className="mobile-nav-icon" strokeWidth={isActive ? 2.5 : 1.8} />
                             </div>
                             <span className="mobile-nav-label">{item.label}</span>
-                            {item.href === '/alerts' && (
-                                <span className="mobile-nav-badge" aria-hidden="true" />
-                            )}
                         </Link>
                     )
                 })}
