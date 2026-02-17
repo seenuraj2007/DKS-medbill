@@ -86,10 +86,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       data: prismaProductData
     })
 
-    // Handle stock level updates if quantity or reorder point provided
-    if ((current_quantity !== undefined || reorder_point !== undefined) && user.tenantId) {
-      // Get primary location or first available location
-      const location = await prisma.location.findFirst({
+    // Always ensure stock level exists
+    if (user.tenantId) {
+      // Get or create location
+      let location = await prisma.location.findFirst({
         where: { 
           tenantId: user.tenantId,
           isActive: true,
@@ -98,40 +98,50 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         orderBy: { isPrimary: 'desc' }
       })
 
-      if (location) {
-        const existingStockLevel = await prisma.stockLevel.findUnique({
-          where: {
-            tenantId_productId_locationId: {
-              tenantId: user.tenantId,
-              productId: productId,
-              locationId: location.id
-            }
+      if (!location) {
+        location = await prisma.location.create({
+          data: {
+            tenantId: user.tenantId,
+            name: 'Main Warehouse',
+            type: 'WAREHOUSE',
+            isPrimary: true,
+            isActive: true
           }
         })
+      }
 
-        if (existingStockLevel) {
-          // Update existing stock level
-          await prisma.stockLevel.update({
-            where: { id: existingStockLevel.id },
-            data: {
-              ...(current_quantity !== undefined && { quantity: parseInt(current_quantity) || 0 }),
-              ...(reorder_point !== undefined && { reorderPoint: parseInt(reorder_point) || 0 })
-            }
-          })
-        } else if (current_quantity !== undefined) {
-          // Create new stock level only if quantity is provided
-          await prisma.stockLevel.create({
-            data: {
-              tenantId: user.tenantId,
-              productId: productId,
-              locationId: location.id,
-              quantity: parseInt(current_quantity) || 0,
-              reorderPoint: parseInt(reorder_point) || 0,
-              reservedQuantity: 0,
-              version: 0
-            }
-          })
+      const existingStockLevel = await prisma.stockLevel.findUnique({
+        where: {
+          tenantId_productId_locationId: {
+            tenantId: user.tenantId,
+            productId: productId,
+            locationId: location.id
+          }
         }
+      })
+
+      if (existingStockLevel) {
+        // Update existing stock level
+        await prisma.stockLevel.update({
+          where: { id: existingStockLevel.id },
+          data: {
+            ...(current_quantity !== undefined && { quantity: parseInt(current_quantity) || 0 }),
+            ...(reorder_point !== undefined && { reorderPoint: parseInt(reorder_point) || 0 })
+          }
+        })
+      } else {
+        // Always create stock level with quantity 0 if not provided
+        await prisma.stockLevel.create({
+          data: {
+            tenantId: user.tenantId,
+            productId: productId,
+            locationId: location.id,
+            quantity: current_quantity !== undefined ? parseInt(current_quantity) || 0 : 0,
+            reorderPoint: reorder_point !== undefined ? parseInt(reorder_point) || 0 : 0,
+            reservedQuantity: 0,
+            version: 0
+          }
+        })
       }
     }
 
