@@ -115,6 +115,11 @@ export class TallyImporter {
       // Map common Tally CSV column names
       const columnMap = this.detectColumnMappings(headers)
 
+      logger.info('CSV column mapping detected', {
+        headers: headers.slice(0, 20),
+        columnMap
+      })
+
       if (!columnMap.name) {
         result.errors.push('Could not detect product name column')
         return result
@@ -164,23 +169,48 @@ export class TallyImporter {
     const gstRate = parseFloat(item.GSTRATEDUTYHEAD?.valueOf?.() || item['@_GSTRATEDUTYHEAD'] || '0') || 0
     const hsnCode = item.HSNCODE || item['@_HSNCODE'] || ''
 
-    // Extract opening balance/stock
-    const openingBalance = item.OPENINGBALANCE
+    // Extract opening balance/stock - check multiple possible formats
+    const openingBalance = item.OPENINGBALANCE || item.OPENING || item.OPENINGSTOCK || item.BOPENING
     let openingStock = 0
     let unit = 'PCS'
     
     if (openingBalance && typeof openingBalance === 'object') {
       const amount = openingBalance.AMOUNT || openingBalance['@_AMOUNT']
-      const quantity = openingBalance.QUANTITY || openingBalance['@_QUANTITY']
+      const quantity = openingBalance.QUANTITY || openingBalance['@_QUANTITY'] || openingBalance.qty || openingBalance.Qty
       if (quantity) {
-        openingStock = parseFloat(quantity) || 0
+        openingStock = parseFloat(String(quantity)) || 0
       }
       const unitElement = openingBalance.UNIT || openingBalance['@_UNIT']
       if (unitElement) {
-        unit = unitElement || 'PCS'
+        unit = String(unitElement) || 'PCS'
       }
     } else if (typeof openingBalance === 'number') {
       openingStock = openingBalance
+    } else if (typeof openingBalance === 'string') {
+      // Parse string like "10 Nos" or "5.5 Kgs"
+      const match = openingBalance.match(/^([\d.]+)\s*(\w+)?/)
+      if (match) {
+        openingStock = parseFloat(match[1]) || 0
+        if (match[2]) unit = match[2]
+      }
+    }
+
+    // Also check for CLOSINGBALANCE as fallback
+    const closingBalance = item.CLOSINGBALANCE || item.CLOSING || item.BCLOSING
+    if (openingStock === 0 && closingBalance) {
+      if (typeof closingBalance === 'object') {
+        const qty = closingBalance.QUANTITY || closingBalance['@_QUANTITY'] || closingBalance.qty
+        if (qty) {
+          openingStock = parseFloat(String(qty)) || 0
+        }
+      } else if (typeof closingBalance === 'number') {
+        openingStock = closingBalance
+      } else if (typeof closingBalance === 'string') {
+        const match = String(closingBalance).match(/^([\d.]+)/)
+        if (match) {
+          openingStock = parseFloat(match[1]) || 0
+        }
+      }
     }
 
     // Extract costs
@@ -267,8 +297,8 @@ export class TallyImporter {
     const pricePatterns = ['price', 'selling price', 'sale price', 'mrp', 'rate']
     map.sellingPrice = this.findColumnIndex(lowerHeaders, pricePatterns)
 
-    // Stock mappings
-    const stockPatterns = ['stock', 'quantity', 'opening stock', 'balance', 'qty']
+    // Stock mappings - try multiple patterns
+    const stockPatterns = ['opening stock', 'opening', 'stock', 'quantity', 'balance', 'qty', 'closing', 'closing balance', 'closingstock']
     map.openingStock = this.findColumnIndex(lowerHeaders, stockPatterns)
 
     // Category mappings

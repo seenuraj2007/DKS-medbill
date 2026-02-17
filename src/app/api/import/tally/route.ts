@@ -51,6 +51,19 @@ export async function POST(request: NextRequest) {
       importResult = tallyImporter.parseTallyCSV(fileContent)
     }
 
+    // Log for debugging
+    logger.info('Tally import parsed', {
+      fileType: isXML ? 'XML' : 'CSV',
+      totalProducts: importResult.products.length,
+      sampleProducts: importResult.products.slice(0, 3).map(p => ({
+        name: p.name,
+        sku: p.sku,
+        openingStock: p.openingStock,
+        unitCost: p.unitCost,
+        sellingPrice: p.sellingPrice
+      }))
+    })
+
     if (!importResult.success || importResult.products.length === 0) {
       return NextResponse.json(
         {
@@ -107,8 +120,26 @@ export async function POST(request: NextRequest) {
       })
       if (primaryLocation) {
         targetLocationId = primaryLocation.id
+      } else {
+        // If no primary location, get any active location
+        const anyLocation = await prisma.location.findFirst({
+          where: {
+            tenantId,
+            isActive: true,
+            deletedAt: null
+          }
+        })
+        if (anyLocation) {
+          targetLocationId = anyLocation.id
+        }
       }
     }
+
+    // Log location status
+    logger.info('Import location selected', {
+      targetLocationId,
+      hasLocation: !!targetLocationId
+    })
 
     for (const tallyProduct of validatedProducts) {
       try {
@@ -217,15 +248,26 @@ export async function POST(request: NextRequest) {
       errors: importErrors.length,
     })
 
+    // Check if any products had stock
+    const productsWithStock = validatedProducts.filter(p => p.openingStock > 0).length
+    const totalStockValue = validatedProducts.reduce((sum, p) => sum + p.openingStock, 0)
+
     return NextResponse.json({
       success: true,
       imported: importedProducts.length,
       created: importedProducts.filter((p: Record<string, unknown>) => p.action === 'created').length,
       updated: importedProducts.filter((p: Record<string, unknown>) => p.action === 'updated').length,
-      products: importedProducts.slice(0, 20), // Return first 20
+      products: importedProducts.slice(0, 20),
+      stockInfo: {
+        productsWithStock,
+        totalProducts: validatedProducts.length,
+        totalStockUnits: totalStockValue,
+        locationId: targetLocationId,
+        warning: productsWithStock === 0 ? 'No opening stock found in file. Stock levels set to 0.' : null
+      },
       parseErrors: importResult.errors,
       validationErrors,
-      importErrors: importErrors.slice(0, 10), // Return first 10 errors
+      importErrors: importErrors.slice(0, 10),
     })
 
   } catch (error) {
