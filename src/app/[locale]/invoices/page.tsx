@@ -456,10 +456,9 @@ export default function InvoicesPage() {
                 {/* Mobile Floating Action Button */}
                 <Link
                     href="/invoices/new"
-                    className="sm:hidden fixed bottom-28 right-4 w-16 h-16 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full shadow-2xl shadow-indigo-500/50 flex items-center justify-center hover:from-indigo-500 hover:to-purple-500 active:scale-90 transition-all z-[100] border-4 border-white"
-                    style={{ boxShadow: '0 8px 30px rgba(99, 102, 241, 0.4), 0 4px 15px rgba(0,0,0,0.2)' }}
+                    className="sm:hidden fixed bottom-24 right-5 w-14 h-14 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-full shadow-xl shadow-indigo-500/40 flex items-center justify-center hover:from-indigo-600 hover:to-purple-700 active:scale-90 transition-all z-50 border-2 border-white"
                 >
-                    <Plus className="w-8 h-8 stroke-[3]" />
+                    <Plus className="w-7 h-7" />
                 </Link>
 
                 {/* Mobile Filter Bottom Sheet */}
