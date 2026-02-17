@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getGoogleOAuth, setOAuthStateCookie, createPKCEState } from '@/lib/oauth';
+import { getGoogleOAuth } from '@/lib/oauth';
+import { generateState, generateCodeVerifier } from 'arctic';
 
-// Get the base URL from the request to support multiple ports
 function getRequestBaseUrl(request: NextRequest): string {
     const host = request.headers.get('host') || 'localhost:3000';
     const protocol = request.headers.get('x-forwarded-proto') || 
@@ -20,7 +20,6 @@ export async function GET(
     }
 
     try {
-        // Get the current request's base URL to support multiple ports
         const baseUrl = getRequestBaseUrl(request);
         const google = getGoogleOAuth(baseUrl);
         
@@ -37,11 +36,34 @@ export async function GET(
             }, { status: 500 });
         }
 
-        const { state, codeVerifier } = await createPKCEState();
-        await setOAuthStateCookie(state, codeVerifier);
+        const state = generateState();
+        const codeVerifier = generateCodeVerifier();
 
-        const url = google.createAuthorizationURL(state, codeVerifier, ['openid', 'email', 'profile']);
-        return NextResponse.redirect(url.toString());
+        // In development, encode codeVerifier in state to survive hot reload
+        let finalState = state;
+        if (process.env.NODE_ENV !== 'production') {
+            finalState = `${state}:${codeVerifier}`;
+        }
+
+        const url = google.createAuthorizationURL(finalState, codeVerifier, ['openid', 'email', 'profile']);
+        
+        const response = NextResponse.redirect(url.toString());
+        
+        const isProduction = process.env.NODE_ENV === 'production';
+        const cookieOptions = {
+            path: '/',
+            secure: isProduction,
+            httpOnly: true,
+            maxAge: 60 * 10,
+            sameSite: 'lax' as const,
+        };
+        
+        response.cookies.set('oauth_state', state, cookieOptions);
+        response.cookies.set('oauth_code_verifier', codeVerifier, cookieOptions);
+
+        console.log('OAuth initiated:', { state: state.substring(0, 10) + '...' });
+
+        return response;
     } catch (error) {
         console.error('OAuth initiation error:', error);
         return NextResponse.redirect(new URL('/auth?error=oauth_failed', request.url));

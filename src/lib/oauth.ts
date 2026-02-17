@@ -2,6 +2,17 @@ import { Google } from 'arctic';
 import { cookies } from 'next/headers';
 import { generateState, generateCodeVerifier } from 'arctic';
 
+const devOAuthStore = new Map<string, { codeVerifier: string; timestamp: number }>();
+
+setInterval(() => {
+    const now = Date.now();
+    for (const [key, value] of devOAuthStore.entries()) {
+        if (now - value.timestamp > 10 * 60 * 1000) {
+            devOAuthStore.delete(key);
+        }
+    }
+}, 60 * 1000);
+
 // OAuth Provider Configuration
 const getBaseUrl = () => {
     if (process.env.NEXT_PUBLIC_APP_URL) {
@@ -39,7 +50,22 @@ export async function createOAuthState(): Promise<{ state: string; codeVerifier?
 export async function createPKCEState(): Promise<{ state: string; codeVerifier: string }> {
     const state = generateState();
     const codeVerifier = generateCodeVerifier();
+    
+    if (process.env.NODE_ENV !== 'production') {
+        devOAuthStore.set(state, { codeVerifier, timestamp: Date.now() });
+        console.log('DEV: Stored OAuth state in memory:', state.substring(0, 10) + '...');
+    }
+    
     return { state, codeVerifier };
+}
+
+export function getDevOAuthState(state: string): { codeVerifier: string } | null {
+    const entry = devOAuthStore.get(state);
+    if (entry) {
+        devOAuthStore.delete(state);
+        return { codeVerifier: entry.codeVerifier };
+    }
+    return null;
 }
 
 // Store OAuth state in cookies
@@ -71,7 +97,23 @@ export async function verifyOAuthState(state: string): Promise<{ valid: boolean;
     const storedState = cookieStore.get('oauth_state')?.value;
     const codeVerifier = cookieStore.get('oauth_code_verifier')?.value;
 
+    console.log('OAuth State Verification:', {
+        receivedState: state?.substring(0, 10) + '...',
+        storedState: storedState?.substring(0, 10) + '...',
+        hasCodeVerifier: !!codeVerifier,
+        match: storedState === state,
+        allCookies: cookieStore.getAll().map(c => c.name).join(', ')
+    });
+
     if (!storedState || storedState !== state) {
+        if (process.env.NODE_ENV !== 'production') {
+            const devState = getDevOAuthState(state);
+            if (devState) {
+                console.log('DEV MODE: Retrieved OAuth state from memory');
+                return { valid: true, codeVerifier: devState.codeVerifier };
+            }
+            console.log('DEV MODE: No stored state found');
+        }
         return { valid: false };
     }
 
