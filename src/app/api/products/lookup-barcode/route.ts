@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
     // 2. Try Open Food Facts API (free, for food/grocery items)
     try {
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 5000)
 
       const response = await fetch(
         `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`,
@@ -92,52 +92,38 @@ export async function POST(req: NextRequest) {
       )
       clearTimeout(timeoutId)
 
-      console.log('[Barcode Lookup] Open Food Facts response status:', response.status)
-
       if (response.ok) {
         const data: OpenFoodFactsResponse = await response.json()
-        
-        console.log('[Barcode Lookup] Open Food Facts data:', {
-          status: data.status,
-          hasProduct: !!data.product,
-          productName: data.product?.product_name,
-          productNameEn: data.product?.product_name_en,
-          productNameFr: data.product?.product_name_fr
-        })
         
         if (data.status === 1 && data.product) {
           const product = data.product
           
-          // Parse quantity to extract weight/volume if available
           let weightPerUnit = 1
           let unit = 'unit'
           
           if (product.quantity) {
-            // Try to extract weight (e.g., "500g", "1L", "750ml")
             const weightMatch = product.quantity.match(/(\d+(?:\.\d+)?)\s*(g|kg|ml|l)/i)
             if (weightMatch) {
               const value = parseFloat(weightMatch[1])
               const unit = weightMatch[2].toLowerCase()
               
               if (unit === 'g') {
-                weightPerUnit = value / 1000 // Convert to kg
+                weightPerUnit = value / 1000
               } else if (unit === 'kg') {
                 weightPerUnit = value
               } else if (unit === 'ml') {
-                weightPerUnit = value / 1000 // Convert to liters
+                weightPerUnit = value / 1000
               } else if (unit === 'l') {
                 weightPerUnit = value
               }
             }
           }
 
-          // Determine if it's a beverage/liquid
           const isLiquid = product.categories?.toLowerCase().includes('beverage') ||
                           product.categories?.toLowerCase().includes('drink') ||
                           product.quantity?.toLowerCase().includes('ml') ||
                           product.quantity?.toLowerCase().includes('l')
 
-          // Get product name from any available language
           const productName = product.product_name || 
                              product.product_name_en || 
                              product.product_name_fr || 
@@ -156,17 +142,16 @@ export async function POST(req: NextRequest) {
               brand: product.brands?.split(',')[0]?.trim() || '',
               unit: isLiquid ? 'liter' : 'kg',
               weightPerUnit: weightPerUnit,
-              minWeight: isLiquid ? 0.1 : 0.05, // Minimum sale quantity
+              minWeight: isLiquid ? 0.1 : 0.05,
               imageUrl: product.image_url || product.image_front_url || '',
               isPerishable: product.labels?.toLowerCase().includes('fresh') || 
                            product.labels?.toLowerCase().includes('refrigerated') ||
                            product.categories?.toLowerCase().includes('dairy') ||
                            product.categories?.toLowerCase().includes('meat') ||
                            false,
-              // Default GST rates for India
-              gstRate: 18, // Default 18% for most items
+              gstRate: 18,
               hsnCode: '',
-              sellingPrice: null, // User needs to set price
+              sellingPrice: null,
               unitCost: null
             }
           }
@@ -176,10 +161,99 @@ export async function POST(req: NextRequest) {
       }
     } catch (error) {
       console.log('Open Food Facts lookup failed:', error)
-      // Continue to return "not found"
     }
 
-    // 3. Not found anywhere
+    // 3. Try Outpan API (free, for general products)
+    try {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000)
+
+      const response = await fetch(
+        `https://api.outpan.com/v2/products/${barcode}`,
+        { 
+          signal: controller.signal,
+          headers: {
+            'Accept': 'application/json'
+          }
+        }
+      )
+      clearTimeout(timeoutId)
+
+      if (response.ok) {
+        const data = await response.json()
+        
+        if (data && data.name) {
+          productData = {
+            barcode,
+            found: true,
+            source: 'outpan',
+            product: {
+              name: data.name,
+              category: data.category || 'General',
+              brand: data.brand || '',
+              unit: 'unit',
+              weightPerUnit: 1,
+              minWeight: 1,
+              imageUrl: data.images?.[0] || '',
+              isPerishable: false,
+              gstRate: 18,
+              hsnCode: '',
+              sellingPrice: null,
+              unitCost: null
+            }
+          }
+
+          return NextResponse.json(productData)
+        }
+      }
+    } catch (error) {
+      console.log('Outpan lookup failed:', error)
+    }
+
+    // 4. Try UPC Database (free, no API key required for basic lookups)
+    try {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000)
+
+      const response = await fetch(
+        `https://api.upcitemdb.com/prod/trial/lookup?upc=${barcode}`,
+        { signal: controller.signal }
+      )
+      clearTimeout(timeoutId)
+
+      if (response.ok) {
+        const data = await response.json()
+        
+        if (data.items && data.items.length > 0) {
+          const item = data.items[0]
+          productData = {
+            barcode,
+            found: true,
+            source: 'upcitemdb',
+            product: {
+              name: item.title,
+              category: item.category || 'General',
+              brand: item.brand || '',
+              unit: 'unit',
+              weightPerUnit: 1,
+              minWeight: 1,
+              imageUrl: item.images?.[0] || '',
+              isPerishable: false,
+              gstRate: 18,
+              hsnCode: '',
+              sellingPrice: null,
+              unitCost: null
+            }
+          }
+
+          return NextResponse.json(productData)
+        }
+      }
+    } catch (error) {
+      console.log('UPC Database lookup failed:', error)
+    }
+
+    // 5. Not found anywhere
     return NextResponse.json({
       barcode,
       found: false,

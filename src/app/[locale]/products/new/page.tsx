@@ -142,8 +142,6 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
     setBarcodeLookupResult(null)
     
     try {
-      console.log('[Product Form] Looking up barcode:', barcode)
-      
       const res = await fetch('/api/products/lookup-barcode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -151,7 +149,6 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
       })
       
       const data = await res.json()
-      console.log('[Product Form] Lookup response:', data)
       
       if (data.found) {
         if (data.source === 'local') {
