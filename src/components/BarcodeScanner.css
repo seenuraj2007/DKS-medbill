@@ -1,0 +1,52 @@
+/* Barcode Scanner Mobile Optimizations */
+
+#barcode-scanner-container video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+#barcode-scanner-container canvas {
+  display: none !important;
+}
+
+/* Prevent scroll when scanner is open */
+body:has(.barcode-scanner-open) {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 640px) {
+  #barcode-scanner-container {
+    max-height: 70vh;
+  }
+  
+  /* Ensure scanner doesn't crash on mobile */
+  #barcode-scanner-container video {
+    transform: scaleX(-1); /* Mirror for better UX */
+  }
+}
+
+/* Smooth animations */
+@keyframes scan-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.scan-line {
+  animation: scan-pulse 2s ease-in-out infinite;
+}
+
+/* Hardware acceleration for mobile */
+#barcode-scanner-container {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000;
+}
