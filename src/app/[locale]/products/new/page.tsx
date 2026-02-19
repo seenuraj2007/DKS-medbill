@@ -2,34 +2,20 @@
 
 import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Save, Package, Tag, Hash, AlertTriangle, Mail, Phone, DollarSign, Box, Scan, Clock, Scale, Info, Search, CheckCircle, XCircle, Loader2 } from 'lucide-react'
+import { ArrowLeft, Save, Package, Tag, Hash, AlertTriangle, Mail, Phone, DollarSign, Box, Scan, Clock, Scale, Info, Search, CheckCircle, XCircle, Loader2, Pill, Thermometer, FileText, Building2 } from 'lucide-react'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import ImageUpload from '@/components/ImageUpload'
 import { SubscriptionGate } from '@/components/SubscriptionGate'
 import { useUpgradeToast, ToastProvider } from '@/components/UpgradeNotification'
-
-const UNIT_OPTIONS = [
-  { value: 'unit', label: 'Unit (pcs)' },
-  { value: 'kg', label: 'Kilogram (kg)' },
-  { value: 'g', label: 'Gram (g)' },
-  { value: 'liter', label: 'Liter (L)' },
-  { value: 'ml', label: 'Milliliter (mL)' },
-  { value: 'dozen', label: 'Dozen (12 pcs)' },
-  { value: 'bunch', label: 'Bunch' },
-  { value: 'pair', label: 'Pair (2 pcs)' },
-  { value: 'packet', label: 'Packet' },
-  { value: 'box', label: 'Box' },
-  { value: 'crate', label: 'Crate' },
-  { value: 'ton', label: 'Ton' },
-]
+import { MEDICAL_UNIT_OPTIONS, DRUG_SCHEDULE_OPTIONS, STORAGE_TEMP_OPTIONS, MEDICINE_HSN_CODES, MEDICINE_CATEGORIES } from '@/lib/medical-constants'
 
 const BarcodeScanner = dynamic(() => import('@/components/BarcodeScanner'), {
   ssr: false,
   loading: () => <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
 })
 
-const InputField = ({ label, icon: Icon, type = 'text', name, value, onChange, placeholder, required = false }: any) => (
+const InputField = ({ label, icon: Icon, type = 'text', name, value, onChange, placeholder, required = false, min, step }: any) => (
   <div>
     <label className="block text-sm font-semibold text-gray-700 mb-2">
       {label} {required && <span className="text-red-500">*</span>}
@@ -43,6 +29,8 @@ const InputField = ({ label, icon: Icon, type = 'text', name, value, onChange, p
         onChange={onChange}
         placeholder={placeholder}
         required={required}
+        min={min}
+        step={step}
         className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900 placeholder-gray-400 bg-white"
       />
     </div>
@@ -81,13 +69,23 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
     supplier_phone: '',
     unit_cost: '',
     selling_price: '',
-    unit: 'unit',
+    unit: 'strip',
     image_url: '',
-    // New fields for produce/weight-based items
-    is_perishable: false,
+    // Perishable fields
+    is_perishable: true,
     expiry_date: '',
     weight_per_unit: '1',
-    min_weight: ''
+    min_weight: '',
+    // Medical-specific fields
+    max_retail_price: '',
+    composition: '',
+    manufacturer: '',
+    drug_schedule: 'OTC',
+    storage_temp: 'ROOM_TEMP',
+    requires_prescription: false,
+    units_per_strip: '10',
+    strips_per_box: '10',
+    hsn_code: '3004',
   })
 
   useEffect(() => {
@@ -107,19 +105,29 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
         sku: product.sku || '',
         barcode: product.barcode || '',
         category: product.category || '',
-        current_quantity: product.current_quantity.toString(),
-        reorder_point: product.reorder_point.toString(),
+        current_quantity: product.current_quantity?.toString() || '',
+        reorder_point: product.reorder_point?.toString() || '',
         supplier_name: product.supplier_name || '',
         supplier_email: product.supplier_email || '',
         supplier_phone: product.supplier_phone || '',
         unit_cost: product.unit_cost?.toString() || '',
         selling_price: product.selling_price?.toString() || '',
-        unit: product.unit || 'unit',
+        unit: product.unit || 'strip',
         image_url: product.image_url || '',
-        is_perishable: product.is_perishable || false,
+        is_perishable: product.is_perishable ?? true,
         expiry_date: product.expiry_date ? product.expiry_date.split('T')[0] : '',
         weight_per_unit: product.weight_per_unit?.toString() || '1',
-        min_weight: product.min_weight?.toString() || ''
+        min_weight: product.min_weight?.toString() || '',
+        // Medical fields
+        max_retail_price: product.max_retail_price?.toString() || '',
+        composition: product.composition || '',
+        manufacturer: product.manufacturer || '',
+        drug_schedule: product.drug_schedule || 'OTC',
+        storage_temp: product.storage_temp || 'ROOM_TEMP',
+        requires_prescription: product.requires_prescription || false,
+        units_per_strip: product.units_per_strip?.toString() || '10',
+        strips_per_box: product.strips_per_box?.toString() || '10',
+        hsn_code: product.hsn_code || '3004',
       })
     } catch (err) {
       setError('Failed to load product')
@@ -129,9 +137,8 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
   }
 
   const handleBarcodeDetected = (code: string) => {
-    setShowScanner(false) // Close scanner first
+    setShowScanner(false)
     setFormData({ ...formData, barcode: code })
-    // Auto-lookup after scanning
     setTimeout(() => lookupBarcode(code), 500)
   }
 
@@ -152,13 +159,11 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
       
       if (data.found) {
         if (data.source === 'local') {
-          // Product already exists
           setBarcodeLookupResult({
             found: true,
             message: 'This product already exists in your inventory!',
             source: 'local'
           })
-          // Still fill the form with existing data
           setFormData(prev => ({
             ...prev,
             name: data.product.name || prev.name,
@@ -167,16 +172,17 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
             selling_price: data.product.sellingPrice?.toString() || prev.selling_price,
             unit_cost: data.product.unitCost?.toString() || prev.unit_cost,
             image_url: data.product.imageUrl || prev.image_url,
-            is_perishable: data.product.isPerishable || prev.is_perishable,
-            weight_per_unit: data.product.weightPerUnit?.toString() || prev.weight_per_unit,
-            min_weight: data.product.minWeight?.toString() || prev.min_weight
+            max_retail_price: data.product.maxRetailPrice?.toString() || prev.max_retail_price,
+            composition: data.product.composition || prev.composition,
+            manufacturer: data.product.manufacturer || prev.manufacturer,
+            drug_schedule: data.product.drugSchedule || prev.drug_schedule,
+            requires_prescription: data.product.requiresPrescription || prev.requires_prescription,
           }))
-        } else if (data.source === 'openfoodfacts') {
-          // Auto-fill from Open Food Facts
+        } else if (data.source === 'medicine-database') {
           setBarcodeLookupResult({
             found: true,
             message: `Found: ${data.product.name}`,
-            source: 'openfoodfacts'
+            source: 'medicine-database'
           })
           
           setFormData(prev => ({
@@ -184,10 +190,12 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
             name: data.product.name || prev.name,
             category: data.product.category || prev.category,
             unit: data.product.unit || prev.unit,
-            image_url: data.product.imageUrl || prev.image_url,
-            is_perishable: data.product.isPerishable || prev.is_perishable,
-            weight_per_unit: data.product.weightPerUnit?.toString() || prev.weight_per_unit,
-            min_weight: data.product.minWeight?.toString() || prev.min_weight
+            composition: data.product.composition || prev.composition,
+            manufacturer: data.product.manufacturer || prev.manufacturer,
+            max_retail_price: data.product.maxRetailPrice?.toString() || prev.max_retail_price,
+            drug_schedule: data.product.drugSchedule || prev.drug_schedule,
+            requires_prescription: data.product.requiresPrescription || prev.requires_prescription,
+            hsn_code: data.product.hsnCode || prev.hsn_code,
           }))
         }
       } else {
@@ -213,11 +221,9 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
     const barcode = e.target.value
     setFormData({ ...formData, barcode })
     
-    // Auto-lookup when barcode is 8+ characters (only in create mode)
     if (barcode.length >= 8 && !isEdit) {
       setBarcodeLookupLoading(true)
       setBarcodeLookupResult(null)
-      // Debounce the lookup
       setTimeout(() => lookupBarcode(barcode), 800)
     }
   }
@@ -234,9 +240,13 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
         reorder_point: formData.reorder_point ? parseInt(formData.reorder_point) || 0 : 0,
         unit_cost: formData.unit_cost ? parseFloat(formData.unit_cost) || 0 : 0,
         selling_price: formData.selling_price ? parseFloat(formData.selling_price) || 0 : 0,
+        max_retail_price: formData.max_retail_price ? parseFloat(formData.max_retail_price) || null : null,
         weight_per_unit: formData.weight_per_unit ? parseFloat(formData.weight_per_unit) || 1 : 1,
         min_weight: formData.min_weight ? parseFloat(formData.min_weight) || null : null,
-        expiry_date: formData.expiry_date || null
+        expiry_date: formData.expiry_date || null,
+        units_per_strip: formData.units_per_strip ? parseInt(formData.units_per_strip) || null : null,
+        strips_per_box: formData.strips_per_box ? parseInt(formData.strips_per_box) || null : null,
+        gst_rate: MEDICINE_HSN_CODES.find(h => h.code === formData.hsn_code)?.gstRate || 12,
       }
 
       const url = isEdit ? `/api/products/${resolvedParams?.id}` : '/api/products'
@@ -251,7 +261,6 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
       if (!res.ok) {
         const data = await res.json()
 
-        // Check if it's a limit reached error
         if (res.status === 403 && data.limit !== undefined) {
           showLimitReached('products', data.current, data.limit)
           setError(`Product limit reached. Please upgrade your plan to add more products.`)
@@ -295,7 +304,7 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
                 <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200 group-hover:shadow-indigo-300 transition-shadow">
                   <Package className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-xl font-bold text-gray-900">DKS StockAlert</span>
+                <span className="text-xl font-bold text-gray-900">DKS MedBill</span>
               </Link>
             </div>
           </div>
@@ -311,10 +320,10 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
               Back to Products
             </Link>
             <h1 className="text-3xl font-bold text-gray-900">
-              {isEdit ? 'Edit Product' : 'Add New Product'}
+              {isEdit ? 'Edit Medicine' : 'Add New Medicine'}
             </h1>
             <p className="text-gray-500 mt-1">
-              {isEdit ? 'Update product information' : 'Add a new product to your inventory'}
+              {isEdit ? 'Update medicine information' : 'Add a new medicine to your inventory'}
             </p>
           </div>
 
@@ -333,24 +342,25 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
 
           <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 p-6">
             <form onSubmit={handleSubmit} className="space-y-8">
+              {/* Basic Information */}
               <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
                 <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
                   <Package className="w-5 h-5 text-indigo-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Product Information</h3>
-                  <p className="text-sm text-gray-500">Basic details about your product</p>
+                  <h3 className="font-semibold text-gray-900">Basic Information</h3>
+                  <p className="text-sm text-gray-500">Medicine details</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <InputField
-                  label="Product Name"
+                  label="Medicine Name"
                   icon={Package}
                   name="name"
                   value={formData.name}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Product name"
+                  placeholder="e.g., Paracetamol 500mg"
                   required
                 />
 
@@ -360,7 +370,7 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
                   name="sku"
                   value={formData.sku}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, sku: e.target.value })}
-                  placeholder="SKU-123"
+                  placeholder="MED-123"
                 />
 
                 <div>
@@ -386,7 +396,7 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
                       name="barcode"
                       value={formData.barcode}
                       onChange={handleBarcodeChange}
-                      placeholder="1234567890123"
+                      placeholder="8901234567890"
                       className={`w-full pl-11 pr-24 py-3.5 border rounded-xl focus:ring-4 outline-none transition-all bg-gray-50/50 hover:bg-white hover:shadow-md focus:bg-white text-gray-900 cursor-text ${
                         barcodeLookupResult?.found 
                           ? 'border-green-500 focus:border-green-500 focus:ring-green-500/10' 
@@ -416,7 +426,6 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
                     </div>
                   </div>
                   
-                  {/* Lookup Result Message */}
                   {barcodeLookupResult && (
                     <div className={`mt-2 text-sm flex items-center gap-2 ${
                       barcodeLookupResult.found ? 'text-green-600' : 'text-orange-600'
@@ -427,7 +436,7 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
                         <Info className="w-4 h-4" />
                       )}
                       <span>{barcodeLookupResult.message}</span>
-                      {barcodeLookupResult.source === 'openfoodfacts' && (
+                      {barcodeLookupResult.source === 'medicine-database' && (
                         <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
                           Auto-filled
                         </span>
@@ -441,14 +450,25 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
                   )}
                 </div>
 
-                <InputField
-                  label="Category"
-                  icon={Tag}
-                  name="category"
-                  value={formData.category}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, category: e.target.value })}
-                  placeholder="Electronics"
-                />
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Category
+                  </label>
+                  <div className="relative">
+                    <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                    <select
+                      name="category"
+                      value={formData.category}
+                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, category: e.target.value })}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900 bg-white appearance-none"
+                    >
+                      <option value="">Select category...</option>
+                      {MEDICINE_CATEGORIES.map((cat) => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -462,120 +482,281 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
                       onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, unit: e.target.value })}
                       className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900 bg-white appearance-none"
                     >
-                      {UNIT_OPTIONS.map((opt) => (
+                      {MEDICAL_UNIT_OPTIONS.map((opt) => (
                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                       ))}
                     </select>
                   </div>
                 </div>
+              </div>
 
-                <InputField
-                  label="Current Quantity"
-                  icon={Package}
-                  type="number"
-                  name="current_quantity"
-                  value={formData.current_quantity}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, current_quantity: e.target.value })}
-                  placeholder="0"
-                  min="0"
-                />
-
-                <InputField
-                  label="Reorder Point"
-                  icon={AlertTriangle}
-                  type="number"
-                  name="reorder_point"
-                  value={formData.reorder_point}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, reorder_point: e.target.value })}
-                  placeholder="10"
-                  min="0"
-                />
-
-                {/* Perishable / Weight-based Section */}
-                <div className="col-span-1 sm:col-span-2 bg-amber-50 border border-amber-200 rounded-xl p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Info className="w-5 h-5 text-amber-600" />
-                    <h3 className="font-semibold text-amber-800">Produce & Weight Settings</h3>
+              {/* Pharmaceutical Information */}
+              <div className="pt-6 border-t border-gray-100">
+                <div className="flex items-center gap-3 pb-4 border-b border-gray-100 mb-6">
+                  <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                    <Pill className="w-5 h-5 text-green-600" />
                   </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="checkbox"
-                        id="is_perishable"
-                        name="is_perishable"
-                        checked={formData.is_perishable}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, is_perishable: e.target.checked })}
-                        className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                      />
-                      <label htmlFor="is_perishable" className="text-sm font-medium text-gray-700">
-                        This is a perishable item
-                      </label>
-                    </div>
-
-                    {formData.is_perishable && (
-                      <InputField
-                        label="Expiry Date"
-                        icon={Clock}
-                        type="date"
-                        name="expiry_date"
-                        value={formData.expiry_date}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, expiry_date: e.target.value })}
-                        placeholder=""
-                      />
-                    )}
-
-                    <InputField
-                      label="Weight per Unit (kg)"
-                      icon={Scale}
-                      type="number"
-                      name="weight_per_unit"
-                      value={formData.weight_per_unit}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, weight_per_unit: e.target.value })}
-                      placeholder="1"
-                      min="0"
-                      step="0.001"
-                    />
-
-                    <InputField
-                      label="Minimum Sale Weight (kg)"
-                      icon={Scale}
-                      type="number"
-                      name="min_weight"
-                      value={formData.min_weight}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, min_weight: e.target.value })}
-                      placeholder="0.1"
-                      min="0"
-                      step="0.001"
-                    />
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Pharmaceutical Information</h3>
+                    <p className="text-sm text-gray-500">Composition, manufacturer, and regulatory details</p>
                   </div>
                 </div>
 
-                <InputField
-                  label="Unit Cost ($)"
-                  icon={DollarSign}
-                  type="number"
-                  step="0.01"
-                  name="unit_cost"
-                  value={formData.unit_cost}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, unit_cost: e.target.value })}
-                  placeholder="0.00"
-                  min="0"
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="col-span-1 md:col-span-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Composition / Active Ingredients
+                    </label>
+                    <div className="relative">
+                      <FileText className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
+                      <textarea
+                        name="composition"
+                        value={formData.composition}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, composition: e.target.value })}
+                        placeholder="e.g., Paracetamol IP 500mg"
+                        rows={2}
+                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900 bg-white resize-none"
+                      />
+                    </div>
+                  </div>
 
-                <InputField
-                  label="Selling Price ($)"
-                  icon={DollarSign}
-                  type="number"
-                  step="0.01"
-                  name="selling_price"
-                  value={formData.selling_price}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, selling_price: e.target.value })}
-                  placeholder="0.00"
-                  min="0"
-                />
+                  <InputField
+                    label="Manufacturer"
+                    icon={Building2}
+                    name="manufacturer"
+                    value={formData.manufacturer}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, manufacturer: e.target.value })}
+                    placeholder="e.g., Cipla Ltd."
+                  />
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Drug Schedule
+                    </label>
+                    <div className="relative">
+                      <Pill className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                      <select
+                        name="drug_schedule"
+                        value={formData.drug_schedule}
+                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                          const schedule = e.target.value
+                          const requiresRx = ['SCHEDULE_H', 'SCHEDULE_H1', 'SCHEDULE_X'].includes(schedule)
+                          setFormData({ 
+                            ...formData, 
+                            drug_schedule: schedule,
+                            requires_prescription: requiresRx
+                          })
+                        }}
+                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900 bg-white appearance-none"
+                      >
+                        {DRUG_SCHEDULE_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Storage Temperature
+                    </label>
+                    <div className="relative">
+                      <Thermometer className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                      <select
+                        name="storage_temp"
+                        value={formData.storage_temp}
+                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, storage_temp: e.target.value })}
+                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900 bg-white appearance-none"
+                      >
+                        {STORAGE_TEMP_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>{opt.icon} {opt.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200">
+                    <input
+                      type="checkbox"
+                      id="requires_prescription"
+                      name="requires_prescription"
+                      checked={formData.requires_prescription}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, requires_prescription: e.target.checked })}
+                      className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <label htmlFor="requires_prescription" className="text-sm font-medium text-gray-700">
+                      Requires Prescription
+                      {formData.requires_prescription && (
+                        <span className="ml-2 px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full font-semibold">
+                          Rx Required
+                        </span>
+                      )}
+                    </label>
+                  </div>
+
+                  <div className="col-span-1 md:col-span-2 grid grid-cols-3 gap-4">
+                    <InputField
+                      label="Units per Strip"
+                      icon={Box}
+                      type="number"
+                      name="units_per_strip"
+                      value={formData.units_per_strip}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, units_per_strip: e.target.value })}
+                      placeholder="10"
+                      min="1"
+                    />
+
+                    <InputField
+                      label="Strips per Box"
+                      icon={Box}
+                      type="number"
+                      name="strips_per_box"
+                      value={formData.strips_per_box}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, strips_per_box: e.target.value })}
+                      placeholder="10"
+                      min="1"
+                    />
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        HSN Code
+                      </label>
+                      <div className="relative">
+                        <FileText className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                        <select
+                          name="hsn_code"
+                          value={formData.hsn_code}
+                          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, hsn_code: e.target.value })}
+                          className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900 bg-white appearance-none"
+                        >
+                          {MEDICINE_HSN_CODES.map((hsn) => (
+                            <option key={hsn.code} value={hsn.code}>
+                              {hsn.code} ({hsn.gstRate}% GST)
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
+              {/* Pricing */}
+              <div className="pt-6 border-t border-gray-100">
+                <div className="flex items-center gap-3 pb-4 border-b border-gray-100 mb-6">
+                  <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <DollarSign className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Pricing</h3>
+                    <p className="text-sm text-gray-500">Cost and selling price</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <InputField
+                    label="Unit Cost (₹)"
+                    icon={DollarSign}
+                    type="number"
+                    step="0.01"
+                    name="unit_cost"
+                    value={formData.unit_cost}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, unit_cost: e.target.value })}
+                    placeholder="0.00"
+                    min="0"
+                  />
+
+                  <InputField
+                    label="MRP (₹)"
+                    icon={DollarSign}
+                    type="number"
+                    step="0.01"
+                    name="max_retail_price"
+                    value={formData.max_retail_price}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, max_retail_price: e.target.value })}
+                    placeholder="0.00"
+                    min="0"
+                    required
+                  />
+
+                  <InputField
+                    label="Selling Price (₹)"
+                    icon={DollarSign}
+                    type="number"
+                    step="0.01"
+                    name="selling_price"
+                    value={formData.selling_price}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, selling_price: e.target.value })}
+                    placeholder="0.00"
+                    min="0"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Stock & Expiry */}
+              <div className="pt-6 border-t border-gray-100">
+                <div className="flex items-center gap-3 pb-4 border-b border-gray-100 mb-6">
+                  <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
+                    <Clock className="w-5 h-5 text-amber-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Stock & Expiry</h3>
+                    <p className="text-sm text-gray-500">Inventory management</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <InputField
+                    label="Current Quantity"
+                    icon={Package}
+                    type="number"
+                    name="current_quantity"
+                    value={formData.current_quantity}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, current_quantity: e.target.value })}
+                    placeholder="0"
+                    min="0"
+                  />
+
+                  <InputField
+                    label="Reorder Point"
+                    icon={AlertTriangle}
+                    type="number"
+                    name="reorder_point"
+                    value={formData.reorder_point}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, reorder_point: e.target.value })}
+                    placeholder="10"
+                    min="0"
+                  />
+
+                  <div className="flex items-center gap-3 p-3 bg-amber-50 rounded-xl border border-amber-200">
+                    <input
+                      type="checkbox"
+                      id="is_perishable"
+                      name="is_perishable"
+                      checked={formData.is_perishable}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, is_perishable: e.target.checked })}
+                      className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <label htmlFor="is_perishable" className="text-sm font-medium text-gray-700">
+                      Track expiry date
+                    </label>
+                  </div>
+
+                  {formData.is_perishable && (
+                    <InputField
+                      label="Expiry Date"
+                      icon={Clock}
+                      type="date"
+                      name="expiry_date"
+                      value={formData.expiry_date}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, expiry_date: e.target.value })}
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* Product Image */}
               <div className="pt-6 border-t border-gray-100">
                 <div className="flex items-center gap-3 pb-4 border-b border-gray-100 mb-6">
                   <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
@@ -593,6 +774,7 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
                 />
               </div>
 
+              {/* Supplier Information */}
               <div className="pt-6 border-t border-gray-100">
                 <div className="flex items-center gap-3 pb-4 border-b border-gray-100 mb-6">
                   <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
@@ -610,7 +792,7 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
                     name="supplier_name"
                     value={formData.supplier_name}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, supplier_name: e.target.value })}
-                    placeholder="Acme Supplies"
+                    placeholder="e.g., Cipla Distributors"
                   />
 
                   <InputField
@@ -630,11 +812,12 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
                     name="supplier_phone"
                     value={formData.supplier_phone}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, supplier_phone: e.target.value })}
-                    placeholder="+1 234 567 8900"
+                    placeholder="+91 98765 43210"
                   />
                 </div>
               </div>
 
+              {/* Submit Buttons */}
               <div className="pt-6 flex justify-end gap-4">
                 <Link
                   href="/products"
@@ -656,7 +839,7 @@ function ProductFormContent({ params }: { params?: Promise<{ id?: string }> }) {
                   ) : (
                     <>
                       <Save className="w-5 h-5" />
-                      {isEdit ? 'Update Product' : 'Add Product'}
+                      {isEdit ? 'Update Medicine' : 'Add Medicine'}
                     </>
                   )}
                 </button>

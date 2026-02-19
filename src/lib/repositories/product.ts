@@ -19,6 +19,18 @@ export interface CreateProductInput {
   expiryDate?: Date | null;
   weightPerUnit?: number;
   minWeight?: number | null;
+  // Medical-specific fields
+  maxRetailPrice?: number | null;
+  composition?: string | null;
+  manufacturer?: string | null;
+  drugSchedule?: string | null;
+  storageTemp?: string | null;
+  requiresPrescription?: boolean;
+  unitsPerStrip?: number | null;
+  stripsPerBox?: number | null;
+  hsnCode?: string | null;
+  gstRate?: number;
+  industryType?: string;
 }
 
 export interface UpdateProductInput {
@@ -40,6 +52,17 @@ export interface UpdateProductInput {
   expiryDate?: Date | null;
   weightPerUnit?: number;
   minWeight?: number | null;
+  // Medical-specific fields
+  maxRetailPrice?: number | null;
+  composition?: string | null;
+  manufacturer?: string | null;
+  drugSchedule?: string | null;
+  storageTemp?: string | null;
+  requiresPrescription?: boolean;
+  unitsPerStrip?: number | null;
+  stripsPerBox?: number | null;
+  hsnCode?: string | null;
+  gstRate?: number;
 }
 
 export class ProductRepository extends BaseRepository {

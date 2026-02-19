@@ -87,6 +87,9 @@ model Tenant {
   stockTakes     StockTake[]
   auditLogs      AuditLog[]
   receiptScans   ReceiptScan[]
+  pharmaSettings  PharmaSettings?
+  patients        Patient[]
+  prescriptions   Prescription[]
 
   @@map("tenants")
 }
@@ -259,8 +262,12 @@ model Product {
   composition   String?          @db.Text // Active ingredients/composition
   manufacturer  String?          // Manufacturer name
   
+  // Pharma Packaging Units
+  unitsPerStrip     Int?      @map("units_per_strip")     // e.g., 10 tablets per strip
+  stripsPerBox      Int?      @map("strips_per_box")      // e.g., 10 strips per box
+  
   // Industry Type for UI/UX optimization
-  industryType  IndustryType?    @map("industry_type") // ELECTRONICS, PHARMA, GENERAL
+  industryType  IndustryType  @default(PHARMA)    @map("industry_type") // ELECTRONICS, PHARMA, GENERAL
   
   isActive      Boolean          @default(true) @map("is_active")
   deletedAt     DateTime?        @map("deleted_at")
@@ -590,6 +597,12 @@ model Invoice {
   notes         String?       @db.Text
   terms         String?       @db.Text
   
+  // Medical Shop Fields
+  prescriptionId  String?   @map("prescription_id")
+  prescription    Prescription? @relation(fields: [prescriptionId], references: [id], onDelete: SetNull)
+  patientName     String?   @map("patient_name")
+  patientPhone    String?   @map("patient_phone")
+  
   createdAt     DateTime      @default(now()) @map("created_at")
   updatedAt     DateTime      @updatedAt @map("updated_at")
 
@@ -597,6 +610,8 @@ model Invoice {
   customer    Customer?     @relation(fields: [customerId], references: [id])
   items       InvoiceItem[]
   receiptScans ReceiptScan[]
+  
+  @@index([prescriptionId])
 
   @@index([tenantId])
   @@index([tenantId, status])
@@ -901,4 +916,137 @@ model ReceiptScan {
   @@index([tenantId])
   @@index([scannedAt])
   @@map("receipt_scans")
+}
+
+// =============================================================================
+// MEDICAL SHOP FEATURES - Patient Management, Prescriptions, Pharma Settings
+// =============================================================================
+
+// Medical Shop Settings - Drug license, pharmacist info, etc.
+model PharmaSettings {
+  id                      String    @id @default(uuid())
+  tenantId                String    @unique @map("tenant_id")
+  
+  // Drug License Info
+  drugLicenseNumber       String?   @map("drug_license_number")
+  drugLicenseExpiry       DateTime? @map("drug_license_expiry")
+  
+  // Pharmacist Info
+  pharmacistName          String?   @map("pharmacist_name")
+  pharmacistRegNumber     String?   @map("pharmacist_reg_number")
+  
+  // Prescription Settings
+  enforceScheduleH        Boolean   @default(true) @map("enforce_schedule_h")
+  prescriptionExpiryDays  Int       @default(30) @map("prescription_expiry_days")
+  
+  createdAt               DateTime  @default(now()) @map("created_at")
+  updatedAt               DateTime  @updatedAt @map("updated_at")
+  
+  tenant                  Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  @@map("pharma_settings")
+}
+
+// Patient Management
+model Patient {
+  id              String    @id @default(uuid())
+  tenantId        String    @map("tenant_id")
+  
+  // Basic Info
+  name            String
+  phone           String?
+  email           String?
+  dateOfBirth     DateTime? @map("date_of_birth")
+  gender          String?   // MALE, FEMALE, OTHER
+  
+  // Address
+  address         String?   @db.Text
+  city            String?
+  state           String?
+  pincode         String?
+  
+  // Medical Info
+  allergies       String?   @db.Text    // Known allergies
+  chronicConditions String? @db.Text @map("chronic_conditions")  // Diabetes, BP, etc.
+  
+  // Emergency Contact
+  emergencyContact String? @map("emergency_contact")
+  emergencyPhone   String? @map("emergency_phone")
+  
+  // Audit
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  
+  tenant          Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  prescriptions   Prescription[]
+  
+  @@unique([tenantId, phone])
+  @@index([tenantId])
+  @@index([tenantId, name])
+  @@map("patients")
+}
+
+// Prescription Management
+model Prescription {
+  id              String    @id @default(uuid())
+  tenantId        String    @map("tenant_id")
+  patientId       String?   @map("patient_id")   // Optional for walk-ins
+  
+  // Doctor Info
+  doctorName      String    @map("doctor_name")
+  doctorPhone     String?   @map("doctor_phone")
+  doctorRegNumber String?   @map("doctor_reg_number")  // Medical registration
+  clinicName      String?   @map("clinic_name")
+  clinicAddress   String?   @map("clinic_address")
+  
+  // Prescription Details
+  prescriptionDate DateTime @map("prescription_date")
+  expiryDate      DateTime? @map("expiry_date")   // Some prescriptions expire
+  
+  // Image/Scan
+  imageUrl        String?   @map("image_url")    // Scanned prescription
+  imageKey        String?   @map("image_key")
+  
+  // Status
+  status          String    @default("ACTIVE")   // ACTIVE, EXPIRED, USED
+  
+  // Notes
+  notes           String?   @db.Text
+  
+  // Audit
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  
+  tenant          Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  patient         Patient?  @relation(fields: [patientId], references: [id], onDelete: SetNull)
+  prescriptionItems PrescriptionItem[]
+  invoices        Invoice[]
+  
+  @@index([tenantId])
+  @@index([tenantId, patientId])
+  @@index([tenantId, status])
+  @@index([tenantId, prescriptionDate])
+  @@map("prescriptions")
+}
+
+model PrescriptionItem {
+  id              String    @id @default(uuid())
+  prescriptionId  String    @map("prescription_id")
+  
+  // Medicine Details (from prescription)
+  medicineName    String    @map("medicine_name")
+  dosage          String?   // e.g., "1-0-1" (morning-evening-night)
+  frequency       String?   // e.g., "After meals"
+  duration        String?   // e.g., "5 days"
+  quantity        Int       // Prescribed quantity
+  
+  // Link to product if matched
+  productId       String?   @map("product_id")
+  
+  createdAt       DateTime  @default(now()) @map("created_at")
+  
+  prescription    Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+  
+  @@index([prescriptionId])
+  @@map("prescription_items")
 }

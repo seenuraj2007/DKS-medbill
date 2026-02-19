@@ -76,10 +76,21 @@ export async function GET(req: NextRequest) {
         unit: product.unit,
         image_url: product.imageUrl,
         is_active: product.isActive,
-        is_perishable: product.isPerishable || false,
+        is_perishable: product.isPerishable ?? true,
         expiry_date: product.expiryDate,
         weight_per_unit: product.weightPerUnit ? Number(product.weightPerUnit) : 1,
         min_weight: product.minWeight ? Number(product.minWeight) : null,
+        // Medical-specific fields
+        max_retail_price: product.maxRetailPrice ? Number(product.maxRetailPrice) : null,
+        composition: product.composition,
+        manufacturer: product.manufacturer,
+        drug_schedule: product.drugSchedule,
+        storage_temp: product.storageTemp,
+        requires_prescription: product.requiresPrescription,
+        units_per_strip: product.unitsPerStrip,
+        strips_per_box: product.stripsPerBox,
+        hsn_code: product.hsnCode,
+        gst_rate: product.gstRate ? Number(product.gstRate) : 12,
         deleted_at: product.deletedAt,
         created_at: product.createdAt.toISOString(),
         updated_at: product.updatedAt.toISOString(),
@@ -120,7 +131,11 @@ export async function POST(req: NextRequest) {
       name, sku, barcode, category, current_quantity, reorder_point,
       supplier_id, supplier_name, supplier_email, supplier_phone,
       unit_cost, selling_price, unit, image_url,
-      is_perishable, expiry_date, weight_per_unit, min_weight
+      is_perishable, expiry_date, weight_per_unit, min_weight,
+      // Medical-specific fields
+      max_retail_price, composition, manufacturer, drug_schedule,
+      storage_temp, requires_prescription, units_per_strip, strips_per_box,
+      hsn_code, gst_rate
     } = body
 
     if (!name) {
@@ -153,15 +168,27 @@ export async function POST(req: NextRequest) {
       product = await repo.create({
         name, sku: sku || null, barcode: barcode || null,
         category: category || null, unitCost: unit_cost ?? 0,
-        sellingPrice: selling_price ?? 0, unit: unit || 'unit',
+        sellingPrice: selling_price ?? 0, unit: unit || 'strip',
         imageUrl: image_url || null,
         supplierName: supplier_name || null,
         supplierEmail: supplier_email || null,
         supplierPhone: supplier_phone || null,
-        isPerishable: is_perishable || false,
+        isPerishable: is_perishable ?? true,
         expiryDate: expiry_date ? new Date(expiry_date) : null,
         weightPerUnit: weight_per_unit ? parseFloat(weight_per_unit) : 1,
-        minWeight: min_weight ? parseFloat(min_weight) : null
+        minWeight: min_weight ? parseFloat(min_weight) : null,
+        // Medical-specific fields
+        maxRetailPrice: max_retail_price ? parseFloat(max_retail_price) : null,
+        composition: composition || null,
+        manufacturer: manufacturer || null,
+        drugSchedule: drug_schedule || 'OTC',
+        storageTemp: storage_temp || 'ROOM_TEMP',
+        requiresPrescription: requires_prescription ?? false,
+        unitsPerStrip: units_per_strip ? parseInt(units_per_strip) : null,
+        stripsPerBox: strips_per_box ? parseInt(strips_per_box) : null,
+        hsnCode: hsn_code || '3004',
+        gstRate: gst_rate ?? 12,
+        industryType: 'PHARMA'
       })
     } catch (error) {
       if (error instanceof Error && error.message.includes('PRODUCT_CONFLICT')) {
@@ -253,7 +280,18 @@ export async function POST(req: NextRequest) {
       is_active: product.isActive,
       deleted_at: product.deletedAt,
       created_at: product.createdAt.toISOString(),
-      updated_at: product.updatedAt.toISOString()
+      updated_at: product.updatedAt.toISOString(),
+      // Medical-specific fields
+      max_retail_price: product.maxRetailPrice ? Number(product.maxRetailPrice) : null,
+      composition: product.composition,
+      manufacturer: product.manufacturer,
+      drug_schedule: product.drugSchedule,
+      storage_temp: product.storageTemp,
+      requires_prescription: product.requiresPrescription,
+      units_per_strip: product.unitsPerStrip,
+      strips_per_box: product.stripsPerBox,
+      hsn_code: product.hsnCode,
+      gst_rate: product.gstRate ? Number(product.gstRate) : 12
     }
 
     return NextResponse.json({ product: responseData }, { status: 201 })
