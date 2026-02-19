@@ -146,7 +146,15 @@ interface Product {
   expiry_date?: string | null
   weight_per_unit?: number
   min_weight?: number | null
+  // Pharmaceutical fields
+  drug_schedule?: string | null
+  requires_prescription?: boolean
 }
+>>>>>>> REPLACE</diff>
+<task_progress>- [x] Add medicine lookup API (already exists with 60+ medicines)
+- [ ] Add prescription enforcement for Schedule H/H1 in billing
+- [ ] Make all pages look like mobile app in mobile view
+- [ ] Change landing page to suitable for medical shop app</task_progress>
 
 interface CartItem {
   product: Product
@@ -295,6 +303,28 @@ export default function POSPage() {
   const [availableSerials, setAvailableSerials] = useState<SerialNumberInfo[]>([])
   const [selectedSerials, setSelectedSerials] = useState<string[]>([])
   const [loadingSerials, setLoadingSerials] = useState(false)
+  
+  // Prescription enforcement for Schedule H/H1 drugs
+  const [showPrescriptionModal, setShowPrescriptionModal] = useState(false)
+  const [pendingProduct, setPendingProduct] = useState<Product | null>(null)
+  const [prescriptionData, setPrescriptionData] = useState({
+    doctorName: '',
+    doctorPhone: '',
+    prescriptionDate: new Date().toISOString().split('T')[0],
+    prescriptionId: ''
+  })
+  const [cartPrescriptions, setCartPrescriptions] = useState<Record<string, { doctorName: string; doctorPhone: string; prescriptionDate: string; prescriptionId: string }>>({})
+  
+  // Check if product requires prescription (Schedule H, H1, X)
+  const requiresPrescription = (product: Product) => {
+    const schedule = product.drug_schedule?.toUpperCase()
+    return ['SCHEDULE_H', 'SCHEDULE_H1', 'SCHEDULE_X'].includes(schedule || '') || product.requires_prescription
+  }
+>>>>>>> REPLACE</diff>
+<task_progress>- [x] Add medicine lookup API (already exists with 60+ medicines)
+- [ ] Add prescription enforcement for Schedule H/H1 in billing
+- [ ] Make all pages look like mobile app in mobile view
+- [ ] Change landing page to suitable for medical shop app</task_progress>
   
   // Derived state
   const categories = useMemo(() => 

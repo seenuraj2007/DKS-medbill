@@ -9,20 +9,21 @@ import {
   ChevronRight, Layers, Target, Sparkles, Cpu, Lock,
   Database, Code2, Globe, Server, Receipt, QrCode, FileText,
   IndianRupee, Building2, UserPlus, MessageSquare, Smartphone,
-  Download, Languages, Star, TrendingUp, Check, Clock, Github, Heart
+  Download, Languages, Star, TrendingUp, Check, Clock, Github, Heart,
+  Pill, Stethoscope, CalendarClock, FilePlus, User, AlertCircle, Activity
 } from 'lucide-react'
 
 const stats = [
-  { label: 'Products Tracked', value: '156', change: '+12 this week', color: 'from-blue-500 to-blue-600', Icon: Package },
-  { label: 'Low Stock Items', value: '8', change: 'Action needed', color: 'from-yellow-500 to-orange-500', Icon: TrendingDown },
-  { label: 'Out of Stock', value: '2', change: 'Restock ASAP', color: 'from-red-500 to-red-600', Icon: AlertTriangle },
-  { label: 'Stock Value (₹)', value: '₹2.4L', change: '+₹45K', color: 'from-green-500 to-green-600', Icon: IndianRupee },
+  { label: 'Medicines Tracked', value: '1,250+', change: '+50 this week', color: 'from-blue-500 to-blue-600', Icon: Pill },
+  { label: 'Low Stock Alerts', value: '8', change: 'Action needed', color: 'from-yellow-500 to-orange-500', Icon: AlertTriangle },
+  { label: 'Expiring Soon', value: '5', change: 'Check batches', color: 'from-red-500 to-red-600', Icon: CalendarClock },
+  { label: 'Active Patients', value: '156', change: '+12 new', color: 'from-green-500 to-green-600', Icon: User },
 ]
 
 const alerts = [
-  { name: 'Aashirvaad Atta (5kg)', stock: 4, reorder: 20, status: 'critical' },
-  { name: 'Patanjali Honey (500g)', stock: 6, reorder: 50, status: 'warning' },
-  { name: 'MDH Masala (100g)', stock: 15, reorder: 100, status: 'warning' },
+  { name: 'Paracetamol 500mg', stock: 4, reorder: 20, status: 'critical' },
+  { name: 'Azithromycin 500mg', stock: 6, reorder: 50, status: 'warning' },
+  { name: 'Metformin 500mg', stock: 15, reorder: 100, status: 'warning' },
 ]
 
 const features = [
@@ -44,54 +45,61 @@ const features = [
   },
   {
     icon: Download,
-    title: '1-Click Tally Import',
-    description: 'Migrate from Tally in seconds, not hours. Import products, stock levels, and GST details with one click.',
+    title: '1-Click Medicine Import',
+    description: 'Import medicines from our database with composition, MRP, manufacturer, and drug schedule auto-filled.',
     size: 'wide',
     glow: 'from-blue-500/20 to-cyan-500/20',
     badge: 'GAME CHANGER'
   },
   {
-    icon: Package,
-    title: 'Real-time Stock Tracking',
-    description: 'Track inventory levels across multiple warehouses and retail locations in real-time. Know exactly what you have, where you have it.',
+    icon: Pill,
+    title: 'Medicine Database',
+    description: 'Built-in database of 60+ common Indian medicines. Auto-fill composition, MRP, manufacturer, and schedule.',
     size: 'small',
     glow: 'from-blue-500/20 to-cyan-500/20'
   },
   {
-    icon: Languages,
-    title: 'Multi-Language Ready',
-    description: 'Built with internationalization support. Easily add new languages as your business grows globally.',
+    icon: Stethoscope,
+    title: 'Patient Management',
+    description: 'Track patients, their prescriptions, allergies, and chronic conditions. Quick access during billing.',
     size: 'small',
-    glow: 'from-orange-500/20 to-red-500/20',
-    badge: 'I18N READY'
+    glow: 'from-purple-500/20 to-pink-500/20',
+    badge: 'NEW'
   },
   {
-    icon: Receipt,
-    title: 'GST-Ready Invoicing',
-    description: 'Generate GST-compliant invoices automatically with HSN codes, tax breakdowns, and e-way bill integration.',
+    icon: FilePlus,
+    title: 'Prescription Tracking',
+    description: 'Record and manage prescriptions. Link to patient invoices. Track Schedule H/H1 drug sales.',
     size: 'small',
     glow: 'from-green-500/20 to-emerald-500/20'
   },
   {
-    icon: MapPin,
-    title: 'Multi-Location Management',
-    description: 'Manage stock across multiple godowns, shops, and warehouses from a single dashboard.',
+    icon: CalendarClock,
+    title: 'Expiry Tracking (FEFO)',
+    description: 'First Expiry First Out algorithm. Track batch-wise expiry. Get alerts for medicines expiring soon.',
     size: 'small',
     glow: 'from-orange-500/20 to-red-500/20'
   },
   {
-    icon: QrCode,
-    title: 'Barcode Generation',
-    description: 'Generate and print barcodes for any product. Scan to quickly update stock or process sales.',
+    icon: Receipt,
+    title: 'GST-Ready Invoicing',
+    description: 'Generate GST-compliant invoices with HSN codes, drug license info, and pharmacist details.',
     size: 'small',
-    glow: 'from-indigo-500/20 to-violet-500/20'
+    glow: 'from-green-500/20 to-emerald-500/20'
   },
   {
-    icon: FileText,
-    title: 'Purchase Orders',
-    description: 'Create and manage purchase orders with suppliers. Track pending deliveries and auto-update stock on receipt.',
+    icon: AlertCircle,
+    title: 'Schedule H/H1 Enforcement',
+    description: 'Block sales of restricted medicines without valid prescription. Stay compliant with drug regulations.',
     size: 'small',
-    glow: 'from-violet-500/20 to-fuchsia-500/20'
+    glow: 'from-red-500/20 to-orange-500/20'
+  },
+  {
+    icon: MapPin,
+    title: 'Multi-Location Management',
+    description: 'Manage stock across multiple medical stores from a single dashboard.',
+    size: 'small',
+    glow: 'from-orange-500/20 to-red-500/20'
   },
 ]
 
